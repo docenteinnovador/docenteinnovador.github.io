@@ -192,28 +192,29 @@ main .sobre-nosotros{
 }
 
 .cards .card{
-    background: #0c16a3;
+    background: #5f5dd8;
     display: flex;
     width: 46%;
     height: 200px;
     align-items: center;
     justify-content: space-evenly;
     border-radius: 5px;
-    box-shadow: 0 0 6px 0 rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 6px 0 rgb(55, 0, 255);
 }
 
 .cards .card img{
     width: 100px;
     height: 100px;
     object-fit: cover;
-    border: 3px solid #000000;
+    border: 3px solid #1100ff;
     border-radius: 30%;
     display: block;
 }
 
 .cards .card > .contenido-texto-card{
     width: 60%;
-    color: #fcfbff;
+    color: #000000;
+    font-size: 11px;
 }
 
 .cards .card > .contenido-texto-card p{
