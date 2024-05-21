@@ -199,7 +199,7 @@ main .sobre-nosotros{
     align-items: center;
     justify-content: space-evenly;
     border-radius: 5px;
-    box-shadow: 0 0 6px 0 rgb(55, 0, 255);
+    box-shadow: 0 0 6px 0 rgb(1, 37, 156);
 }
 
 .cards .card img{
