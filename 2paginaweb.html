@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocaliza y Aprende</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+       p {
+            font-size: 40px; /* Tamaño de la letra en píxeles */
+        }
+
+        section1 {
+            font-size:40px; /* Tamaño de la letra en píxeles */
+        }
+
+        section2 {
+            font-size:40px; /* Tamaño de la letra en píxeles */
+        }
+
+        section3 {
+            font-size:40px; /* Tamaño de la letra en píxeles */
+        }
+
+        #imagen1 {
+            width: 70px; /* Cambia este valor según el tamaño deseado */
+            height: auto; /* Mantener la proporción de aspecto */
+            margin-left: 1.7cm;
+        }
+
+        #imagen2 {
+            width:70px; /* Cambia este valor según el tamaño deseado */
+            height: auto; /* Mantener la proporción de aspecto */
+            margin-left: 1.5cm;
+        }
+
+        #imagen3 {
+            width: 70px; /* Cambia este valor según el tamaño deseado */
+            height: auto; /* Mantener la proporción de aspecto */
+            margin-left: 1.5cm;
+        }
+        #imagen4 {
+            width: 70px; /* Cambia este valor según el tamaño deseado */
+            height: auto; /* Mantener la proporción de aspecto */
+            margin-left: 17cm;
+        }
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="main-title">CUAL ES NUESTRA: </h1> <br>
+        
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#INICIO" onclick="abrirPagina('index.html')">INICIO</a></li><br><br>
+            <li><a href="#version">ACERCA DE</a></li> <!-- Ajusta el enlace para apuntar al id de la sección de la versión -->
+        </ul>
+    </nav>
+    <br>
+
+    <img id="imagen1" src="fotos\mision.gif" alt="Descripción de la imagen">
+
+    <section1>
+        <h2 id="Mision:">Mision:</h2>
+        <p>Proporcionar herramientas y recursos que ayuden a mejorar la comunicación y la calidad de vida de los estudiantes con disartria a través de Vocaliza y Aprende </p>
+    </section1>
+
+    <img id="imagen2" src="fotos\vista.gif" alt="Descripción de la imagen">
+
+    <section2>
+        <h2 id="Vision:">Vision:</h2>
+        <p> Ser líder en la innovación tecnológica para el tratamiento y apoyo de personas con disartria, utilizando la gamificación como una herramienta efectiva para la rehabilitación del habla.</p>
+        
+    </section2>
+    <br>
+
+    <img id="imagen3" src="fotos\telefono.gif" alt="Descripción de la imagen">
+    
+    <section3>
+        <h2 id ="Contacto:">Contacto:</h2>
+        <p> Licdo. Jorge Fernando Cornejo Arevalo </p>
+        <p> Numero de Contacto: 0983036256</p>
+    </section3>
+    <br>
+
+    <img id="imagen4" src="fotos\ajedrez.gif" alt="Descripción de la imagen">
+    <section id="version">
+        <h2>Versión:</h2> 
+        <br>
+        <br>
+        <p>0.0.0.1</p>
+    </section>
+
+    <!-- Vinculación al archivo CSS -->
+    <link rel="stylesheet" href="programacion2.css">
+
+    <br>
+   
+    <br>
+    <footer>
+        <p>Derechos de autor &copy; 2024 - Pagina Jorge.C</p>
+    </footer>
+
+    <script>
+        // Función para desplazarse hasta la sección correspondiente al hacer clic en el enlace "Acerca de"
+        document.querySelector('a[href="#version"]').addEventListener('click', function(e) {
+            e.preventDefault(); // Evitar que el enlace recargue la página
+            document.getElementById('version').scrollIntoView({ behavior: 'smooth' }); // Desplazarse suavemente hasta la sección
+        });
+
+        function abrirPagina(url) {
+            window.location.href = url; // Redirige a la página especificada
+        }
+    </script>
+</body>
+</html>
+

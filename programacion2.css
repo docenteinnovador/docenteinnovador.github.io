@@ -1,0 +1,110 @@
+/* Estilos para el contenedor del título */
+body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff7e; /* Cambia aquí al color gris claro */
+    background-image: url(''); /* Ruta de la imagen de fondo */
+    background-size: cover; /* Ajustar tamaño de la imagen para cubrir el elemento */
+    
+}
+
+header {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Estilos para el título principal */
+#main-title {
+    text-align: center;
+}
+
+nav {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: center;
+    background-color: #264779;
+    padding: 15px 0;
+}
+
+nav a {
+    color: #ffffff;
+    text-decoration: none;
+    margin: 0 10px;
+    font-size: 20px;
+    border: 2px solid rgb(0, 0, 0); /* Añade borde de color negro */
+    padding: 8px 15px; /* Ajusta el relleno del botón */
+    border-radius: 5px; /* Añade bordes redondeados al botón */
+}
+
+section {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+    text-align: center; /* Alinear texto al centro */
+    font-size: 27px;
+    color: #ffffff;
+}
+
+header {
+    color: #ffffff;
+    font-size: 57px;
+    font-family: 'Arial', sans-serif; /* Fuente Arial o similar */
+    font-size: 48px; /* Tamaño de letra grande */
+    text-transform: uppercase; /* Convertir texto a mayúsculas */
+    letter-spacing: 2px; /* Espaciado entre letras */
+    text-align: center; /* Alineación centrada */
+    padding: 6px 0; /* Espaciado en la parte superior e inferior */
+    border-bottom: 2px solid #ffffff;
+    background-color: rgb(11, 90, 247); /* Color de fondo gris */
+    padding: 6px 0; /* Espaciado en la parte superior e inferior */
+    border-bottom: 2px solid #000000;
+    background-image: url(''); /* Ruta de la imagen de fondo */
+    background-size: cover; /* Ajustar tamaño de la imagen para cubrir el elemento */
+    background-position: center; /* Posición de la imagen de fondo */
+} 
+
+.small-gif {
+    max-width: 50%; /* Ancho máximo deseado para el GIF */
+    height: 3; /* La altura se ajustará automáticamente para mantener la proporción original */
+    margin: auto; /* Centra la imagen horizontalmente */
+    display: block;
+    border: 2px solid rgb(248, 248, 248); /* Añade borde de color negro */
+    padding: 10px 15px; /* Ajusta el relleno del botón */
+    border-radius: 5px;
+
+}
+
+
+footer {
+    flex: 0 0 auto;
+    background-color: #006eff;
+    color: #ffffff;
+    padding: 10px 0;
+    text-align: center;
+}
+
+#version p {
+    color: rgb(88, 235, 21); /* Cambiar el color de la letra a rojo */
+}
+
+p {
+    font-size: 50px; /* Tamaño de la letra en píxeles */
+}
+
+section {
+    font-size: 30px; /* Tamaño de la letra en píxeles */
+    color:rgb(0, 0, 0)
+}
+
+
+#main-title {
+    margin-bottom: 40px; /* Ajusta el margen inferior del título */
+}
+
+
