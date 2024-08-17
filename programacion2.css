@@ -92,7 +92,7 @@ header .textos-header{
 main .sobre-nosotros{
     padding: 30px 0 60px 0;
     background-color: #000000;
-    color: #0a06ff;
+    color: #fffb06;
 }
 .contenedor-sobre-nosotros{
     display: flex;
@@ -435,3 +435,4 @@ footer{
         font-size: 20px;
     }
 }
+
