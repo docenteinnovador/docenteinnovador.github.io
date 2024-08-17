@@ -31,9 +31,9 @@ header {
     height: 600px;
     background: #000000;
     /* fallback for old browsers */
-    background: -webkit-linear-gradient(to right, hsl(0, 0%, 0%), hsla(317, 45%, 52%, 0)), url(https://ailabschool.com/wp-content/uploads/2023/10/2023071617532164037-1024x585.jpg);
+    background: -webkit-linear-gradient(to right, hsl(0, 0%, 0%), hsla(317, 45%, 52%, 0)), url(https://d3t4nwcgmfrp9x.cloudfront.net/upload/tendencias-futuro-tecnologia-2024-643x342.jpg);
     /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, hsl(0, 0%, 1%), hsla(317, 45%, 52%, 0)), url(https://ailabschool.com/wp-content/uploads/2023/10/2023071617532164037-1024x585.jpg);
+    background: linear-gradient(to right, hsl(0, 0%, 1%), hsla(317, 45%, 52%, 0)), url(https://d3t4nwcgmfrp9x.cloudfront.net/upload/tendencias-futuro-tecnologia-2024-643x342.jpg);
     /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     background-size: cover;
     background-attachment: fixed;
