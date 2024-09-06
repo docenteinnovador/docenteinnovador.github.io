@@ -5,9 +5,14 @@
 }
 
 body {
-    font-family: 'open sans';
-    background-color: #000000;
+    font-family: 'Open Sans', sans-serif;
+    background-color: #0000003a;
+    background-image: url('https://i.gifer.com/gg7.gif');
+    background-size: cover; /* Ajusta el tamaño del GIF para que cubra toda la pantalla */
+    background-repeat: no-repeat; /* Evita que el GIF se repita */
+    background-position: center; /* Centra el GIF */
 }
+
 
 .contenedor {
     padding: 60px 0;
@@ -19,19 +24,7 @@ body {
 
 /* Header */
 
-header {
-    width: 100%;
-    height: 600px;
-    background: #000000;
-    /* fallback for old browsers */
-    background: -webkit-linear-gradient(to right, hsl(0, 0%, 0%), hsla(317, 45%, 52%, 0)), url(https://i.gifer.com/jVo.gif);
-    /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, hsl(0, 0%, 1%), hsla(317, 45%, 52%, 0)), url(https://i.gifer.com/jVo.gif);
-    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-    background-size: cover;
-    background-attachment: fixed;
-    position: relative;
-}
+
 
 nav{
     text-align: right;
@@ -80,7 +73,7 @@ header .textos-header{
 .textos-header h2{
     font-size: 15px;
     font-weight: 300;
-    color:#00f7ff;
+    color:#ffffff;
     text-align: center;
 }
 
