@@ -42,19 +42,19 @@ header {
 
 /* From Uiverse.io by kamehame-ha */ 
 .button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px 15px;
-  gap: 15px;
-  background-color: #181717;
-  outline: 3px #181717 solid;
-  outline-offset: -3px;
-  border-radius: 20px;
-  border: none;
-  cursor: pointer;
-  transition: 400ms;
-}
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 10px; /* Reducir padding */
+    gap: 5px; /* Reducir el espacio entre elementos */
+    background-color: #181717;
+    outline: 2px #181717 solid; /* Reducir outline */
+    outline-offset: -2px;
+    border-radius: 12px; /* Reducir el radio de los bordes */
+    border: none;
+    cursor: pointer;
+    transition: 400ms;
+  }
 
 .button .text {
   color: white;
