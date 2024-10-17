@@ -7,7 +7,7 @@
 body {
     font-family: 'Open Sans', sans-serif;
     background-color: #0000003a;
-    background-image: url('https://i.gifer.com/gg7.gif');
+    background-image: url('https://img.freepik.com/foto-gratis/circuito-circulo-digital-fondo-azul-tecnologia-futurista_53876-124643.jpg?t=st=1729142742~exp=1729146342~hmac=354f18e4d2676937bca1c30b2a7d10e3d20bb4c7f3f98037559b281d2081d804&w=740');
     background-size: cover; /* Ajusta el tamaño del GIF para que cubra toda la pantalla */
     background-repeat: no-repeat; /* Evita que el GIF se repita */
     background-position: center; /* Centra el GIF */
@@ -25,26 +25,67 @@ body {
 /* Header */
 
 
+button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 15px;
+    gap: 15px;
+    background-color: #181717;
+    outline: 3px #181717 solid;
+    outline-offset: -3px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: 400ms;
+  }
+  
+  .button .text {
+    color: white;
+    font-weight: 700;
+    font-size: 1em;
+    transition: 400ms;
+  }
+  
+  .button svg path {
+    transition: 400ms;
+  }
+  
+  .button:hover {
+    background-color: transparent;
+  }
+  
+  .button:hover .text {
+    color: #181717;
+  }
+  
+  .button:hover svg path {
+    fill: #181717;
+  }
+  
+  nav{
+      text-align: right;
+      padding: 30px 50px 0 0;
+      
+  }
+  
+  
+  
+  nav > a{
+      color: lightblue;
+      font-weight: 300;
+      text-decoration: none;
+      margin-right: 10px;
+      border-radius: 5px; /* Añade bordes redondeados al botón */
+      border-bottom: 5px solid rgb(0, 255, 21); 
+      
+  }
+  
+  nav > a:hover{
+      text-decoration: underline;
+  }
+  
 
-nav{
-    text-align: right;
-    padding: 30px 50px 0 0;
-}
-
-nav > a{
-    color:#09ff01;
-    font-weight: 150px;
-    font-size: 20px;
-    text-decoration: none;
-    margin-right: 20px;
-    border-radius: 20px; /* Añade bordes redondeados al botón */
-    border-bottom: 5px solid rgb(0, 0, 0); 
-    
-}
-
-nav > a:hover{
-    text-decoration: underline;
-}
 
 header .textos-header{
     display: flex;
@@ -58,7 +99,7 @@ header .textos-header{
 
 .textos-header h1{
     font-size: 100px;
-    color:#00ffea;
+    color:#30b1d8;
     text-align: center;
 
 }

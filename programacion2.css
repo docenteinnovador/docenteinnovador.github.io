@@ -6,7 +6,7 @@
 
 body {
     font-family: 'open sans';
-    background-color: #0400ff;
+    background-color: #000000;
 }
 
 .contenedor {
@@ -31,34 +31,75 @@ header {
     height: 600px;
     background: #000000;
     /* fallback for old browsers */
-    background: -webkit-linear-gradient(to right, hsl(0, 0%, 0%), hsla(317, 45%, 52%, 0)), url(https://i.gifer.com/jVo.gif);
+    background: -webkit-linear-gradient(to right, hsl(0, 0%, 0%), hsla(317, 45%, 52%, 0)), url(https://img.freepik.com/foto-gratis/fondo-energia-nuclear-ia-innovacion-futura-tecnologia-disruptiva_53876-129783.jpg?t=st=1729142425~exp=1729146025~hmac=f0fe40190a11cab5c01bd99ebb5f0c642384e42c73a126aab34718210ae66808&w=740);
     /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, hsl(0, 0%, 1%), hsla(317, 45%, 52%, 0)), url(https://i.gifer.com/jVo.gif);
+    background: linear-gradient(to right, hsl(0, 0%, 1%), hsla(317, 45%, 52%, 0)), url(https://img.freepik.com/foto-gratis/fondo-energia-nuclear-ia-innovacion-futura-tecnologia-disruptiva_53876-129783.jpg?t=st=1729142425~exp=1729146025~hmac=f0fe40190a11cab5c01bd99ebb5f0c642384e42c73a126aab34718210ae66808&w=740);
     /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     background-size: cover;
     background-attachment: fixed;
     position: relative;
 }
 
-nav{
-    text-align: right;
-    padding: 30px 50px 0 0;
-}
-
-nav > a{
-    color:#fffb01;
-    font-weight: 150px;
-    font-size: 20px;
-    text-decoration: none;
-    margin-right: 20px;
-    border-radius: 20px; /* Añade bordes redondeados al botón */
-    border-bottom: 5px solid rgb(0, 0, 0); 
-    
-}
-
-nav > a:hover{
-    text-decoration: underline;
-}
+button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 15px;
+    gap: 15px;
+    background-color: #181717;
+    outline: 3px #181717 solid;
+    outline-offset: -3px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: 400ms;
+  }
+  
+  .button .text {
+    color: white;
+    font-weight: 700;
+    font-size: 1em;
+    transition: 400ms;
+  }
+  
+  .button svg path {
+    transition: 400ms;
+  }
+  
+  .button:hover {
+    background-color: transparent;
+  }
+  
+  .button:hover .text {
+    color: #181717;
+  }
+  
+  .button:hover svg path {
+    fill: #181717;
+  }
+  
+  nav{
+      text-align: right;
+      padding: 30px 50px 0 0;
+      
+  }
+  
+  
+  
+  nav > a{
+      color: lightblue;
+      font-weight: 300;
+      text-decoration: none;
+      margin-right: 10px;
+      border-radius: 5px; /* Añade bordes redondeados al botón */
+      border-bottom: 5px solid rgb(0, 255, 21); 
+      
+  }
+  
+  nav > a:hover{
+      text-decoration: underline;
+  }
+  
 
 header .textos-header{
     display: flex;
@@ -91,8 +132,8 @@ header .textos-header{
 
 main .sobre-nosotros{
     padding: 30px 0 60px 0;
-    background-color: #0400ff;
-    color: #fffb06;
+    background-color: #000000;
+    color: #1317ff;
 }
 .contenedor-sobre-nosotros{
     display: flex;
@@ -134,7 +175,7 @@ main .sobre-nosotros{
 
 
 .Proyectos{
-    background: #09077c;
+    background: #5d5d5f;
 }
 
 .galeria-port{
@@ -259,7 +300,7 @@ main .sobre-nosotros{
 /* footer */
 
 footer{
-    background: #151520;
+    background: #0c0c0c;
     padding: 60px 0 30px 0;
     margin: auto;
     overflow: hidden;
