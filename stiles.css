@@ -54,7 +54,7 @@ header {
   border: none;
   cursor: pointer;
   transition: 400ms;
-}
+} 
 
 .button .text {
   color: white;
