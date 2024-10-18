@@ -6,7 +6,7 @@
 
 body {
     font-family: 'open sans';
-    background-color: #000000;
+    background-color: #222121;
 }
 
 .contenedor {
@@ -40,16 +40,16 @@ header {
     position: relative;
 }
 
-button {
-    display: flex;
+.button {
+    display: cover;
     justify-content: center;
     align-items: center;
     padding: 10px 15px;
     gap: 15px;
     background-color: #181717;
-    outline: 3px #181717 solid;
+    outline: 3px #171718 solid;
     outline-offset: -3px;
-    border-radius: 5px;
+    border-radius: 20px;
     border: none;
     cursor: pointer;
     transition: 400ms;
@@ -58,7 +58,7 @@ button {
   .button .text {
     color: white;
     font-weight: 700;
-    font-size: 1em;
+    font-size: 5px;
     transition: 400ms;
   }
   
@@ -75,30 +75,15 @@ button {
   }
   
   .button:hover svg path {
-    fill: #181717;
+    fill: #00000000;
   }
   
   nav{
       text-align: right;
-      padding: 30px 50px 0 0;
+      padding: 20px 50px 0 0;
       
   }
   
-  
-  
-  nav > a{
-      color: lightblue;
-      font-weight: 300;
-      text-decoration: none;
-      margin-right: 10px;
-      border-radius: 5px; /* Añade bordes redondeados al botón */
-      border-bottom: 5px solid rgb(0, 255, 21); 
-      
-  }
-  
-  nav > a:hover{
-      text-decoration: underline;
-  }
   
 
 header .textos-header{
@@ -401,6 +386,8 @@ footer{
 }
 
 @media screen and (max-width:500px){
+   
+
     nav{
         text-align: center;
         padding: 30px 0 0 0;
@@ -409,7 +396,6 @@ footer{
     nav > a{
         margin-right: 5px;
     }
-
     .textos-header h1{
         font-size: 35px;
     }
