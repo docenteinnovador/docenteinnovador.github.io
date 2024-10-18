@@ -6,7 +6,7 @@
 
 body {
     font-family: 'open sans';
-    background-color: #222121;
+    background-color: #000000;
 }
 
 .contenedor {
@@ -138,8 +138,8 @@ main .sobre-nosotros{
 }
 
 .contenido-textos h3 span{
-    background: #fefdff;
-    color: #0011ff;
+    background: #000000;
+    color: #0922ff;
     border-radius: 50%;
     display: inline-block;
     text-align: center;
@@ -160,7 +160,7 @@ main .sobre-nosotros{
 
 
 .Proyectos{
-    background: #5d5d5f;
+    background: #7a7878;
 }
 
 .galeria-port{

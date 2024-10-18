@@ -488,12 +488,12 @@ footer{
     }
 
     .content-foo p{
-        color: #ffffff;
+        color: #f72424;
         border-bottom: 1px solid #ffffff;
         padding-bottom: 20px;
     }
 
     .titulo-final{
-        font-size: 20px;
+        font-size: 15px;
     }
 }
