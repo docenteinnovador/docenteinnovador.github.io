@@ -595,7 +595,7 @@ section img {
 @keyframes fade-in {
   from {
     opacity: 0.3;
-    transform: scale(0.1);
+    transform: scale(0.7);
   }
 
   to {
