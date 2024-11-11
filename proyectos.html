@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Particles with Image Description on Click</title>
+  <link rel="stylesheet" href="css4\styles4.css">
+</head>
+<body>
+  
+
+  <header class="header">
+    <a href="index.html" class="logo"><span>Inicio</span></a>
+    <i class="bx bx-menu" id="menu-icon"></i>
+    <nav class="navbar">
+      
+      <a href="proyectos.html">Proyectos</a>
+      <a href="2paginaweb.html">Cursos</a>
+      <a href="">Servicios</a>
+      <a href="">Contactos</a>
+      
+    </nav>
+ </header>
+  <!-- Contenedor de partículas -->
+  <div id="tsparticles"></div>
+
+  <!-- Contenedores de imagen con descripción -->
+  <div class="container">
+  <div class="image-container">
+    <img src="assets\Captura de pantalla (1851).png" alt="Osaka Sky" onclick="showDescription('description1')">
+    <div class="description" id="description1">
+      <p><h1>Vocaliza y Aprende</h1></p>
+    </div>
+  </div>
+
+  <div class="image-container">
+    <img src="assets\Captura de pantalla (1853).png" alt="Osaka Tower" onclick="showDescription('description2')">
+    <div class="description" id="description2">
+      <p><h1>Sistema de Braille con IA</h1></p>
+    </div>
+  </div>
+
+  <div class="image-container">
+    <img src="assets\Captura de pantalla (1859).png" alt="Osaka Castle" onclick="showDescription('description3')">
+    <div class="description" id="description3">
+      <p><h1>Pingui en 2d</h1></p>
+    </div>
+  </div>
+
+    <div class="image-container">
+      <img src="assets\Captura de pantalla (1857).png" alt="Osaka Castle" onclick="showDescription('description4')">
+      <div class="description" id="description4">
+        <p><h1>Pomodoro Digital con IA</h1></p>
+      </div>
+    </div>
+
+    <div class="image-container">
+      <img src="assets\Captura de pantalla (1862).png" alt="Osaka Castle" onclick="showDescription('description5')">
+      <div class="description" id="description5">
+        <p><h1>Pizarra Digital</h1></p>
+      </div>
+    </div>
+
+    <div class="image-container">
+      <img src="assets\Captura de pantalla (1863).png" alt="Osaka Castle" onclick="showDescription('description6')">
+      <div class="description" id="description6">
+        <p><h1>Videojuego Mario</h1></p>
+      </div>
+    </div>
+
+    <div class="image-container">
+      <img src="assets\Captura de pantalla (1855).png" alt="Osaka Castle" onclick="showDescription('description7')">
+      <div class="description" id="description7">
+        <p><h1>Raton Digital</h1></p>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+  
+  <!-- Enlace al archivo JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.0/tsparticles.bundle.min.js"></script>
+  <script src="javascript/java4.js"></script>
+
+
+</body>
+</html>
