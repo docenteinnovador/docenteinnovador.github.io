@@ -6,7 +6,7 @@
 
 body {
     font-family: 'open sans';
-    background-color: #000000;
+    background-color: #ffffff;
 }
 
 .contenedor {
@@ -18,7 +18,7 @@ body {
 }
 
 .titulo {
-    color: #ffffff;
+    color: #464141;
     font-size: 30px;
     text-align: center;
     margin-bottom: 60px;
@@ -29,7 +29,7 @@ body {
 header {
     width: 100%;
     height: 600px;
-    background: #000000;
+    background: #ffffff;
     /* fallback for old browsers */
     background: -webkit-linear-gradient(to right, hsl(0, 0%, 0%), hsla(317, 45%, 52%, 0)), url(https://img.freepik.com/foto-gratis/fondo-energia-nuclear-ia-innovacion-futura-tecnologia-disruptiva_53876-129783.jpg?t=st=1729142425~exp=1729146025~hmac=f0fe40190a11cab5c01bd99ebb5f0c642384e42c73a126aab34718210ae66808&w=740);
     /* Chrome 10-25, Safari 5.1-6 */
@@ -56,7 +56,7 @@ header {
   }
   
   .button .text {
-    color: white;
+    color: rgb(255, 255, 255);
     font-weight: 700;
     font-size: 5px;
     transition: 400ms;
@@ -98,7 +98,7 @@ header .textos-header{
 
 .textos-header h1{
     font-size: 50px;
-    color:#fff;
+    color:#000000;
 }
 
 .textos-header h2{
@@ -117,7 +117,7 @@ header .textos-header{
 
 main .sobre-nosotros{
     padding: 30px 0 60px 0;
-    background-color: #000000;
+    background-color: #ffffff;
     color: #1317ff;
 }
 .contenedor-sobre-nosotros{
@@ -160,7 +160,7 @@ main .sobre-nosotros{
 
 
 .Proyectos{
-    background: #7a7878;
+    background: #ffffff;
 }
 
 .galeria-port{
@@ -175,7 +175,7 @@ main .sobre-nosotros{
     overflow: hidden;
     position: relative;
     cursor: pointer;
-    box-shadow: 0 0 6px 0 rgba(0, 0, 0, .5);
+    box-shadow: 0 0 6px 0 rgba(255, 255, 255, 0.5);
 }
 
 .imagen-port > img{
@@ -252,7 +252,7 @@ main .sobre-nosotros{
 /*  Our team */
 
 .about-services{
-    background: #000000;
+    background: #ffffff;
     padding-bottom: 30px;
     color: white;
 }
@@ -285,7 +285,7 @@ main .sobre-nosotros{
 /* footer */
 
 footer{
-    background: #0c0c0c;
+    background: #000000;
     padding: 60px 0 30px 0;
     margin: auto;
     overflow: hidden;
