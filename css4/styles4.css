@@ -379,9 +379,41 @@ span {
     width: 100%;
     height: 100%;
     z-index: -1;
-  }
-  
- /* Centrar las imágenes en el centro de la pantalla */
+}
+
+.compren {
+    color: rgb(14, 6, 126);
+    position: relative;
+    top: 20%;                /* Ajusta el desplazamiento con porcentajes */
+    left: 50%;               /* Centra horizontalmente */
+    transform: translateX(-50%); /* Compensa el desplazamiento */
+    text-align: center;   
+    font-family: 'Times New Roman', Times, serif;  /* Asegura que el texto esté centrado */
+}
+
+/* Media query para pantallas pequeñas */
+@media (max-width: 768px) {
+    .compren {
+        top: 20px;           /* Ajusta el desplazamiento para pantallas más pequeñas */
+        left: 50%;           /* Mantiene el centrado horizontal */
+        transform: translateX(-50%); /* Mantiene la compensación */
+        font-size: 18px;     /* Ajusta el tamaño de la fuente en pantallas más pequeñas */
+    }
+}
+
+/* Media query para pantallas muy pequeñas (como teléfonos móviles) */
+@media (max-width: 480px) {
+    .compren {
+        top: 10px;           /* Ajusta el desplazamiento aún más */
+        font-size: 16px;     /* Reduce el tamaño de la fuente aún más */
+    }
+}
+
+
+
+
+
+/* Centrar las imágenes en el centro de la pantalla */
 .container {
     display: flex;
     justify-content: center;
@@ -389,23 +421,23 @@ span {
     flex-wrap: wrap;
     text-align: center;
     margin-top: 110px;
-  }
-  
-  /* Cada contenedor de imagen */
-  .image-container {
+}
+
+/* Cada contenedor de imagen */
+.image-container {
     position: relative;
     margin: 80px;
-  }
-  
-  .image-container img {
+}
+
+.image-container img {
     cursor: pointer;
     width: 300px;
     height: auto;
     border-radius: 10px;
     transition: transform 0.3s ease;
-  }
-  
-  .description {
+}
+
+.description {
     display: none;
     position: absolute;
     top: 100%;
@@ -420,9 +452,9 @@ span {
     text-align: center;
     opacity: 0;
     transition: opacity 0.3s ease;
-  }
-  
-  .description.active {
+}
+
+.description.active {
     display: block;
     opacity: 1;
-  }
+}
