@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de Videos</title>
+
+    <link rel="icon" type="image/png" href="WhatsApp Image 2024-09-03 at 15.03.23.jpeg">
+    <link rel="stylesheet" href="programacion3.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800&display=swap" rel="stylesheet"> 
+</head>
+<nav>
+    <a href="index.html" onclick="abrirPagina('index.html')">Inicio</a>
+
+</nav>
+<BR></BR>
+<section class="textos-header">
+    <h1>VIDEOS</h1>
+    <BR></BR>
+    <h2>SERVICIO PARA PROMOCIONAR VIDEOS EDUCATIVOS</h2>
+</section>
+
+<style>
+    .gallery-container {
+        display: flex;
+        overflow-x: scroll;
+        scroll-behavior: smooth;
+        width: 100%;
+    }
+    .video-wrapper {
+        margin-right: 10px;
+        flex-shrink: 0;
+    }
+    iframe {
+        width: 370px;
+        height: 450px;
+    }
+</style>
+
+</head>
+<br>
+<br>
+<br>
+<div class="gallery-container" id="galleryContainer">
+    <div class="video-wrapper">
+        <iframe src="https://www.youtube.com/embed/wmLC1fINLcs" allowfullscreen></iframe>
+    </div>
+    <div class="video-wrapper">
+        <iframe src="https://www.youtube.com/embed/v7UFtqgUOG0" allowfullscreen></iframe>
+    </div>
+    
+    <div class="video-wrapper">
+        <iframe src="https://www.youtube.com/embed/2YubJYByO-k" allowfullscreen></iframe>
+    </div>
+    <div class="video-wrapper">
+        <iframe src="https://www.tiktok.com/embed/7406524969636629765" allowfullscreen></iframe>
+    </div>
+    <div class="video-wrapper">
+        <iframe src="https://www.tiktok.com/embed/7371589412632759558" allowfullscreen></iframe>
+        
+    </div>
+    <div class="video-wrapper"></div>
+        <iframe src="https://www.tiktok.com/embed/7375313539273198853" allowfullscreen></iframe>
+        
+    <a href="https://www.tiktok.com/@coderoboticsii" target="_blank">
+        <button style="padding: 5px 10px; font-size: 15px;">Ver en TikTok</button>
+    </a>
+
+    </div>
+</div>
+
+<div class="instructions">
+    Desliza para seguir →
+</div>
+
+<script>
+    const gallery = document.getElementById('galleryContainer');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    gallery.addEventListener('mousedown', (e) => {
+        isDown = true;
+        startX = e.pageX - gallery.offsetLeft;
+        scrollLeft = gallery.scrollLeft;
+    });
+
+    gallery.addEventListener('mouseleave', () => {
+        isDown = false;
+    });
+
+    gallery.addEventListener('mouseup', () => {
+        isDown = false;
+    });
+
+    gallery.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - gallery.offsetLeft;
+        const walk = (x - startX) * 2;
+        gallery.scrollLeft = scrollLeft - walk;
+    });
+
+    // Para dispositivos táctiles
+    gallery.addEventListener('touchstart', (e) => {
+        isDown = true;
+        startX = e.touches[0].pageX - gallery.offsetLeft;
+        scrollLeft = gallery.scrollLeft;
+    });
+
+    gallery.addEventListener('touchend', () => {
+        isDown = false;
+    });
+
+    gallery.addEventListener('touchmove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.touches[0].pageX - gallery.offsetLeft;
+        const walk = (x - startX) * 2;
+        gallery.scrollLeft = scrollLeft - walk;
+    });
+</script>
+
+</body>
+</html>
