@@ -378,6 +378,12 @@
             <div id="feedback"></div>
         </div>
 
+        <div id="game-over" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; color: white; text-align: center; padding-top: 20%; font-size: 2em;">
+            <h2>¡Game Over!</h2>
+            <p>La torre se cayó porque respondiste mal.</p>
+            <button class="button primary" onclick="location.reload()">Jugar de Nuevo</button>
+        </div>
+
         <!--<div class="controls-hint">
             🎮 Arrastra para rotar • Rueda del mouse para zoom • Click en bloques para desafíos
         </div>-->
@@ -392,6 +398,8 @@
         let removedBlocks = 0;
         let totalQuestions = 0;
         let correctAnswers = 0;
+        let gameOver = false;
+        let collapsing = false;
 
         // Configuración del juego
         const BLOCK_WIDTH = 3;
@@ -793,6 +801,13 @@
                     selectedBlock.material = selectedBlock.material.clone();
                     selectedBlock = null;
                     currentQuestion = null;
+                    gameOver = true;
+                    collapsing = true;
+                    // Start animation of blocks falling (collapsing)
+                    // Delay game over screen to let blocks fall first
+                    setTimeout(() => {
+                        document.getElementById('game-over').style.display = 'block';
+                    }, 6000); // Give 6 seconds for dramatic fall
                 }, 2000);
             }
             
@@ -912,14 +927,37 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // Automatic rotation around the scene center
-            const rotationSpeed = 0.01;
-            const sceneCenter = new THREE.Vector3(0, 9, 0);
-            const offset = new THREE.Vector3().subVectors(camera.position, sceneCenter);
-            const quaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), rotationSpeed);
-            offset.applyQuaternion(quaternion);
-            camera.position.copy(sceneCenter).add(offset);
-            camera.lookAt(sceneCenter);
+            if (!collapsing) {
+                // Automatic rotation around the scene center
+                const rotationSpeed = 0.01;
+                const sceneCenter = new THREE.Vector3(0, 9, 0);
+                const offset = new THREE.Vector3().subVectors(camera.position, sceneCenter);
+                const quaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), rotationSpeed);
+                offset.applyQuaternion(quaternion);
+                camera.position.copy(sceneCenter).add(offset);
+                camera.lookAt(sceneCenter);
+            }
+
+            // Handle collapsing animation
+            if (collapsing) {
+                jengaTower.forEach(block => {
+                    if (!block.userData.isRemoved) {
+                        // Apply gravity - faster fall speed, but stop at floor level
+                        if (block.position.y > -2) {
+                            block.position.y -= 0.5;
+                        }
+
+                        // Add some random rotation for dramatic effect
+                        block.rotation.x += (Math.random() - 0.5) * 0.6;
+                        block.rotation.y += (Math.random() - 0.5) * 0.6;
+                        block.rotation.z += (Math.random() - 0.5) * 0.6;
+
+                        // Add some random horizontal movement
+                        block.position.x += (Math.random() - 0.5) * 0.5;
+                        block.position.z += (Math.random() - 0.5) * 0.5;
+                    }
+                });
+            }
 
             renderer.render(scene, camera);
         }
