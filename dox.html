@@ -944,17 +944,17 @@
                     if (!block.userData.isRemoved) {
                         // Apply gravity - faster fall speed, but stop at floor level
                         if (block.position.y > -2) {
-                            block.position.y -= 0.5;
+                            block.position.y -= 1.5; // Increased speed for more dramatic fall
                         }
 
                         // Add some random rotation for dramatic effect
-                        block.rotation.x += (Math.random() - 0.5) * 0.6;
-                        block.rotation.y += (Math.random() - 0.5) * 0.6;
-                        block.rotation.z += (Math.random() - 0.5) * 0.6;
+                        block.rotation.x += (Math.random() - 0.5) * 1.2; // Increased rotation speed
+                        block.rotation.y += (Math.random() - 0.5) * 1.2;
+                        block.rotation.z += (Math.random() - 0.5) * 1.2;
 
                         // Add some random horizontal movement
-                        block.position.x += (Math.random() - 0.5) * 0.5;
-                        block.position.z += (Math.random() - 0.5) * 0.5;
+                        block.position.x += (Math.random() - 0.5) * 1.0; // Increased horizontal movement
+                        block.position.z += (Math.random() - 0.5) * 1.0;
                     }
                 });
             }
