@@ -47,6 +47,11 @@ body {
     transition: all 0.3s ease;
 }
 
+/* Reduce margin on Google AdSense banner div inside header */
+header > div {
+    margin: 0.5rem 0 0 0;
+}
+
 .btn-navbar-blue {
     background: var(--secondary-color);
     color: var(--text-primary);
@@ -170,11 +175,12 @@ body {
 
 /* Hero Section */
 .hero-small {
-    margin-top: 80px;
-    padding: 2rem 0;
+    margin-top: 5px;
+    padding: 0.5rem 0;
     background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(255, 0, 102, 0.1));
     position: relative;
-    overflow: hidden;
+    /* Removed overflow hidden to prevent content clipping */
+    overflow: visible;
 }
 
 .hero-small::before {
@@ -237,7 +243,7 @@ body {
 
 /* Description Section */
 .upcoming-section {
-    padding: 4rem 0;
+    padding: 1rem 0;
 }
 
 .upcoming-card {
