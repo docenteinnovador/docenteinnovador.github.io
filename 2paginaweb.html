@@ -1,216 +1,493 @@
-
-
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
+    <meta name="google-site-verification" content="qvWZu86-OrbrIKrBFgG9eolSIl2d4qOgLSWPy6JoK38" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Juego de Memoria</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet" />
     <style>
-        .info {
-            display: none;
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Exo 2', sans-serif;
+            min-height: 100vh;
+            color: #ffffff;
         }
 
-        
-        summary {
-            cursor: pointer;
-            font-size: 1em;
-            list-style: none;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        /* Oculta la viñeta por defecto en summary */
-        summary::-webkit-details-marker {
-            display: none;
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-align: center;
+            margin: 2rem 0;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
         }
 
-        details {
+        .title-highlight {
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Memory Game Styles */
+        .memory-game {
+            width: 640px;
+            max-width: 90vw;
+            margin: 40px auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            perspective: 1000px;
+        }
+
+        .memory-card {
             width: 100%;
-            margin-bottom: 10px; /* Espaciado entre los elementos */
+            height: 150px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
         }
 
-        /* Asegura que el contenedor de texto esté alineado verticalmente */
-        .contenido-textos {
-            display: block;
+        .memory-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 24px rgba(0, 255, 136, 0.3);
         }
 
-        /* Opcional: Añadir un margen inferior a los headings para separarlos de los details */
-        .contenido-textos h3 {
+        .memory-card.flip {
+            transform: rotateY(180deg);
+        }
+
+        .memory-card.matched {
+            opacity: 0.7;
+            transform: scale(0.95);
+        }
+
+        .front-face,
+        .back-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4rem;
+            border: 3px solid rgba(0, 255, 136, 0.6);
+        }
+
+        /* FRONT-FACE: Visible SIN flip - ANIMALES para memorizar */
+        .front-face {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #ffffff;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* BACK-FACE: Visible CON flip - SIGNOS DE INTERROGACIÓN durante juego */
+        .back-face {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            transform: rotateY(180deg);
+            color: #ff6b6b;
+            font-size: 3rem;
+            border: 3px solid rgba(255, 107, 107, 0.6);
+        }
+
+        /* Game Info Styles */
+        .game-info {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            background: rgba(15, 15, 30, 0.8);
+            padding: 15px 30px;
+            border-radius: 10px;
+            border: 2px solid rgba(0, 255, 136, 0.5);
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: #cccccc;
             margin-bottom: 5px;
         }
-        
+
+        .info-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #00ff88;
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 500px) {
+            .memory-card {
+                height: 100px;
+            }
+            .front-face, .back-face {
+                font-size: 2.5rem;
+            }
+            .game-info {
+                gap: 20px;
+            }
+            .info-item {
+                min-width: 120px;
+                padding: 10px 20px;
+            }
+        }
+
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #ffffff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            font-family: 'Orbitron', monospace;
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .floating-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .game-over-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 3px solid rgba(0, 255, 136, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            color: #00ff88;
+            margin-bottom: 20px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .modal-button {
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 255, 136, 0.4);
+        }
     </style>
-    <meta name="google-site-verification" content="qvWZu86-OrbrIKrBFgG9eolSIl2d4qOgLSWPy6JoK38" />
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>MODO CURSOS</title>
-    <link rel="icon" type="image/png" href="WhatsApp Image 2024-09-03 at 15.03.23.jpeg">
-    <link rel="stylesheet" href="programacion2.css">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800&display=swap" rel="stylesheet"> 
 </head>
 
 <body>
-    <header>
-        <nav>
-            <a href="index.html" onclick="abrirPagina('index.html')">Inicio</a>
-            
-            
-            <a href="dox.html" onclick="abrirPagina('dox.html')">Videos</a>
-        </nav>
-        <section class="textos-header">
-            <h1>CURSOS</h1>
-            <h2>MODO PARA CONTRATAR SERVICIOS PERSONALIZADOS DE APRENDIZAJE</h2>
-        </section>
-        <div class="wave" style="height: 150px; overflow: hidden;"><svg viewBox="0 0 0 0" preserveAspectRatio="none"
-                style="height: 100%; width: 100%;">
-                <path d="M0.00,49.98 C150.00,150.00 349.20,-50.00 500.00,49.98 L500.00,150.00 L0.00,150.00 Z"
-                    style="stroke: none; fill: #000000;"></path>
-            </svg></div>
-    </header>
     <main>
-        <section class="contenedor sobre-nosotros"id="QUE OFRECEMOS">
-            <br>
-            <h2 class="titulo">DEJA QUE TUS NUEVAS IDEAS TE INSPIREN A CREAR.</h2>
-            <div class="contenedor-sobre-nosotros">
-               
-                
-                <div class="contenido-textos">
-                    <h3 id="a"><span>A</span>DOCENTE DE REFUERZO ACADEMICO</h3>
-                    <details>
-                        <summary>Ver más</summary>
-                        <p>Ayudamos a fortalecer conocimientos específicos de acuerdo a materias como Lenguaje, Ciencias Naturales, Estudios Sociales, Matemáticas etc.</p>
-                        <p>Retroalimentación de tareas estudiantiles</p>
-                    </details>
-                    
-                    <div class="imagen-port">
-                        <img src="https://i.gifer.com/RrVB.gif" alt="">
-                        
-                        </div>
-                    <h3 id="b"><span>B</span>DOCENTE DE EDUCACION ESPECIAL</h3>
-                    <details>
-                        <summary>Ver más</summary>
-
-                        <p>Características de las clases:</p>
-                        <p>Clases personalizadas segun la discapacidad del estudiante</p>
-                        <p>Estimulación Temprana</p>
-                        <p>Ejercicios de Motricidad fina y gruesa</p>
-                        <p>Tratamientos logopedicos: habla y lenguaje</p>
-                        <p>Retroalimentación de tareas estudiantiles</p>
-                    </details>
-                    <div class="imagen-port">
-                        <img src="https://static.wixstatic.com/media/a0a89f_8ace1ce6e0b54b66802b90d393a55f03~mv2.jpg/v1/fill/w_640,h_468,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/a0a89f_8ace1ce6e0b54b66802b90d393a55f03~mv2.jpg" alt="">
-                        
-                        </div>
-                    <br>
+        <section class="container">
+            <a href="index.html#projects-section" class="floating-btn">ELEGIR OTRO JUEGO</a>
+            <h1 class="section-title">
+                <span class="title-highlight">JUEGO DE MEMORIA</span>
+            </h1>
             
-                    <h3 id="c"><span>C</span> DOCENTE DE PROGRAMACIÓN</h3>
-                    <details>
-                        <summary>Ver más</summary>
-                        <p>Enseñamos la lógica de programación en lenguajes como PHYTON, GDscript, etc.</p>
-                    </details>
-                    <div class="imagen-port">
-                        <img src="https://i.gifer.com/bJk.gif" alt="">
-                        
-                        </div>
-                    <br>
-
-                    <h3 id="d"><span>D</span> DOCENTE DE CREACION DE VIDEOJUEGOS</h3>
-                    <details>
-                        <summary>Ver más</summary>
-                        <p>Crea tus videojuegos en los lenguajes de programación del momento, PHYTON, ETC.</p>
-                    </details>
-                    <div class="imagen-port">
-                        <img src="https://i.gifer.com/2Xxe.gif" alt="">
-                        
-                        </div>
-                    <br>
-
-                    <h3 id="e"><span>E</span> DOCENTE DE INGLES</h3>
-                    <details>
-                        <summary>Ver más</summary>
-                        <p>Aprende ingles desde 0, verb to be, past simple, simple present, past progressive etc.</p>
-                    </details>
-
-                    <div class="imagen-port">
-                        <img src="https://i.gifer.com/KyfI.gif" alt="">
-                        
-                        </div>
-                    <br>
-
-                    <h3 id="f"><span>F</span> DOCENTE DE CREACION DE PAGINAS WEB</h3>
-                    <details>
-                        <summary>Ver más</summary>
-                        <p>Aprende hacer tu primera página web desde 0, con lenguajes como html,css, javascript etc.</p>
-                    </details>
-                    <div class="imagen-port">
-                        <img src="https://i.gifer.com/CV4o.gif" alt="">
-                        
-                        </div>
-                    <br>
-
-                    <h3 id="g"><span>G</span> DOCENTE DE ROBOTICA</h3>
-                    <details>
-                        <summary>Ver más</summary>
-                        <p>Crea tu propio robot desde 0, con ayuda de la inteligencia artificial. </p>
-                        <p>Características de las clases:</p>
-                        <p>Introducción a la ROBOTICA</p>
-                        <p>Programación Robótica</p>
-                        <p>Circuitos</p>
-                        <p>Diseño y Construcción de robots</p>
-                        <p>ROBOTICA e INTELIGENCIA ARTIFICIAL</p>
-
-
-
-
-
-                    </details>
-                    <div class="imagen-port">
-                        <img src="https://i.gifer.com/UXUQ.gif" alt="">
-                        
-                        </div>
-
+            <div class="game-info">
+                <div class="info-item">
+                    <div class="info-label">Puntaje</div>
+                    <div class="info-value" id="score-display">0</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Errores</div>
+                    <div class="info-value" id="errors-display">0/6</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Tiempo</div>
+                    <div class="info-value" id="timer-display">30</div>
                 </div>
             </div>
+
+            <section class="memory-game" id="memory-game">
+                <!-- Cards will be generated by JavaScript -->
+            </section>
         </section>
-        <section class="Proyectos">
-            <div class="contenedor"id= Proyectos>
-                <h2 class="titulo">UBICACION</h2>
-                <div class="galeria-port">
-                    
-                    <div class="imagen-port">
-                        <img src="https://i.gifer.com/EYuG.gif" alt="">
-                        <div class="hover-galeria">
-                            <img src="" alt="">
-                            <p>PROXIMAMENTE</p>
-                        </div>
-                    
-                    </div>
-                </div>
-            </div>
-        </section>
-       
-        
     </main>
-    <footer>
-        <h2 class="titulo">PARA CONTRATOS A:</h2>
-        <div class="contenedor-footer">
-            
-            <div class="content-foo" id="Contacto">
-                <h4>Whatsapp:</h4>
-                <p><a href="https://wa.me/593983036256" target="_blank">0983036256</a></p>
-            </div>
-            
-            <div class="content-foo">
-                <h4>Email para entrega de trabajos:</h4>
-                <p>jorcornejo3777@gmail.com</p>
-            </div>
-            <div class="content-foo">
-                <h4>Docente:</h4>
-                <p>Lcdo. Jorge Fernando Cornejo Arévalo</p>
-            </div>
-            
+
+    <!-- Game Over Modal -->
+    <div class="game-over-modal" id="game-over-modal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="modal-title">¡Juego Terminado!</h2>
+            <p id="modal-message">Tu puntaje final: 0</p>
+            <button class="modal-button" onclick="restartGame()">Jugar de Nuevo</button>
+            <button class="modal-button" onclick="window.location.href='index.html#projects-section'">Elegir Otro Juego</button>
         </div>
-        
-        <h2 class="titulo-final">&copy; 2024, Jorge.C</h2>
-    </footer>
+    </div>
+
+    <script>
+        const cardsArray = [
+            { name: 'A', content: '🐱' },
+            { name: 'B', content: '🐶' },
+            { name: 'C', content: '🐭' },
+            { name: 'D', content: '🐹' },
+            { name: 'E', content: '🐰' },
+            { name: 'F', content: '🦊' },
+            { name: 'G', content: '🐻' },
+            { name: 'H', content: '🐼' }
+        ];
+
+        let score = 0;
+        let firstCard = null;
+        let secondCard = null;
+        let lockBoard = false;
+        let matches = 0;
+        let incorrectGuesses = 0;
+        let memorizationTime = 30;
+        let gameStarted = false;
+        let gameGrid = [];
+
+        // DOM elements
+        const game = document.getElementById('memory-game');
+        const scoreDisplay = document.getElementById('score-display');
+        const errorsDisplay = document.getElementById('errors-display');
+        const timerDisplay = document.getElementById('timer-display');
+        const gameOverModal = document.getElementById('game-over-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function createCard(card, index) {
+            const cardElement = document.createElement('div');
+            cardElement.classList.add('memory-card');
+            cardElement.dataset.name = card.name;
+            cardElement.dataset.index = index;
+
+            // FRONT-FACE: Contiene el ANIMAL (visible al inicio sin flip)
+            const frontFace = document.createElement('div');
+            frontFace.classList.add('front-face');
+            frontFace.textContent = card.content;
+
+            // BACK-FACE: Contiene el ? (visible cuando tiene flip)
+            const backFace = document.createElement('div');
+            backFace.classList.add('back-face');
+            backFace.textContent = '?';
+
+            cardElement.appendChild(frontFace);
+            cardElement.appendChild(backFace);
+            cardElement.addEventListener('click', flipCard);
+
+            return cardElement;
+        }
+
+        function flipCard() {
+            if (lockBoard || !gameStarted) return;
+            if (this === firstCard) return;
+            if (this.classList.contains('matched')) return;
+
+            // Quitar flip para mostrar el animal (front-face)
+            this.classList.remove('flip');
+
+            if (!firstCard) {
+                firstCard = this;
+                return;
+            }
+
+            secondCard = this;
+            lockBoard = true;
+
+            checkForMatch();
+        }
+
+        function checkForMatch() {
+            const isMatch = firstCard.dataset.name === secondCard.dataset.name;
+
+            if (isMatch) {
+                disableCards();
+                matches += 1;
+                score += 10;
+                updateScore();
+                
+                if (matches === cardsArray.length) {
+                    setTimeout(() => {
+                        endGame(true);
+                    }, 500);
+                }
+            } else {
+                incorrectGuesses++;
+                score = Math.max(0, score - 1);
+                updateScore();
+                updateErrors();
+                
+                if (incorrectGuesses >= 6) {
+                    setTimeout(() => {
+                        endGame(false);
+                    }, 1000);
+                } else {
+                    unflipCards();
+                }
+            }
+        }
+
+        function disableCards() {
+            firstCard.classList.add('matched');
+            secondCard.classList.add('matched');
+            firstCard.removeEventListener('click', flipCard);
+            secondCard.removeEventListener('click', flipCard);
+            resetBoard();
+        }
+
+        function unflipCards() {
+            setTimeout(() => {
+                // Añadir flip de vuelta para ocultar los animales si no son pareja
+                firstCard.classList.add('flip');
+                secondCard.classList.add('flip');
+                resetBoard();
+            }, 1000);
+        }
+
+        function resetBoard() {
+            [firstCard, secondCard] = [null, null];
+            lockBoard = false;
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
+
+        function updateErrors() {
+            errorsDisplay.textContent = `${incorrectGuesses}/6`;
+        }
+
+        function updateTimer(seconds) {
+            timerDisplay.textContent = seconds;
+        }
+
+        function endGame(won) {
+            gameStarted = false;
+            lockBoard = true;
+            
+            if (won) {
+                modalTitle.textContent = '¡Felicidades! 🎉';
+                modalMessage.textContent = `¡Has encontrado todas las parejas!\nPuntaje final: ${score}`;
+            } else {
+                modalTitle.textContent = '¡Perdiste! 😢';
+                modalMessage.textContent = `Has cometido 6 errores.\nPuntaje final: ${score}`;
+            }
+            
+            gameOverModal.style.display = 'flex';
+        }
+
+        function startMemorizationPhase() {
+            // Al inicio NO hay flip = se ven los animales (front-face)
+            // Durante 30 segundos los jugadores memorizan
+            
+            let remainingTime = memorizationTime;
+            updateTimer(remainingTime);
+            
+            const countdownInterval = setInterval(() => {
+                remainingTime--;
+                updateTimer(remainingTime);
+                
+                if (remainingTime <= 0) {
+                    clearInterval(countdownInterval);
+                    // DESPUÉS del tiempo: añadir flip para ocultar animales
+                    const allCards = document.querySelectorAll('.memory-card');
+                    allCards.forEach(card => card.classList.add('flip'));
+                    gameStarted = true;
+                    lockBoard = false;
+                    timerDisplay.textContent = '---';
+                }
+            }, 1000);
+        }
+
+        function initGame() {
+            // Reset game state
+            score = 0;
+            matches = 0;
+            incorrectGuesses = 0;
+            gameStarted = false;
+            lockBoard = true;
+            
+            // Create shuffled game grid
+            gameGrid = shuffleArray([...cardsArray, ...cardsArray]);
+            
+            // Clear the game board
+            game.innerHTML = '';
+            
+            // Create and add cards (empiezan SIN flip = animales visibles)
+            gameGrid.forEach((card, index) => {
+                const cardElement = createCard(card, index);
+                game.appendChild(cardElement);
+            });
+            
+            // Update displays
+            updateScore();
+            updateErrors();
+            
+            // Start memorization phase
+            startMemorizationPhase();
+        }
+
+        function restartGame() {
+            gameOverModal.style.display = 'none';
+            initGame();
+        }
+
+        // Initialize game when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            initGame();
+        });
+    </script>
 </body>
 
 </html>
