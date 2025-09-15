@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Virtual 🧪</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: clamp(1.5rem, 5vw, 2.5rem); /* Ajuste dinámico de fuente */
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: clamp(0.9rem, 2vw, 1.1rem); /* Ajuste dinámico de fuente */
+            opacity: 0.9;
+        }
+
+        .lab-area {
+            display: flex;
+            flex-wrap: wrap; /* Permite que los elementos se envuelvan */
+            gap: 20px;
+            padding: 30px;
+            min-height: 600px;
+            align-items: flex-start; /* Alineación al inicio del contenedor */
+            justify-content: center;
+        }
+
+        .elements-panel, .results-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border: 3px dashed #ddd;
+            flex: 1 1 250px; /* Crece y encoge con un tamaño base de 250px */
+            min-width: 250px;
+        }
+
+        .mixing-area {
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            border-radius: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid #3498db;
+            box-shadow: inset 0 0 30px rgba(52, 152, 219, 0.3);
+            flex: 0 1 400px; /* Prioridad de crecimiento 0, permite encoger, tamaño base de 400px */
+            max-width: 100%; /* Asegura que no se desborde */
+        }
+
+        .elements-panel h3, .results-panel h3 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+        }
+
+        .elements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); /* Adaptación automática */
+            gap: 8px;
+        }
+
+        .element {
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            place-self: center; /* Centra el elemento en su celda del grid */
+        }
+
+        .element:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .element.dragging {
+            cursor: grabbing;
+            transform: rotate(10deg) scale(1.1);
+            z-index: 1000;
+        }
+
+        .element-icon {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            margin-bottom: 5px;
+        }
+
+        .element-name {
+            font-size: clamp(0.6rem, 2vw, 0.8rem);
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* Colores de elementos - Sin cambios */
+        .water { background: linear-gradient(45deg, #3498db, #2980b9); }
+        .fire { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+        .earth { background: linear-gradient(45deg, #8b4513, #654321); }
+        .air { background: linear-gradient(45deg, #ecf0f1, #bdc3c7); }
+        .ice { background: linear-gradient(45deg, #85c1e9, #5dade2); }
+        .light { background: linear-gradient(45deg, #f1c40f, #f39c12); }
+        .oxygen { background: linear-gradient(45deg, #74b9ff, #0984e3); }
+        .carbon { background: linear-gradient(45deg, #2d3436, #636e72); }
+        .metal { background: linear-gradient(45deg, #95a5a6, #7f8c8d); }
+        .salt { background: linear-gradient(45deg, #ffffff, #ecf0f1); }
+        .acid { background: linear-gradient(45deg, #00b894, #00a085); }
+        .oil { background: linear-gradient(45deg, #6c5ce7, #5f3dc4); }
+        .seed { background: linear-gradient(45deg, #00b894, #00a085); }
+        .electricity { background: linear-gradient(45deg, #fdcb6e, #e17055); }
+        .pressure { background: linear-gradient(45deg, #fd79a8, #e84393); }
+        .cold { background: linear-gradient(45deg, #74b9ff, #0984e3); }
+
+        .beaker {
+            width: 200px;
+            height: 250px;
+            background: linear-gradient(to bottom, 
+                rgba(255,255,255,0.1) 0%,
+                rgba(255,255,255,0.05) 50%,
+                rgba(255,255,255,0.1) 100%);
+            border: 4px solid #ecf0f1;
+            border-radius: 0 0 50px 50px;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .beaker::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            right: 20px;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .mixture-display {
+            width: 100%;
+            height: 100px;
+            border-radius: 0 0 46px 46px;
+            transition: all 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mixture-display.bubbling::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, 
+                rgba(255,255,255,0.3) 0%, 
+                transparent 50%);
+            animation: bubble 2s infinite;
+        }
+
+        @keyframes bubble {
+            0% { transform: translateY(100%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+
+        .drop-zone {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            border: 3px dashed rgba(255,255,255,0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.7);
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, 0.2);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .result-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .result-reaction {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .result-explanation {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .controls {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #ddd;
+        }
+
+        .clear-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .score {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        /* Media Queries para responsividad */
+        @media (max-width: 992px) {
+            .lab-area {
+                flex-direction: column; /* Apila los paneles en tabletas */
+                align-items: center;
+            }
+
+            .elements-panel, .results-panel, .mixing-area {
+                flex: 1 1 100%; /* Ocupan todo el ancho disponible */
+                max-width: 100%;
+            }
+
+            .mixing-area {
+                order: 2; /* Coloca el área de mezcla en el centro */
+            }
+
+            .elements-panel {
+                order: 1; /* Coloca el panel de elementos al principio */
+            }
+
+            .results-panel {
+                order: 3; /* Coloca el panel de resultados al final */
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                border-radius: 10px;
+                padding: 0;
+            }
+            .lab-area {
+                padding: 20px 10px;
+                gap: 15px;
+            }
+            .elements-panel, .results-panel {
+                padding: 15px;
+            }
+            .elements-grid {
+                grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); /* Más columnas en pantallas pequeñas */
+            }
+            .element {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Laboratorio Virtual de Ciencias</h1>
+            <p>¡Mezcla elementos y descubre fenómenos naturales increíbles!</p>
+        </div>
+
+        <div class="lab-area">
+            <div class="elements-panel">
+                <h3>🌟 Elementos Básicos</h3>
+                <div class="elements-grid">
+                    <div class="element water" draggable="true" data-element="water">
+                        <div class="element-icon">💧</div>
+                        <div class="element-name">Agua</div>
+                    </div>
+                    <div class="element fire" draggable="true" data-element="fire">
+                        <div class="element-icon">🔥</div>
+                        <div class="element-name">Fuego</div>
+                    </div>
+                    <div class="element earth" draggable="true" data-element="earth">
+                        <div class="element-icon">🌍</div>
+                        <div class="element-name">Tierra</div>
+                    </div>
+                    <div class="element air" draggable="true" data-element="air">
+                        <div class="element-icon">💨</div>
+                        <div class="element-name">Aire</div>
+                    </div>
+                    <div class="element ice" draggable="true" data-element="ice">
+                        <div class="element-icon">🧊</div>
+                        <div class="element-name">Hielo</div>
+                    </div>
+                    <div class="element light" draggable="true" data-element="light">
+                        <div class="element-icon">☀️</div>
+                        <div class="element-name">Luz</div>
+                    </div>
+                    <div class="element oxygen" draggable="true" data-element="oxygen">
+                        <div class="element-icon">🫁</div>
+                        <div class="element-name">Oxígeno</div>
+                    </div>
+                    <div class="element carbon" draggable="true" data-element="carbon">
+                        <div class="element-icon">⚫</div>
+                        <div class="element-name">Carbón</div>
+                    </div>
+                    <div class="element metal" draggable="true" data-element="metal">
+                        <div class="element-icon">🔩</div>
+                        <div class="element-name">Metal</div>
+                    </div>
+                    <div class="element salt" draggable="true" data-element="salt">
+                        <div class="element-icon">🧂</div>
+                        <div class="element-name">Sal</div>
+                    </div>
+                    <div class="element acid" draggable="true" data-element="acid">
+                        <div class="element-icon">🧪</div>
+                        <div class="element-name">Ácido</div>
+                    </div>
+                    <div class="element oil" draggable="true" data-element="oil">
+                        <div class="element-icon">🛢️</div>
+                        <div class="element-name">Aceite</div>
+                    </div>
+                    <div class="element seed" draggable="true" data-element="seed">
+                        <div class="element-icon">🌱</div>
+                        <div class="element-name">Semilla</div>
+                    </div>
+                    <div class="element electricity" draggable="true" data-element="electricity">
+                        <div class="element-icon">⚡</div>
+                        <div class="element-name">Electric.</div>
+                    </div>
+                    <div class="element pressure" draggable="true" data-element="pressure">
+                        <div class="element-icon">💪</div>
+                        <div class="element-name">Presión</div>
+                    </div>
+                    <div class="element cold" draggable="true" data-element="cold">
+                        <div class="element-icon">🥶</div>
+                        <div class="element-name">Frío</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mixing-area">
+                <div class="beaker">
+                    <div class="mixture-display" id="mixture-display"></div>
+                    <div class="drop-zone" id="drop-zone">
+                        Arrastra elementos aquí
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-panel">
+                <h3>📋 Descubrimientos</h3>
+                <div class="score">🏆 Puntuación: <span id="score">0</span></div>
+                <div id="results-list">
+                    <p style="color: #666; text-align: center; font-style: italic;">
+                        ¡Comienza a mezclar elementos para hacer descubrimientos!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="clear-btn" onclick="clearLab()">🗑️ Limpiar Laboratorio</button>
+        </div>
+    </div>
+
+    <script>
+        // Lógica de JavaScript - sin cambios, ya que no afecta la responsividad
+        let currentMixture = [];
+        let discoveries = [];
+        let score = 0;
+
+        const reactions = {
+            'water+earth': { result: '🟤 Barro', explanation: 'El agua y la tierra se combinan para formar barro, una mezcla útil en construcción.', color: '#8B4513', icon: '🟤' },
+            'fire+ice': { result: '💨 Vapor', explanation: 'El fuego derrite el hielo y lo convierte en vapor de agua, cambiando su estado.', color: '#E0E0E0', icon: '💨' },
+            'fire+water': { result: '💨 Vapor', explanation: 'El calor del fuego evapora el agua, convirtiéndola en vapor.', color: '#E0E0E0', icon: '💨' },
+            'air+water': { result: '☁️ Nube', explanation: 'El vapor de agua en el aire forma nubes, parte del ciclo del agua.', color: '#87CEEB', icon: '☁️' },
+            'earth+fire': { result: '🌋 Lava', explanation: 'El fuego intenso derrite la tierra, creando lava volcánica.', color: '#FF4500', icon: '🌋' },
+            'air+fire': { result: '💥 Explosión', explanation: 'El aire alimenta el fuego, creando una combustión más intensa.', color: '#FFD700', icon: '💥' },
+            'ice+water': { result: '🌊 Agua Fría', explanation: 'El hielo se derrite en el agua, pero la mantiene fría.', color: '#4682B4', icon: '🌊' },
+            'air+earth': { result: '🌪️ Torbellino', explanation: 'El aire fuerte levanta partículas de tierra formando remolinos.', color: '#DEB887', icon: '🌪️' },
+            'ice+light': { result: '💎 Cristal', explanation: 'La luz refracta a través del hielo creando efectos cristalinos.', color: '#E6E6FA', icon: '💎' },
+            'light+water': { result: '🌈 Arcoíris', explanation: 'La luz se descompone en el agua formando un arcoíris por refracción.', color: '#FF69B4', icon: '🌈' },
+            'fire+light': { result: '💡 Energía', explanation: 'El fuego y la luz se combinan para generar más energía luminosa.', color: '#FFD700', icon: '💡' },
+            'fire+oxygen': { result: '🔥 Combustión', explanation: 'El oxígeno alimenta el fuego creando una combustión más intensa.', color: '#FF6347', icon: '🔥' },
+            'carbon+fire': { result: '💨 CO2', explanation: 'El carbón se quema con el fuego produciendo dióxido de carbono.', color: '#696969', icon: '💨' },
+            'carbon+oxygen': { result: '💨 CO2', explanation: 'El carbono se oxida formando dióxido de carbono.', color: '#696969', icon: '💨' },
+            'metal+fire': { result: '🔥 Metal Caliente', explanation: 'El metal se calienta con el fuego pero no se quema fácilmente.', color: '#FF4500', icon: '🔥' },
+            'metal+oxygen': { result: '🟤 Óxido', explanation: 'El metal se oxida al contacto con el oxígeno formando herrumbre.', color: '#CD853F', icon: '🟤' },
+            'salt+water': { result: '🌊 Agua Salada', explanation: 'La sal se disuelve en el agua formando una solución salina.', color: '#4682B4', icon: '🌊' },
+            'acid+metal': { result: '💨 Corrosión', explanation: 'El ácido corroe el metal liberando gases en una reacción química.', color: '#228B22', icon: '💨' },
+            'oil+fire': { result: '🔥 Llama Intensa', explanation: 'El aceite es combustible y arde con una llama muy intensa.', color: '#FF8C00', icon: '🔥' },
+            'oil+water': { result: '🛢️ No se mezcla', explanation: 'El aceite y el agua no se mezclan debido a sus densidades diferentes.', color: '#4B0082', icon: '🛢️' },
+            'earth+seed': { result: '🌱 Brote', explanation: 'Las semillas germinan en la tierra con los nutrientes necesarios.', color: '#32CD32', icon: '🌱' },
+            'light+seed': { result: '🌱 Fotosíntesis', explanation: 'Las plantas necesitan luz para realizar la fotosíntesis y crecer.', color: '#228B22', icon: '🌱' },
+            'seed+water': { result: '🌱 Germinación', explanation: 'Las semillas necesitan agua para germinar y comenzar a crecer.', color: '#32CD32', icon: '🌱' },
+            'electricity+metal': { result: '⚡ Conductor', explanation: 'Los metales conducen la electricidad muy bien.', color: '#FFD700', icon: '⚡' },
+            'electricity+water': { result: '⚡ Electrólisis', explanation: 'La electricidad puede descomponer el agua en oxígeno e hidrógeno.', color: '#00BFFF', icon: '⚡' },
+            'electricity+fire': { result: '💥 Chispa', explanation: 'La electricidad puede generar chispas que encienden fuego.', color: '#FF1493', icon: '💥' },
+            'carbon+pressure': { result: '💎 Diamante', explanation: 'El carbono bajo extrema presión se convierte en diamante.', color: '#E0E0E0', icon: '💎' },
+            'earth+pressure': { result: '🗿 Roca', explanation: 'La tierra comprimida bajo presión forma rocas sólidas.', color: '#696969', icon: '🗿' },
+            'pressure+water': { result: '💧 Agua a presión', explanation: 'El agua bajo presión puede cortear y tener más fuerza.', color: '#1E90FF', icon: '💧' },
+            'cold+water': { result: '🧊 Hielo', explanation: 'El frío congela el agua convirtiéndola en hielo sólido.', color: '#87CEEB', icon: '🧊' },
+            'cold+fire': { result: '💨 Se apaga', explanation: 'El frío extremo puede apagar el fuego reduciendo la temperatura.', color: '#778899', icon: '💨' },
+            'air+cold': { result: '❄️ Viento Frío', explanation: 'El aire frío forma corrientes de viento helado.', color: '#B0C4DE', icon: '❄️' },
+            'fire+fire': { result: '🔥 Fuego Intenso', explanation: 'Más fuego crea una llama más grande e intensa.', color: '#DC143C', icon: '🔥' },
+            'water+water': { result: '🌊 Más Agua', explanation: 'Al juntar agua obtenemos más cantidad del mismo elemento.', color: '#1E90FF', icon: '🌊' },
+            'oxygen+oxygen': { result: '🫁 O2 puro', explanation: 'Oxígeno puro en mayor concentración.', color: '#87CEEB', icon: '🫁' }
+        };
+
+        document.querySelectorAll('.element').forEach(element => {
+            element.addEventListener('dragstart', handleDragStart);
+            element.addEventListener('dragend', handleDragEnd);
+        });
+
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.addEventListener('dragover', handleDragOver);
+        dropZone.addEventListener('dragenter', handleDragEnter);
+        dropZone.addEventListener('dragleave', handleDragLeave);
+        dropZone.addEventListener('drop', handleDrop);
+
+        function handleDragStart(e) {
+            e.target.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', e.target.dataset.element);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            dropZone.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            
+            const element = e.dataTransfer.getData('text/plain');
+            addElementToMixture(element);
+        }
+
+        function addElementToMixture(element) {
+            if (currentMixture.length < 2) {
+                currentMixture.push(element);
+                updateMixtureDisplay();
+                
+                if (currentMixture.length === 2) {
+                    setTimeout(() => {
+                        processReaction();
+                    }, 1000);
+                }
+            }
+        }
+
+        function updateMixtureDisplay() {
+            const display = document.getElementById('mixture-display');
+            const dropZone = document.getElementById('drop-zone');
+            
+            if (currentMixture.length === 0) {
+                display.innerHTML = '';
+                display.style.background = 'transparent';
+                dropZone.style.display = 'flex';
+                dropZone.textContent = 'Arrastra elementos aquí';
+            } else if (currentMixture.length === 1) {
+                const elementIcon = getElementIcon(currentMixture[0]);
+                display.innerHTML = elementIcon;
+                display.style.background = getElementColor(currentMixture[0]);
+                dropZone.style.display = 'flex';
+                dropZone.textContent = 'Agrega otro elemento';
+            } else {
+                dropZone.style.display = 'none';
+                display.classList.add('bubbling');
+            }
+        }
+
+        function processReaction() {
+            const mixture = currentMixture.sort().join('+');
+            const reaction = reactions[mixture];
+            const display = document.getElementById('mixture-display');
+            
+            if (reaction) {
+                display.innerHTML = reaction.icon;
+                display.style.background = reaction.color;
+                
+                if (!discoveries.includes(mixture)) {
+                    discoveries.push(mixture);
+                    addDiscovery(reaction);
+                    score += 10;
+                    updateScore();
+                }
+                
+                display.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    display.style.transform = 'scale(1)';
+                }, 300);
+                
+            } else {
+                display.innerHTML = '❌';
+                display.style.background = '#95a5a6';
+                
+                setTimeout(() => {
+                    display.innerHTML = '💨';
+                    display.style.background = '#bdc3c7';
+                }, 1500);
+            }
+            
+            display.classList.remove('bubbling');
+            
+            setTimeout(() => {
+                currentMixture = [];
+                updateMixtureDisplay();
+            }, 3000);
+        }
+
+        function getElementIcon(element) {
+            const icons = {
+                water: '💧', fire: '🔥', earth: '🌍', air: '💨', ice: '🧊', light: '☀️',
+                oxygen: '🫁', carbon: '⚫', metal: '🔩', salt: '🧂', acid: '🧪', oil: '🛢️',
+                seed: '🌱', electricity: '⚡', pressure: '💪', cold: '🥶'
+            };
+            return icons[element] || '❓';
+        }
+
+        function getElementColor(element) {
+            const colors = {
+                water: 'linear-gradient(45deg, #3498db, #2980b9)', fire: 'linear-gradient(45deg, #e74c3c, #c0392b)',
+                earth: 'linear-gradient(45deg, #8b4513, #654321)', air: 'linear-gradient(45deg, #ecf0f1, #bdc3c7)',
+                ice: 'linear-gradient(45deg, #85c1e9, #5dade2)', light: 'linear-gradient(45deg, #f1c40f, #f39c12)',
+                oxygen: 'linear-gradient(45deg, #74b9ff, #0984e3)', carbon: 'linear-gradient(45deg, #2d3436, #636e72)',
+                metal: 'linear-gradient(45deg, #95a5a6, #7f8c8d)', salt: 'linear-gradient(45deg, #ffffff, #ecf0f1)',
+                acid: 'linear-gradient(45deg, #00b894, #00a085)', oil: 'linear-gradient(45deg, #6c5ce7, #5f3dc4)',
+                seed: 'linear-gradient(45deg, #00b894, #00a085)', electricity: 'linear-gradient(45deg, #fdcb6e, #e17055)',
+                pressure: 'linear-gradient(45deg, #fd79a8, #e84393)', cold: 'linear-gradient(45deg, #74b9ff, #0984e3)'
+            };
+            return colors[element] || '#95a5a6';
+        }
+
+        function addDiscovery(reaction) {
+            const resultsList = document.getElementById('results-list');
+            const initialMessage = resultsList.querySelector('p');
+            if (initialMessage) {
+                initialMessage.remove();
+            }
+            const discoveryElement = document.createElement('div');
+            discoveryElement.className = 'result-item';
+            discoveryElement.innerHTML = `
+                <div class="result-reaction">${reaction.result}</div>
+                <div class="result-explanation">${reaction.explanation}</div>
+            `;
+            resultsList.insertBefore(discoveryElement, resultsList.firstChild);
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
+
+        function clearLab() {
+            currentMixture = [];
+            updateMixtureDisplay();
+            const display = document.getElementById('mixture-display');
+            display.classList.remove('bubbling');
+        }
+
+        updateMixtureDisplay();
+    </script>
+</body>
+</html>
