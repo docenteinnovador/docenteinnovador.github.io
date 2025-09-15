@@ -46,14 +46,14 @@
             </div>
         </section>
 
-        <!-- Gaming Projects Carousel -->
+        <!-- Gaming Projects Carousel - Jugar -->
         <section class="projects-section" id="projects-section">
             <div class="container">
                 <h2 class="section-title">
                     <span class="title-highlight">PROBAR ONLINE</span>
                 </h2>
                 <div class="carousel-container">
-                    <div class="carousel" id="carousel">
+                    <div class="carousel" id="carousel-play">
                         <div class="carousel-slide active">
                             <div class="project-card">
                                 <h4>CONVIERTETE EN CIENTIFICO</h4>
@@ -61,31 +61,7 @@
                                     <p>Juego de diversion en ciencias naturales</p>
                                     <div class="project-buttons">
 <a href="ciencia.html" class="btn btn-secondary-gray" target="_blank">Jugar</a>
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="carousel-slide">
-                            <div class="project-card">
-                                <h4>Robot Educativo</h4>
-                                <div class="project-content">
-                                    <p>Proyecto de robótica educativa para enseñar programación básica.</p>
-                                    <div class="project-buttons">
 
-                                        <button class="btn btn-secondary">Descargar</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="carousel-slide">
-                            <div class="project-card">
-                                <h4>LOGOPEDIATECH</h4>
-                                <div class="project-content">
-                                    <p>Aplicación móvil para terapia logopédica personalizada.</p>
-                                    <div class="project-buttons">
-
-                                        <button class="btn btn-secondary">Descargar</button>
                                     </div>
                                 </div>
                             </div>
@@ -97,19 +73,7 @@
                                     <p>Juego interactivo para mejorar la memoria y concentración en niños.</p>
                                     <div class="project-buttons">
 <a href="2paginaweb.html" class="btn btn-secondary-gray" target="_blank">Jugar</a>
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="carousel-slide">
-                            <div class="project-card">
-                                <h4>Quizz Historia</h4>
-                                <div class="project-content">
-                                    <p>Juego de preguntas y respuestas para practicar.</p>
-                                    <div class="project-buttons">
-<a href="" class="btn btn-secondary-gray" target="_blank">PROXIMAMENTE</a>
-                                        
+
                                     </div>
                                 </div>
                             </div>
@@ -121,7 +85,7 @@
                                     <p>Juego interactivo para practicar la física de las piezas de la jenga.</p>
                                     <div class="project-buttons">
 <a href="dox.html" class="btn btn-secondary-gray" target="_blank">Jugar</a>
-                                        
+
                                     </div>
                                 </div>
                             </div>
@@ -133,7 +97,7 @@
                                     <p>JUEGO INTERACTIVO PARA MEJORAR LA MEMORIA Y CONCENTRACIÓN EN NIÑOS.</p>
                                     <div class="project-buttons">
 <a href="2paginaweb.html" class="btn btn-secondary-gray" target="_blank">Jugar</a>
-                                        <button class="btn btn-secondary">Descargar</button>
+
                                     </div>
                                 </div>
                             </div>
@@ -145,7 +109,7 @@
                                     <p>Juego de bingo para practicar palabras.</p>
                                     <div class="project-buttons">
 <a href="lengua.html" class="btn btn-secondary-gray" target="_blank">Jugar</a>
-                                        
+
                                     </div>
                                 </div>
                             </div>
@@ -153,7 +117,59 @@
                     </div>
 
                     <div class="carousel-nav">
-                        <div class="carousel-arrow next" id="nextBtn">
+                        <div class="carousel-arrow next" id="nextBtnPlay">
+                            ↓
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Upcoming Projects Carousel -->
+        <section class="projects-section" id="upcoming-section">
+            <div class="container">
+                <h2 class="section-title">
+                    <span class="title-highlight">PRÓXIMAMENTE</span>
+                </h2>
+                <div class="carousel-container">
+                    <div class="carousel" id="carousel-upcoming">
+                        <div class="carousel-slide active">
+                            <div class="project-card">
+                                <h4>Robot Educativo</h4>
+                                <div class="project-content">
+                                    <p>Proyecto de robótica educativa para enseñar programación básica.</p>
+                                    <div class="project-buttons">
+                                        <button class="btn btn-secondary">PRÓXIMAMENTE</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-slide">
+                            <div class="project-card">
+                                <h4>LOGOPEDIATECH</h4>
+                                <div class="project-content">
+                                    <p>Aplicación móvil para terapia logopédica personalizada.</p>
+                                    <div class="project-buttons">
+                                        <button class="btn btn-secondary">PRÓXIMAMENTE</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-slide">
+                            <div class="project-card">
+                                <h4>Quizz Historia</h4>
+                                <div class="project-content">
+                                    <p>Juego de preguntas y respuestas para practicar.</p>
+                                    <div class="project-buttons">
+                                        <button class="btn btn-secondary">PRÓXIMAMENTE</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-nav">
+                        <div class="carousel-arrow next" id="nextBtnUpcoming">
                             ↓
                         </div>
                     </div>
@@ -213,50 +229,65 @@
             }
         }
 
-        // Carousel functionality - CORREGIDO
-        const slides = document.querySelectorAll('.carousel-slide');
-        const nextBtn = document.getElementById('nextBtn');
-        let currentSlide = 0;
+        // Carousel functionality for Play carousel
+        const slidesPlay = document.querySelectorAll('#carousel-play .carousel-slide');
+        const nextBtnPlay = document.getElementById('nextBtnPlay');
+        let currentSlidePlay = 0;
 
-        // Función para mostrar slide específico
-        function showSlide(index) {
-            // Remover clase active de todos los slides
-            slides.forEach(slide => {
-                slide.classList.remove('active');
-            });
-
-            // Agregar clase active al slide actual
-            slides[index].classList.add('active');
+        // Función para mostrar slide específico en carrusel de jugar
+        function showSlidePlay(index) {
+            slidesPlay.forEach(slide => slide.classList.remove('active'));
+            slidesPlay[index].classList.add('active');
         }
 
-        // Función para ir al siguiente slide
-        function nextSlide() {
-            currentSlide = (currentSlide + 1) % slides.length;
-            showSlide(currentSlide);
-            console.log('Slide actual:', currentSlide + 1, 'de', slides.length);
+        // Función para ir al siguiente slide en carrusel de jugar
+        function nextSlidePlay() {
+            currentSlidePlay = (currentSlidePlay + 1) % slidesPlay.length;
+            showSlidePlay(currentSlidePlay);
         }
 
-        // Event listeners para los botones
-        nextBtn.addEventListener('click', (e) => {
+        // Event listeners para el botón del carrusel de jugar
+        nextBtnPlay.addEventListener('click', (e) => {
             e.preventDefault();
-            nextSlide();
+            nextSlidePlay();
         });
 
-        // Navegación con teclado
+        // Carousel functionality for Upcoming carousel
+        const slidesUpcoming = document.querySelectorAll('#carousel-upcoming .carousel-slide');
+        const nextBtnUpcoming = document.getElementById('nextBtnUpcoming');
+        let currentSlideUpcoming = 0;
+
+        // Función para mostrar slide específico en carrusel de próximos
+        function showSlideUpcoming(index) {
+            slidesUpcoming.forEach(slide => slide.classList.remove('active'));
+            slidesUpcoming[index].classList.add('active');
+        }
+
+        // Función para ir al siguiente slide en carrusel de próximos
+        function nextSlideUpcoming() {
+            currentSlideUpcoming = (currentSlideUpcoming + 1) % slidesUpcoming.length;
+            showSlideUpcoming(currentSlideUpcoming);
+        }
+
+        // Event listeners para el botón del carrusel de próximos
+        nextBtnUpcoming.addEventListener('click', (e) => {
+            e.preventDefault();
+            nextSlideUpcoming();
+        });
+
+        // Navegación con teclado (solo para el carrusel de jugar por defecto)
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-                nextSlide();
+                nextSlidePlay();
             }
         });
 
-        // Auto-advance carousel (opcional - descomentado)
-        // setInterval(nextSlide, 5000);
-
         // Inicializar
         document.addEventListener('DOMContentLoaded', () => {
-            showSlide(currentSlide);
+            showSlidePlay(currentSlidePlay);
+            showSlideUpcoming(currentSlideUpcoming);
             createParticles();
-            console.log('Carrusel inicializado con', slides.length, 'slides');
+            console.log('Carruseles inicializados - Jugar:', slidesPlay.length, 'slides, Próximos:', slidesUpcoming.length, 'slides');
         });
 
         // Navbar scroll effect
