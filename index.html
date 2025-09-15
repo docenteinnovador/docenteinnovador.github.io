@@ -150,7 +150,7 @@
                                 <div class="project-content">
                                     <p>Aplicación móvil para terapia logopédica personalizada.</p>
                                     <div class="project-buttons">
-                                        <button class="btn btn-secondary">PRÓXIMAMENTE</button>
+                                        <a href="#" onclick="downloadAPK()" class="btn btn-secondary">DESCARGAR APK</a>
                                     </div>
                                 </div>
                             </div>
@@ -214,6 +214,19 @@
         </div>
 
     <script>
+        // Function to download APK with password protection
+        function downloadAPK() {
+            const password = prompt("Ingresa la clave para descargar:");
+            if (password === "Docenteinnovador@") {
+                const link = document.createElement('a');
+                link.href = 'app-release.apk';
+                link.download = 'app-release.apk';
+                link.click();
+            } else {
+                alert("Clave incorrecta.");
+            }
+        }
+
         // Particle System
         function createParticles() {
             const particlesContainer = document.getElementById('particles');
