@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratorio Virtual 🧪</title>
+    <title>Desafío de Química 🧪</title>
     <style>
         * {
             margin: 0;
@@ -37,32 +37,94 @@
         }
 
         .header h1 {
-            font-size: clamp(1.5rem, 5vw, 2.5rem); /* Ajuste dinámico de fuente */
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .header p {
-            font-size: clamp(0.9rem, 2vw, 1.1rem); /* Ajuste dinámico de fuente */
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
             opacity: 0.9;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            display: inline-block;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .lives {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a5a);
+        }
+
+        .level {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .challenge-panel {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .challenge-title {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .target-element {
+            font-size: 4em;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .challenge-description {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .challenge-hint {
+            font-size: 1em;
+            opacity: 0.9;
+            font-style: italic;
         }
 
         .lab-area {
             display: flex;
-            flex-wrap: wrap; /* Permite que los elementos se envuelvan */
+            flex-wrap: wrap;
             gap: 20px;
             padding: 30px;
             min-height: 600px;
-            align-items: flex-start; /* Alineación al inicio del contenedor */
+            align-items: flex-start;
             justify-content: center;
         }
 
-        .elements-panel, .results-panel {
+        .elements-panel {
             background: #f8f9fa;
             border-radius: 15px;
             padding: 20px;
             border: 3px dashed #ddd;
-            flex: 1 1 250px; /* Crece y encoge con un tamaño base de 250px */
+            flex: 1 1 250px;
             min-width: 250px;
         }
 
@@ -76,11 +138,11 @@
             justify-content: center;
             border: 4px solid #3498db;
             box-shadow: inset 0 0 30px rgba(52, 152, 219, 0.3);
-            flex: 0 1 400px; /* Prioridad de crecimiento 0, permite encoger, tamaño base de 400px */
-            max-width: 100%; /* Asegura que no se desborde */
+            flex: 0 1 400px;
+            max-width: 100%;
         }
 
-        .elements-panel h3, .results-panel h3 {
+        .elements-panel h3 {
             color: #333;
             margin-bottom: 15px;
             text-align: center;
@@ -89,7 +151,7 @@
 
         .elements-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); /* Adaptación automática */
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
             gap: 8px;
         }
 
@@ -106,7 +168,7 @@
             border: 2px solid transparent;
             position: relative;
             overflow: hidden;
-            place-self: center; /* Centra el elemento en su celda del grid */
+            place-self: center;
         }
 
         .element:hover {
@@ -118,6 +180,11 @@
             cursor: grabbing;
             transform: rotate(10deg) scale(1.1);
             z-index: 1000;
+        }
+
+        .element.used {
+            opacity: 0.5;
+            pointer-events: none;
         }
 
         .element-icon {
@@ -132,7 +199,7 @@
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
 
-        /* Colores de elementos - Sin cambios */
+        /* Colores de elementos */
         .water { background: linear-gradient(45deg, #3498db, #2980b9); }
         .fire { background: linear-gradient(45deg, #e74c3c, #c0392b); }
         .earth { background: linear-gradient(45deg, #8b4513, #654321); }
@@ -231,95 +298,124 @@
             transform: translate(-50%, -50%) scale(1.1);
         }
 
-        .result-item {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-left: 5px solid #3498db;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            animation: slideIn 0.5s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .result-reaction {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-
-        .result-explanation {
-            font-size: 0.9rem;
-            color: #666;
-            line-height: 1.4;
-        }
-
         .controls {
             text-align: center;
             padding: 20px;
             background: #f8f9fa;
             border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .clear-btn {
             background: linear-gradient(45deg, #e74c3c, #c0392b);
             color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
         }
 
-        .clear-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        .hint-btn {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
         }
 
-        .score {
+        .next-btn {
             background: linear-gradient(45deg, #27ae60, #2ecc71);
             color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            display: inline-block;
         }
 
-        /* Media Queries para responsividad */
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .message-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .message-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .message-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .message-title {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .message-text {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .message-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Media Queries */
         @media (max-width: 992px) {
             .lab-area {
-                flex-direction: column; /* Apila los paneles en tabletas */
+                flex-direction: column;
                 align-items: center;
             }
 
-            .elements-panel, .results-panel, .mixing-area {
-                flex: 1 1 100%; /* Ocupan todo el ancho disponible */
+            .elements-panel, .mixing-area {
+                flex: 1 1 100%;
                 max-width: 100%;
             }
 
             .mixing-area {
-                order: 2; /* Coloca el área de mezcla en el centro */
+                order: 2;
             }
 
             .elements-panel {
-                order: 1; /* Coloca el panel de elementos al principio */
-            }
-
-            .results-panel {
-                order: 3; /* Coloca el panel de resultados al final */
+                order: 1;
             }
         }
 
@@ -327,23 +423,67 @@
             body {
                 padding: 10px;
             }
+            
             .container {
                 border-radius: 10px;
-                padding: 0;
             }
+            
             .lab-area {
                 padding: 20px 10px;
                 gap: 15px;
             }
-            .elements-panel, .results-panel {
+            
+            .elements-panel {
                 padding: 15px;
             }
+            
             .elements-grid {
-                grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); /* Más columnas en pantallas pequeñas */
+                grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
             }
+            
             .element {
                 width: 60px;
                 height: 60px;
+            }
+            
+            .game-stats {
+                gap: 10px;
+            }
+            
+            .stat-box {
+                min-width: 100px;
+                padding: 10px 15px;
+                font-size: 1em;
+            }
+            
+            .challenge-panel {
+                margin: 15px;
+                padding: 15px;
+            }
+            
+            .target-element {
+                font-size: 3em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-stats {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .stat-box {
+                width: 200px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 200px;
+                justify-content: center;
             }
         }
     </style>
@@ -351,14 +491,27 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🧪 Laboratorio Virtual de Ciencias</h1>
-            <p>¡Mezcla elementos y descubre fenómenos naturales increíbles!</p>
+            <h1>🧪 Desafío de Química</h1>
+            <p>¡Crea el elemento objetivo combinando los ingredientes correctos!</p>
+        </div>
+
+        <div class="game-stats">
+            <div class="stat-box">🏆 Puntos: <span id="score">0</span></div>
+            <div class="stat-box lives">❤️ Vidas: <span id="lives">3</span></div>
+            <div class="stat-box level">🎯 Nivel: <span id="level">1</span></div>
+        </div>
+
+        <div class="challenge-panel" id="challengePanel">
+            <div class="challenge-title">🎯 OBJETIVO</div>
+            <div class="target-element" id="targetElement">🌈</div>
+            <div class="challenge-description" id="challengeDescription">Crea un Arcoíris</div>
+            <div class="challenge-hint" id="challengeHint">Combina elementos que interactúen con la luz y el agua</div>
         </div>
 
         <div class="lab-area">
             <div class="elements-panel">
-                <h3>🌟 Elementos Básicos</h3>
-                <div class="elements-grid">
+                <h3>🌟 Elementos Disponibles</h3>
+                <div class="elements-grid" id="elementsGrid">
                     <div class="element water" draggable="true" data-element="water">
                         <div class="element-icon">💧</div>
                         <div class="element-name">Agua</div>
@@ -434,40 +587,101 @@
                     </div>
                 </div>
             </div>
-
-            <div class="results-panel">
-                <h3>📋 Descubrimientos</h3>
-                <div class="score">🏆 Puntuación: <span id="score">0</span></div>
-                <div id="results-list">
-                    <p style="color: #666; text-align: center; font-style: italic;">
-                        ¡Comienza a mezclar elementos para hacer descubrimientos!
-                    </p>
-                </div>
-            </div>
         </div>
 
         <div class="controls">
-            <button class="clear-btn" onclick="clearLab()">🗑️ Limpiar Laboratorio</button>
+            <button class="btn clear-btn" onclick="clearLab()">🗑️ Limpiar</button>
+            <button class="btn hint-btn" onclick="showHint()">💡 Pista</button>
+            <button class="btn next-btn" onclick="nextChallenge()" id="nextBtn" style="display: none;">➡️ Siguiente</button>
+        </div>
+    </div>
+
+    <div class="message-overlay" id="messageOverlay">
+        <div class="message-content">
+            <div class="message-icon" id="messageIcon">🎉</div>
+            <h2 class="message-title" id="messageTitle">¡Correcto!</h2>
+            <p class="message-text" id="messageText">Has creado el elemento objetivo correctamente.</p>
+            <button class="message-btn" onclick="closeMessage()">Continuar</button>
         </div>
     </div>
 
     <script>
-        // Lógica de JavaScript - sin cambios, ya que no afecta la responsividad
         let currentMixture = [];
-        let discoveries = [];
         let score = 0;
+        let lives = 3;
+        let level = 1;
+        let currentChallenge = 0;
+
+        const challenges = [
+            {
+                target: 'light+water',
+                icon: '🌈',
+                name: 'Arcoíris',
+                hint: 'La luz se descompone al pasar por el agua',
+                description: 'Crea un Arcoíris'
+            },
+            {
+                target: 'water+earth',
+                icon: '🟤',
+                name: 'Barro',
+                hint: 'El agua mezclada con tierra forma...',
+                description: 'Crea Barro'
+            },
+            {
+                target: 'fire+ice',
+                icon: '💨',
+                name: 'Vapor',
+                hint: 'El calor derrite el hielo y lo convierte en...',
+                description: 'Crea Vapor'
+            },
+            {
+                target: 'carbon+pressure',
+                icon: '💎',
+                name: 'Diamante',
+                hint: 'El carbón bajo mucha presión se convierte en...',
+                description: 'Crea un Diamante'
+            },
+            {
+                target: 'electricity+metal',
+                icon: '⚡',
+                name: 'Conductor',
+                hint: 'Los metales permiten que pase la electricidad',
+                description: 'Crea un Conductor'
+            },
+            {
+                target: 'seed+water',
+                icon: '🌱',
+                name: 'Germinación',
+                hint: 'Las semillas necesitan agua para crecer',
+                description: 'Logra la Germinación'
+            },
+            {
+                target: 'fire+oxygen',
+                icon: '🔥',
+                name: 'Combustión',
+                hint: 'El oxígeno alimenta el fuego',
+                description: 'Crea Combustión'
+            },
+            {
+                target: 'cold+water',
+                icon: '🧊',
+                name: 'Hielo',
+                hint: 'El frío congela el agua',
+                description: 'Crea Hielo'
+            }
+        ];
 
         const reactions = {
-            'water+earth': { result: '🟤 Barro', explanation: 'El agua y la tierra se combinan para formar barro, una mezcla útil en construcción.', color: '#8B4513', icon: '🟤' },
-            'fire+ice': { result: '💨 Vapor', explanation: 'El fuego derrite el hielo y lo convierte en vapor de agua, cambiando su estado.', color: '#E0E0E0', icon: '💨' },
-            'fire+water': { result: '💨 Vapor', explanation: 'El calor del fuego evapora el agua, convirtiéndola en vapor.', color: '#E0E0E0', icon: '💨' },
-            'air+water': { result: '☁️ Nube', explanation: 'El vapor de agua en el aire forma nubes, parte del ciclo del agua.', color: '#87CEEB', icon: '☁️' },
+            'light+water': { result: '🌈 Arcoíris', explanation: 'La luz se descompone en el agua formando un arcoíris por refracción.', color: '#FF69B4', icon: '🌈' },
+            'water+earth': { result: '🟤 Barro', explanation: 'El agua y la tierra se combinan para formar barro.', color: '#8B4513', icon: '🟤' },
+            'fire+ice': { result: '💨 Vapor', explanation: 'El fuego derrite el hielo y lo convierte en vapor de agua.', color: '#E0E0E0', icon: '💨' },
+            'fire+water': { result: '💨 Vapor', explanation: 'El calor del fuego evapora el agua.', color: '#E0E0E0', icon: '💨' },
+            'air+water': { result: '☁️ Nube', explanation: 'El vapor de agua en el aire forma nubes.', color: '#87CEEB', icon: '☁️' },
             'earth+fire': { result: '🌋 Lava', explanation: 'El fuego intenso derrite la tierra, creando lava volcánica.', color: '#FF4500', icon: '🌋' },
             'air+fire': { result: '💥 Explosión', explanation: 'El aire alimenta el fuego, creando una combustión más intensa.', color: '#FFD700', icon: '💥' },
             'ice+water': { result: '🌊 Agua Fría', explanation: 'El hielo se derrite en el agua, pero la mantiene fría.', color: '#4682B4', icon: '🌊' },
             'air+earth': { result: '🌪️ Torbellino', explanation: 'El aire fuerte levanta partículas de tierra formando remolinos.', color: '#DEB887', icon: '🌪️' },
             'ice+light': { result: '💎 Cristal', explanation: 'La luz refracta a través del hielo creando efectos cristalinos.', color: '#E6E6FA', icon: '💎' },
-            'light+water': { result: '🌈 Arcoíris', explanation: 'La luz se descompone en el agua formando un arcoíris por refracción.', color: '#FF69B4', icon: '🌈' },
             'fire+light': { result: '💡 Energía', explanation: 'El fuego y la luz se combinan para generar más energía luminosa.', color: '#FFD700', icon: '💡' },
             'fire+oxygen': { result: '🔥 Combustión', explanation: 'El oxígeno alimenta el fuego creando una combustión más intensa.', color: '#FF6347', icon: '🔥' },
             'carbon+fire': { result: '💨 CO2', explanation: 'El carbón se quema con el fuego produciendo dióxido de carbono.', color: '#696969', icon: '💨' },
@@ -489,24 +703,45 @@
             'pressure+water': { result: '💧 Agua a presión', explanation: 'El agua bajo presión puede cortear y tener más fuerza.', color: '#1E90FF', icon: '💧' },
             'cold+water': { result: '🧊 Hielo', explanation: 'El frío congela el agua convirtiéndola en hielo sólido.', color: '#87CEEB', icon: '🧊' },
             'cold+fire': { result: '💨 Se apaga', explanation: 'El frío extremo puede apagar el fuego reduciendo la temperatura.', color: '#778899', icon: '💨' },
-            'air+cold': { result: '❄️ Viento Frío', explanation: 'El aire frío forma corrientes de viento helado.', color: '#B0C4DE', icon: '❄️' },
-            'fire+fire': { result: '🔥 Fuego Intenso', explanation: 'Más fuego crea una llama más grande e intensa.', color: '#DC143C', icon: '🔥' },
-            'water+water': { result: '🌊 Más Agua', explanation: 'Al juntar agua obtenemos más cantidad del mismo elemento.', color: '#1E90FF', icon: '🌊' },
-            'oxygen+oxygen': { result: '🫁 O2 puro', explanation: 'Oxígeno puro en mayor concentración.', color: '#87CEEB', icon: '🫁' }
+            'air+cold': { result: '❄️ Viento Frío', explanation: 'El aire frío forma corrientes de viento helado.', color: '#B0C4DE', icon: '❄️' }
         };
 
-        document.querySelectorAll('.element').forEach(element => {
-            element.addEventListener('dragstart', handleDragStart);
-            element.addEventListener('dragend', handleDragEnd);
-        });
+        function initializeGame() {
+            loadChallenge();
+            updateStats();
+            setupDragAndDrop();
+        }
 
-        const dropZone = document.getElementById('drop-zone');
-        dropZone.addEventListener('dragover', handleDragOver);
-        dropZone.addEventListener('dragenter', handleDragEnter);
-        dropZone.addEventListener('dragleave', handleDragLeave);
-        dropZone.addEventListener('drop', handleDrop);
+        function loadChallenge() {
+            const challenge = challenges[currentChallenge];
+            document.getElementById('targetElement').textContent = challenge.icon;
+            document.getElementById('challengeDescription').textContent = challenge.description;
+            document.getElementById('challengeHint').textContent = challenge.hint;
+            
+            // Reset elements
+            document.querySelectorAll('.element').forEach(el => {
+                el.classList.remove('used');
+            });
+        }
+
+        function setupDragAndDrop() {
+            document.querySelectorAll('.element').forEach(element => {
+                element.addEventListener('dragstart', handleDragStart);
+                element.addEventListener('dragend', handleDragEnd);
+            });
+
+            const dropZone = document.getElementById('drop-zone');
+            dropZone.addEventListener('dragover', handleDragOver);
+            dropZone.addEventListener('dragenter', handleDragEnter);
+            dropZone.addEventListener('dragleave', handleDragLeave);
+            dropZone.addEventListener('drop', handleDrop);
+        }
 
         function handleDragStart(e) {
+            if (e.target.classList.contains('used')) {
+                e.preventDefault();
+                return;
+            }
             e.target.classList.add('dragging');
             e.dataTransfer.setData('text/plain', e.target.dataset.element);
         }
@@ -521,16 +756,16 @@
 
         function handleDragEnter(e) {
             e.preventDefault();
-            dropZone.classList.add('drag-over');
+            document.getElementById('drop-zone').classList.add('drag-over');
         }
 
         function handleDragLeave(e) {
-            dropZone.classList.remove('drag-over');
+            document.getElementById('drop-zone').classList.remove('drag-over');
         }
 
         function handleDrop(e) {
             e.preventDefault();
-            dropZone.classList.remove('drag-over');
+            document.getElementById('drop-zone').classList.remove('drag-over');
             
             const element = e.dataTransfer.getData('text/plain');
             addElementToMixture(element);
@@ -539,6 +774,11 @@
         function addElementToMixture(element) {
             if (currentMixture.length < 2) {
                 currentMixture.push(element);
+                
+                // Marcar elemento como usado
+                const elementDiv = document.querySelector(`[data-element="${element}"]`);
+                elementDiv.classList.add('used');
+                
                 updateMixtureDisplay();
                 
                 if (currentMixture.length === 2) {
@@ -574,16 +814,28 @@
             const mixture = currentMixture.sort().join('+');
             const reaction = reactions[mixture];
             const display = document.getElementById('mixture-display');
+            const currentChallengeData = challenges[currentChallenge];
             
             if (reaction) {
                 display.innerHTML = reaction.icon;
                 display.style.background = reaction.color;
                 
-                if (!discoveries.includes(mixture)) {
-                    discoveries.push(mixture);
-                    addDiscovery(reaction);
-                    score += 10;
-                    updateScore();
+                // Verificar si es la respuesta correcta
+                if (mixture === currentChallengeData.target) {
+                    // ¡Correcto!
+                    score += 100;
+                    updateStats();
+                    showMessage('🎉', '¡Correcto!', `Has creado ${reaction.result} correctamente. +100 puntos!`, true);
+                } else {
+                    // Incorrecto
+                    lives--;
+                    updateStats();
+                    
+                    if (lives <= 0) {
+                        showMessage('💀', 'Game Over', 'Te has quedado sin vidas. El juego ha terminado.', false);
+                    } else {
+                        showMessage('❌', 'Incorrecto', `Has creado ${reaction.result}, pero necesitas crear ${currentChallengeData.name}. -1 vida!`, false);
+                    }
                 }
                 
                 display.style.transform = 'scale(1.2)';
@@ -592,8 +844,18 @@
                 }, 300);
                 
             } else {
+                // No hay reacción
                 display.innerHTML = '❌';
                 display.style.background = '#95a5a6';
+                
+                lives--;
+                updateStats();
+                
+                if (lives <= 0) {
+                    showMessage('💀', 'Game Over', 'Te has quedado sin vidas. El juego ha terminado.', false);
+                } else {
+                    showMessage('❌', 'Sin Reacción', 'Estos elementos no reaccionan entre sí. -1 vida!', false);
+                }
                 
                 setTimeout(() => {
                     display.innerHTML = '💨';
@@ -606,7 +868,88 @@
             setTimeout(() => {
                 currentMixture = [];
                 updateMixtureDisplay();
+                
+                // Reset used elements
+                document.querySelectorAll('.element').forEach(el => {
+                    el.classList.remove('used');
+                });
             }, 3000);
+        }
+
+        function showMessage(icon, title, text, isSuccess) {
+            document.getElementById('messageIcon').textContent = icon;
+            document.getElementById('messageTitle').textContent = title;
+            document.getElementById('messageText').textContent = text;
+            document.getElementById('messageOverlay').style.display = 'flex';
+            
+            if (isSuccess) {
+                document.getElementById('nextBtn').style.display = 'inline-flex';
+            }
+        }
+
+        function closeMessage() {
+            document.getElementById('messageOverlay').style.display = 'none';
+            
+            if (lives <= 0) {
+                resetGame();
+            }
+        }
+
+        function nextChallenge() {
+            currentChallenge++;
+            if (currentChallenge >= challenges.length) {
+                // Completó todos los desafíos
+                level++;
+                currentChallenge = 0;
+                score += 500; // Bonus por completar nivel
+                showMessage('🏆', '¡Nivel Completado!', `Has completado el nivel ${level-1}! +500 puntos bonus. Ahora el nivel ${level} será más difícil.`, false);
+            }
+            
+            loadChallenge();
+            updateStats();
+            clearLab();
+            document.getElementById('nextBtn').style.display = 'none';
+            closeMessage();
+        }
+
+        function resetGame() {
+            score = 0;
+            lives = 3;
+            level = 1;
+            currentChallenge = 0;
+            loadChallenge();
+            updateStats();
+            clearLab();
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('lives').textContent = lives;
+            document.getElementById('level').textContent = level;
+        }
+
+        function showHint() {
+            const challenge = challenges[currentChallenge];
+            const elements = challenge.target.split('+');
+            const elementNames = elements.map(el => {
+                const elementDiv = document.querySelector(`[data-element="${el}"]`);
+                return elementDiv ? elementDiv.querySelector('.element-name').textContent : el;
+            });
+            
+            alert(`💡 Pista: Necesitas combinar ${elementNames[0]} + ${elementNames[1]} para crear ${challenge.name}`);
+        }
+
+        function clearLab() {
+            currentMixture = [];
+            updateMixtureDisplay();
+            const display = document.getElementById('mixture-display');
+            display.classList.remove('bubbling');
+            
+            // Reset used elements
+            document.querySelectorAll('.element').forEach(el => {
+                el.classList.remove('used');
+            });
         }
 
         function getElementIcon(element) {
@@ -632,33 +975,8 @@
             return colors[element] || '#95a5a6';
         }
 
-        function addDiscovery(reaction) {
-            const resultsList = document.getElementById('results-list');
-            const initialMessage = resultsList.querySelector('p');
-            if (initialMessage) {
-                initialMessage.remove();
-            }
-            const discoveryElement = document.createElement('div');
-            discoveryElement.className = 'result-item';
-            discoveryElement.innerHTML = `
-                <div class="result-reaction">${reaction.result}</div>
-                <div class="result-explanation">${reaction.explanation}</div>
-            `;
-            resultsList.insertBefore(discoveryElement, resultsList.firstChild);
-        }
-
-        function updateScore() {
-            document.getElementById('score').textContent = score;
-        }
-
-        function clearLab() {
-            currentMixture = [];
-            updateMixtureDisplay();
-            const display = document.getElementById('mixture-display');
-            display.classList.remove('bubbling');
-        }
-
-        updateMixtureDisplay();
+        // Inicializar el juego cuando se carga la página
+        document.addEventListener('DOMContentLoaded', initializeGame);
     </script>
 </body>
 </html>
