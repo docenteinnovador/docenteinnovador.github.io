@@ -654,19 +654,17 @@
 
             markCell(carton, index, cellElement) {
                 if (!this.juegoActivo) return;
-                
+
                 const wordIndex = index < 12 ? index : index - 1;
                 const palabra = carton.palabras[wordIndex];
-                
-                if (this.palabrasLlamadas.includes(palabra)) {
-                    if (carton.marcadas.has(index)) {
-                        carton.marcadas.delete(index);
-                        cellElement.classList.remove('marked');
-                    } else {
-                        carton.marcadas.add(index);
-                        cellElement.classList.add('marked');
-                        this.checkForBingo(carton);
-                    }
+
+                if (carton.marcadas.has(index)) {
+                    carton.marcadas.delete(index);
+                    cellElement.classList.remove('marked');
+                } else {
+                    carton.marcadas.add(index);
+                    cellElement.classList.add('marked');
+                    this.checkForBingo(carton);
                 }
             }
 
