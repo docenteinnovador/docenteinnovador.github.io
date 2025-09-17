@@ -584,6 +584,9 @@
         let timerInterval = null;
         let gameStarted = false;
 
+        // Track used countries to avoid repetition across games
+        let usedCountries = [];
+
         function shuffle(array) {
             const newArray = [...array];
             for (let i = newArray.length - 1; i > 0; i--) {
@@ -594,8 +597,24 @@
         }
 
         function getRandomCountries(count = 10) {
-            const shuffled = shuffle(allCountriesData);
-            return shuffled.slice(0, count);
+            // Filter countries not used yet
+            let availableCountries = allCountriesData.filter(item => !usedCountries.includes(item.country));
+
+            // If not enough countries left, reset usedCountries
+            if (availableCountries.length < count) {
+                usedCountries = [];
+                availableCountries = [...allCountriesData];
+            }
+
+            const shuffled = shuffle(availableCountries);
+            const selected = shuffled.slice(0, count);
+
+            // Add selected countries to usedCountries
+            selected.forEach(item => {
+                usedCountries.push(item.country);
+            });
+
+            return selected;
         }
 
         function startGame() {
@@ -740,18 +759,6 @@
             });
         }
 
-        function selectCapital(capital) {
-            if (Object.values(connections).includes(capital)) return; // Ya está conectado
-
-            if (!selectedCountry) {
-                alert('Primero selecciona un país');
-                return;
-            }
-
-            selectedCapital = capital;
-            checkConnection();
-        }
-
         function checkConnection() {
             const correctCapital = puzzleData.find(item => item.country === selectedCountry)?.capital;
             
@@ -811,6 +818,12 @@
         }
 
         function showCompletionModal() {
+            // Add completed countries to usedCountries
+            puzzleData.forEach(item => {
+                if (!usedCountries.includes(item.country)) {
+                    usedCountries.push(item.country);
+                }
+            });
             document.getElementById('completionModal').classList.add('show');
         }
 

@@ -773,7 +773,7 @@
         function generateQuestion() {
             const level = selectedBlock.userData.level + 1;
             const position = selectedBlock.userData.position;
-            
+
             // Generar operaciones más complejas para nivel 2
             const questionTypes = [
                 'mixed_operations',
@@ -781,10 +781,10 @@
                 'decimals_operations',
                 'order_operations'
             ];
-            
+
             const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
             let question, answer;
-            
+
             switch(questionType) {
                 case 'mixed_operations':
                     // Operaciones mixtas como 45+12/6
@@ -793,16 +793,16 @@
                     const c = b * (Math.floor(Math.random() * 8) + 2); // Para división exacta
                     const operators = ['+', '-'];
                     const op = operators[Math.floor(Math.random() * operators.length)];
-                    
+
                     question = `${a} ${op} ${c} ÷ ${b}`;
                     if (op === '+') {
                         answer = a + (c / b);
                     } else {
                         answer = a - (c / b);
                     }
-                    answer = Math.round(answer); // Round to integer
+                    // answer is already integer since c is multiple of b
                     break;
-                    
+
                 case 'fractions':
                     // Operaciones con fracciones que resultan en enteros
                     // Generar denominador común
@@ -811,7 +811,7 @@
                     const num1 = den * (Math.floor(Math.random() * 5) + 1);
                     const num2 = den * (Math.floor(Math.random() * 5) + 1);
                     const fracOp = ['+', '-'][Math.floor(Math.random() * 2)];
-                    
+
                     question = `${num1}/${den} ${fracOp} ${num2}/${den}`;
                     if (fracOp === '+') {
                         answer = (num1 + num2) / den;
@@ -820,13 +820,13 @@
                     }
                     // answer is already integer, no rounding needed
                     break;
-                    
+
                 case 'decimals_operations':
                     // Operaciones con decimales
                     const dec1 = Math.floor(Math.random() * 100) + level * 10;
                     const dec2 = Math.floor(Math.random() * 50) + 5;
                     const decOp = ['+', '-', '×'][Math.floor(Math.random() * 3)];
-                    
+
                     question = `${dec1} ${decOp} ${dec2}`;
                     if (decOp === '+') {
                         answer = dec1 + dec2;
@@ -836,25 +836,34 @@
                         answer = dec1 * dec2;
                     }
                     break;
-                    
+
                 case 'order_operations':
                     // Orden de operaciones como 2×(8+4)÷3
                     const x = Math.floor(Math.random() * 5) + 2;
                     const y = Math.floor(Math.random() * 10) + 5;
                     const z = Math.floor(Math.random() * 8) + 2;
-                    const w = Math.floor(Math.random() * 4) + 2;
-                    
+                    const sum = y + z;
+                    const product = x * sum;
+                    // Find a divisor that divides product evenly
+                    const possibleDivisors = [];
+                    for (let i = 2; i <= 10; i++) {
+                        if (product % i === 0) {
+                            possibleDivisors.push(i);
+                        }
+                    }
+                    const w = possibleDivisors.length > 0 ? possibleDivisors[Math.floor(Math.random() * possibleDivisors.length)] : 1;
+
                     question = `${x} × (${y} + ${z}) ÷ ${w}`;
-                    answer = Math.round(x * (y + z) / w); // Round to integer
+                    answer = product / w; // Always integer
                     break;
             }
-            
+
             currentQuestion = {
                 question: question,
                 answer: answer,
                 startTime: Date.now()
             };
-            
+
             questionEl.textContent = `¿Cuánto es ${currentQuestion.question}?`;
             answerInput.value = '';
             feedbackEl.textContent = '';
