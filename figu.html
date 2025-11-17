@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruleta de Palabras</title>
+    <!-- Carga de Tailwind CSS para un diseño moderno y responsive -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuración del tema de Tailwind y la fuente Inter -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#4f46e5', // Indigo-600
+                        'secondary': '#f97316', // Orange-500
+                        'accent': '#10b981', // Emerald-500
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- Enlace a la fuente Inter de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos CSS personalizados para la ruleta */
+        .roulette-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+        }
+
+        .roulette-wheel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            transition: transform 5s cubic-bezier(0.2, 0.8, 0.2, 1); /* Curva de desaceleración suave */
+            box-shadow: 0 0 0 8px #fff, 0 10px 20px rgba(0, 0, 0, 0.3);
+            background-color: #fff;
+        }
+
+        .segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            top: 0;
+            left: 50%;
+            transform-origin: 0% 100%;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            border: 1px solid rgba(255, 255, 255, 0.5); /* Separador suave entre segmentos */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            padding-top: 10px;
+            overflow: hidden;
+        }
+
+        .segment-content {
+            position: absolute;
+            top: 20%;
+            right: 0%;
+            transform: rotate(45deg); /* Ajuste para el texto dentro de la cuña */
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Marcador de parada (puntero) */
+        .pointer {
+            position: absolute;
+            top: -10px; /* Colocar justo encima de la ruleta */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #ef4444; /* Rojo vibrante */
+            z-index: 10;
+        }
+
+        /* Rotación y colores de los 8 segmentos */
+        .s1 { background-color: #f87171; transform: rotate(0deg) skewY(45deg); }
+        .s2 { background-color: #fb923c; transform: rotate(45deg) skewY(45deg); }
+        .s3 { background-color: #facc15; transform: rotate(90deg) skewY(45deg); }
+        .s4 { background-color: #a3e635; transform: rotate(135deg) skewY(45deg); }
+        .s5 { background-color: #34d399; transform: rotate(180deg) skewY(45deg); }
+        .s6 { background-color: #38bdf8; transform: rotate(225deg) skewY(45deg); }
+        .s7 { background-color: #818cf8; transform: rotate(270deg) skewY(45deg); } /* Color para Figuras Geométricas */
+        .s8 { background-color: #c084fc; transform: rotate(315deg) skewY(45deg); }
+
+        /* Ajuste para que el texto dentro de cada cuña parezca recto */
+        .s1 .segment-content { transform: rotate(-45deg); }
+        .s2 .segment-content { transform: rotate(0deg); }
+        .s3 .segment-content { transform: rotate(45deg); }
+        .s4 .segment-content { transform: rotate(90deg); }
+        .s5 .segment-content { transform: rotate(135deg); }
+        .s6 .segment-content { transform: rotate(180deg); }
+        .s7 .segment-content { transform: rotate(225deg); }
+        .s8 .segment-content { transform: rotate(270deg); }
+
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center font-sans p-4">
+
+    <div class="w-full max-w-lg bg-white rounded-xl shadow-2xl p-6 md:p-8 text-center border-t-8 border-primary">
+        <h1 class="text-3xl md:text-4xl font-black text-primary mb-2">
+            <span class="text-secondary">🎰</span> Ruleta de Palabras
+        </h1>
+        <p class="text-gray-600 mb-6">Gira la ruleta y practica tu vocabulario y articulación.</p>
+
+        <!-- Contenedor de la Ruleta -->
+        <div class="roulette-container mb-8">
+            <div class="pointer"></div>
+            <div id="rouletteWheel" class="roulette-wheel">
+                <!-- Segmentos de la Ruleta (8 categorías) -->
+                <div class="segment s1" style="z-index: 8;"><span class="segment-content text-lg">Animales</span></div>
+                <div class="segment s2" style="z-index: 7;"><span class="segment-content text-lg">Frutas</span></div>
+                <div class="segment s3" style="z-index: 6;"><span class="segment-content text-lg">Deportes</span></div>
+                <div class="segment s4" style="z-index: 5;"><span class="segment-content text-lg">Instrumentos Musicales</span></div>
+                <div class="segment s5" style="z-index: 4;"><span class="segment-content text-lg">Sentimientos</span></div>
+                <div class="segment s6" style="z-index: 3;"><span class="segment-content text-lg">Profesiones</span></div>
+                <div class="segment s7" style="z-index: 2;"><span class="segment-content text-lg">Figuras Geométricas</span></div> <!-- ¡NUEVA CATEGORÍA! -->
+                <div class="segment s8" style="z-index: 1;"><span class="segment-content text-lg">Ropa</span></div>
+            </div>
+        </div>
+
+        <!-- Área de Resultado y Botón -->
+        <div id="resultArea" class="p-4 bg-primary/10 text-primary rounded-lg mb-6 shadow-inner min-h-[60px] flex items-center justify-center">
+            <p id="resultText" class="text-xl font-semibold">Presiona "Girar" para comenzar a jugar.</p>
+        </div>
+
+        <button id="spinButton"
+            onclick="spinWheel()"
+            class="w-full py-3 px-4 bg-secondary hover:bg-secondary/90 text-white font-extrabold text-2xl rounded-full shadow-lg transition duration-150 ease-in-out transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Girar la ruleta de palabras">
+            GIRAR
+        </button>
+
+    </div>
+
+    <script>
+        // Definición de las categorías del juego (ACTUALIZADAS con Figuras Geométricas)
+        const categories = [
+            'Animales',
+            'Frutas',
+            'Deportes',
+            'Instrumentos Musicales',
+            'Sentimientos',
+            'Profesiones',
+            'Figuras Geométricas', // ¡NUEVA CATEGORÍA!
+            'Ropa'
+        ];
+
+        // Elementos del DOM
+        const wheel = document.getElementById('rouletteWheel');
+        const button = document.getElementById('spinButton');
+        const resultText = document.getElementById('resultText');
+
+        // Ángulo de cada segmento (360 grados / 8 categorías = 45 grados por segmento)
+        const segmentAngle = 360 / categories.length;
+        let isSpinning = false;
+        let totalRotation = 0;
+
+        /**
+         * Función para iniciar el giro de la ruleta.
+         */
+        function spinWheel() {
+            if (isSpinning) return;
+            isSpinning = true;
+            button.disabled = true;
+            button.textContent = '¡Girando...!';
+            resultText.textContent = '¡La ruleta está girando! Espera la categoría...';
+
+            // 1. Elegir un índice de categoría aleatorio (0 a 7)
+            const winningIndex = Math.floor(Math.random() * categories.length);
+            const winningCategory = categories[winningIndex];
+
+            // 2. Calcular la rotación para aterrizar en el centro del segmento
+            // Se usa un offset (22.5 grados, que es la mitad del ángulo del segmento) para centrar.
+            const offset = 22.5;
+            let angleToLand = 360 - (winningIndex * segmentAngle) - offset;
+
+
+            // 3. Generar una rotación grande para simular el giro (varias vueltas)
+            // Agregamos 5 a 10 vueltas completas (1800 a 3600 grados)
+            const extraTurns = Math.floor(Math.random() * 6) + 5; // 5 a 10 vueltas
+            const spinRotation = (extraTurns * 360) + angleToLand;
+
+            // 4. Sumar la rotación al total acumulado
+            totalRotation += spinRotation;
+
+            // 5. Aplicar la rotación y manejar el evento de finalización
+            wheel.style.transition = 'transform 5s cubic-bezier(0.2, 0.8, 0.2, 1)';
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+
+            // Esperar a que la animación termine (5 segundos)
+            setTimeout(() => {
+                isSpinning = false;
+                button.disabled = false;
+                button.textContent = 'GIRAR DE NUEVO';
+
+                // Mostrar el resultado final
+                resultText.innerHTML = `¡Toca decir una palabra de la categoría: <span class="font-black text-secondary">${winningCategory}</span>! Articula con cuidado.`;
+
+                // Pequeño truco para asegurar que la próxima rotación se vea bien
+                // Reseteamos el transition-property para el próximo giro.
+                wheel.style.transition = 'none';
+                // Calculamos el ángulo restante para mantener la posición visual (totalRotation % 360)
+                const normalizedAngle = totalRotation % 360;
+                wheel.style.transform = `rotate(${normalizedAngle}deg)`;
+                // Preparamos para el siguiente giro restableciendo la transición
+                setTimeout(() => {
+                    wheel.style.transition = 'transform 5s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                    totalRotation = normalizedAngle; // Actualizamos el total para que sea solo el ángulo visible
+                }, 50);
+
+            }, 5000); // 5000ms = 5 segundos de duración de la animación
+        }
+
+        // Llamar a spinWheel() al cargar para establecer la transición inicial (aunque no girará)
+        window.onload = () => {
+             wheel.style.transform = `rotate(0deg)`;
+             wheel.style.transition = 'transform 5s cubic-bezier(0.2, 0.8, 0.2, 1)';
+        }
+
+    </script>
+</body>
+</html>
