@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Pictogramas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.5em;
+            color: #764ba2;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .categories {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 20px;
+            background: #f0f0f0;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .category-btn.active {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .category-btn:hover {
+            background: #764ba2;
+            color: white;
+        }
+
+        .game-area {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .pictogram-display {
+            font-size: 120px;
+            margin-bottom: 20px;
+            animation: bounce 0.5s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .word-display {
+            font-size: 2.5em;
+            color: #2d3436;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .speak-btn {
+            background: #00b894;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .speak-btn:hover {
+            background: #00a383;
+            transform: scale(1.05);
+        }
+
+        .speak-btn:active {
+            transform: scale(0.95);
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .option-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            text-align: center;
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+
+        .option-card .emoji {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+
+        .option-card .label {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2d3436;
+        }
+
+        .option-card.correct {
+            background: #00b894;
+            color: white;
+            animation: correct 0.5s;
+        }
+
+        .option-card.incorrect {
+            background: #d63031;
+            color: white;
+            animation: shake 0.5s;
+        }
+
+        @keyframes correct {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .next-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .next-btn:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 40px;
+        }
+
+        .feedback.correct {
+            color: #00b894;
+        }
+
+        .feedback.incorrect {
+            color: #d63031;
+        }
+
+        .celebration {
+            font-size: 3em;
+            text-align: center;
+            animation: rotate 1s infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Juego de Pictogramas 🎨</h1>
+        
+        <div class="score">
+            Puntos: <span id="score">0</span>
+        </div>
+
+        <div class="categories">
+            <button class="category-btn active" data-category="animales">🐾 Animales</button>
+            <button class="category-btn" data-category="objetos">🎈 Objetos</button>
+            <button class="category-btn" data-category="comida">🍎 Comida</button>
+            <button class="category-btn" data-category="acciones">🏃 Acciones</button>
+        </div>
+
+        <div class="game-area">
+            <div class="pictogram-display" id="pictogram"></div>
+            <div class="word-display" id="word"></div>
+            <button class="speak-btn" id="speakBtn">🔊 Escuchar</button>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="options" id="options"></div>
+
+        <button class="next-btn" id="nextBtn" style="display: none;">Siguiente →</button>
+    </div>
+
+    <script>
+        const pictograms = {
+            animales: [
+                { emoji: '🐶', word: 'perro' },
+                { emoji: '🐱', word: 'gato' },
+                { emoji: '🐘', word: 'elefante' },
+                { emoji: '🦁', word: 'león' },
+                { emoji: '🐸', word: 'rana' },
+                { emoji: '🐠', word: 'pez' },
+                { emoji: '🦋', word: 'mariposa' },
+                { emoji: '🐔', word: 'gallina' },
+                { emoji: '🐮', word: 'vaca' },
+                { emoji: '🐷', word: 'cerdo' },
+                { emoji: '🐴', word: 'caballo' },
+                { emoji: '🐑', word: 'oveja' },
+                { emoji: '🐭', word: 'ratón' },
+                { emoji: '🐰', word: 'conejo' },
+                { emoji: '🦊', word: 'zorro' },
+                { emoji: '🐻', word: 'oso' },
+                { emoji: '🐼', word: 'panda' },
+                { emoji: '🐨', word: 'koala' },
+                { emoji: '🐯', word: 'tigre' },
+                { emoji: '🦒', word: 'jirafa' },
+                { emoji: '🦓', word: 'cebra' },
+                { emoji: '🦘', word: 'canguro' },
+                { emoji: '🦏', word: 'rinoceronte' },
+                { emoji: '🦛', word: 'hipopótamo' },
+                { emoji: '🐊', word: 'cocodrilo' },
+                { emoji: '🐢', word: 'tortuga' },
+                { emoji: '🦎', word: 'lagartija' },
+                { emoji: '🐍', word: 'serpiente' },
+                { emoji: '🦆', word: 'pato' },
+                { emoji: '🦅', word: 'águila' },
+                { emoji: '🦉', word: 'búho' },
+                { emoji: '🦜', word: 'loro' },
+                { emoji: '🦚', word: 'pavo real' },
+                { emoji: '🦩', word: 'flamenco' },
+                { emoji: '🐧', word: 'pingüino' },
+                { emoji: '🐝', word: 'abeja' },
+                { emoji: '🐛', word: 'oruga' },
+                { emoji: '🦗', word: 'grillo' },
+                { emoji: '🕷️', word: 'araña' },
+                { emoji: '🐌', word: 'caracol' },
+                { emoji: '🐙', word: 'pulpo' },
+                { emoji: '🦑', word: 'calamar' },
+                { emoji: '🦀', word: 'cangrejo' },
+                { emoji: '🐡', word: 'pez globo' },
+                { emoji: '🐬', word: 'delfín' },
+                { emoji: '🦈', word: 'tiburón' },
+                { emoji: '🐳', word: 'ballena' },
+                { emoji: '🦭', word: 'foca' },
+                { emoji: '🐪', word: 'camello' },
+                { emoji: '🦌', word: 'ciervo' }
+            ],
+            objetos: [
+                { emoji: '⚽', word: 'pelota' },
+                { emoji: '🚗', word: 'carro' },
+                { emoji: '✏️', word: 'lápiz' },
+                { emoji: '📚', word: 'libro' },
+                { emoji: '🎈', word: 'globo' },
+                { emoji: '⭐', word: 'estrella' },
+                { emoji: '🏠', word: 'casa' },
+                { emoji: '🌂', word: 'paraguas' },
+                { emoji: '👟', word: 'zapato' },
+                { emoji: '👕', word: 'camisa' },
+                { emoji: '👖', word: 'pantalón' },
+                { emoji: '🎒', word: 'mochila' },
+                { emoji: '⌚', word: 'reloj' },
+                { emoji: '👓', word: 'lentes' },
+                { emoji: '🧢', word: 'gorra' },
+                { emoji: '🧤', word: 'guantes' },
+                { emoji: '🧣', word: 'bufanda' },
+                { emoji: '🪑', word: 'silla' },
+                { emoji: '🛏️', word: 'cama' },
+                { emoji: '🚪', word: 'puerta' },
+                { emoji: '🪟', word: 'ventana' },
+                { emoji: '💡', word: 'foco' },
+                { emoji: '🕯️', word: 'vela' },
+                { emoji: '🔑', word: 'llave' },
+                { emoji: '🔒', word: 'candado' },
+                { emoji: '📱', word: 'teléfono' },
+                { emoji: '💻', word: 'computadora' },
+                { emoji: '⌨️', word: 'teclado' },
+                { emoji: '🖱️', word: 'ratón' },
+                { emoji: '📺', word: 'televisión' },
+                { emoji: '📻', word: 'radio' },
+                { emoji: '🎥', word: 'cámara' },
+                { emoji: '📷', word: 'foto' },
+                { emoji: '🔦', word: 'linterna' },
+                { emoji: '🕰️', word: 'reloj de pared' },
+                { emoji: '⏰', word: 'despertador' },
+                { emoji: '📅', word: 'calendario' },
+                { emoji: '📌', word: 'chincheta' },
+                { emoji: '✂️', word: 'tijeras' },
+                { emoji: '📏', word: 'regla' },
+                { emoji: '📐', word: 'escuadra' },
+                { emoji: '🖍️', word: 'crayón' },
+                { emoji: '🖊️', word: 'pluma' },
+                { emoji: '🖌️', word: 'pincel' },
+                { emoji: '🗑️', word: 'bote de basura' },
+                { emoji: '🧺', word: 'canasta' },
+                { emoji: '🧴', word: 'botella' },
+                { emoji: '🧼', word: 'jabón' },
+                { emoji: '🪒', word: 'rastrillo' },
+                { emoji: '🪥', word: 'cepillo de dientes' }
+            ],
+            comida: [
+                { emoji: '🍎', word: 'manzana' },
+                { emoji: '🍌', word: 'plátano' },
+                { emoji: '🍕', word: 'pizza' },
+                { emoji: '🍰', word: 'pastel' },
+                { emoji: '🥛', word: 'leche' },
+                { emoji: '🍪', word: 'galleta' },
+                { emoji: '🍇', word: 'uvas' },
+                { emoji: '🥕', word: 'zanahoria' },
+                { emoji: '🍓', word: 'fresa' },
+                { emoji: '🍊', word: 'naranja' },
+                { emoji: '🍉', word: 'sandía' },
+                { emoji: '🍑', word: 'durazno' },
+                { emoji: '🍒', word: 'cereza' },
+                { emoji: '🥝', word: 'kiwi' },
+                { emoji: '🍍', word: 'piña' },
+                { emoji: '🥭', word: 'mango' },
+                { emoji: '🍅', word: 'tomate' },
+                { emoji: '🥒', word: 'pepino' },
+                { emoji: '🌽', word: 'maíz' },
+                { emoji: '🥦', word: 'brócoli' },
+                { emoji: '🥬', word: 'lechuga' },
+                { emoji: '🧅', word: 'cebolla' },
+                { emoji: '🧄', word: 'ajo' },
+                { emoji: '🥔', word: 'papa' },
+                { emoji: '🍞', word: 'pan' },
+                { emoji: '🥐', word: 'croissant' },
+                { emoji: '🥖', word: 'baguette' },
+                { emoji: '🥨', word: 'pretzel' },
+                { emoji: '🥯', word: 'bagel' },
+                { emoji: '🧀', word: 'queso' },
+                { emoji: '🍖', word: 'carne' },
+                { emoji: '🍗', word: 'pollo' },
+                { emoji: '🥩', word: 'bistec' },
+                { emoji: '🥓', word: 'tocino' },
+                { emoji: '🍔', word: 'hamburguesa' },
+                { emoji: '🌭', word: 'hot dog' },
+                { emoji: '🌮', word: 'taco' },
+                { emoji: '🌯', word: 'burrito' },
+                { emoji: '🥙', word: 'pita' },
+                { emoji: '🍝', word: 'espagueti' },
+                { emoji: '🍜', word: 'sopa' },
+                { emoji: '🍲', word: 'guiso' },
+                { emoji: '🍱', word: 'bento' },
+                { emoji: '🍣', word: 'sushi' },
+                { emoji: '🍤', word: 'camarón' },
+                { emoji: '🥗', word: 'ensalada' },
+                { emoji: '🍿', word: 'palomitas' },
+                { emoji: '🧂', word: 'sal' },
+                { emoji: '🥚', word: 'huevo' },
+                { emoji: '🍳', word: 'huevo frito' },
+                { emoji: '🥞', word: 'panqueque' },
+                { emoji: '🧇', word: 'waffle' },
+                { emoji: '🍦', word: 'helado' },
+                { emoji: '🍧', word: 'raspado' },
+                { emoji: '🍨', word: 'nieve' },
+                { emoji: '🎂', word: 'pastel de cumpleaños' },
+                { emoji: '🍮', word: 'flan' },
+                { emoji: '🍭', word: 'paleta' },
+                { emoji: '🍬', word: 'dulce' },
+                { emoji: '🍫', word: 'chocolate' },
+                { emoji: '🍩', word: 'dona' },
+                { emoji: '🧁', word: 'cupcake' },
+                { emoji: '☕', word: 'café' },
+                { emoji: '🍵', word: 'té' },
+                { emoji: '🧃', word: 'jugo' },
+                { emoji: '🥤', word: 'refresco' },
+                { emoji: '🧋', word: 'té de burbujas' },
+                { emoji: '🍯', word: 'miel' }
+            ],
+            acciones: [
+                { emoji: '🏃', word: 'correr' },
+                { emoji: '💤', word: 'dormir' },
+                { emoji: '🎵', word: 'cantar' },
+                { emoji: '👏', word: 'aplaudir' },
+                { emoji: '🤸', word: 'saltar' },
+                { emoji: '🎨', word: 'pintar' },
+                { emoji: '📖', word: 'leer' },
+                { emoji: '🍽️', word: 'comer' },
+                { emoji: '🚶', word: 'caminar' },
+                { emoji: '🧗', word: 'trepar' },
+                { emoji: '🏊', word: 'nadar' },
+                { emoji: '🤾', word: 'lanzar' },
+                { emoji: '🧘', word: 'meditar' },
+                { emoji: '💃', word: 'bailar' },
+                { emoji: '🤗', word: 'abrazar' },
+                { emoji: '👂', word: 'escuchar' },
+                { emoji: '👀', word: 'mirar' },
+                { emoji: '🗣️', word: 'hablar' },
+                { emoji: '✍️', word: 'escribir' },
+                { emoji: '🧹', word: 'barrer' },
+                { emoji: '🧼', word: 'lavar' },
+                { emoji: '🪥', word: 'cepillar' },
+                { emoji: '👔', word: 'vestir' },
+                { emoji: '🚿', word: 'bañar' },
+                { emoji: '🤲', word: 'pedir' },
+                { emoji: '☝️', word: 'señalar' },
+                { emoji: '🙋', word: 'saludar' },
+                { emoji: '😴', word: 'descansar' },
+                { emoji: '🏋️', word: 'levantar' },
+                { emoji: '⚽', word: 'patear' },
+                { emoji: '🤝', word: 'saludar' },
+                { emoji: '💭', word: 'pensar' },
+                { emoji: '😊', word: 'sonreír' },
+                { emoji: '😢', word: 'llorar' },
+                { emoji: '😂', word: 'reír' },
+                { emoji: '🤫', word: 'callar' },
+                { emoji: '👃', word: 'oler' },
+                { emoji: '🫱', word: 'tocar' },
+                { emoji: '🧑‍🍳', word: 'cocinar' },
+                { emoji: '🧑‍🌾', word: 'sembrar' },
+                { emoji: '🚴', word: 'pedalear' },
+                { emoji: '🛴', word: 'deslizar' },
+                { emoji: '✂️', word: 'cortar' },
+                { emoji: '📱', word: 'llamar' },
+                { emoji: '🎁', word: 'regalar' },
+                { emoji: '🎮', word: 'jugar' },
+                { emoji: '🧩', word: 'armar' },
+                { emoji: '🪁', word: 'volar' },
+                { emoji: '🎸', word: 'tocar' },
+                { emoji: '📷', word: 'fotografiar' }
+            ]
+        };
+
+        let currentCategory = 'animales';
+        let currentPictogram = null;
+        let score = 0;
+        let answered = false;
+
+        const pictogramEl = document.getElementById('pictogram');
+        const wordEl = document.getElementById('word');
+        const speakBtn = document.getElementById('speakBtn');
+        const optionsEl = document.getElementById('options');
+        const nextBtn = document.getElementById('nextBtn');
+        const feedbackEl = document.getElementById('feedback');
+        const scoreEl = document.getElementById('score');
+
+        // Categorías
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.category;
+                loadNewPictogram();
+            });
+        });
+
+        // Síntesis de voz
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'es-ES';
+            utterance.rate = 0.8;
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+        }
+
+        speakBtn.addEventListener('click', () => {
+            speak(currentPictogram.word);
+        });
+
+        // Cargar nuevo pictograma
+        function loadNewPictogram() {
+            answered = false;
+            feedbackEl.textContent = '';
+            feedbackEl.className = 'feedback';
+            nextBtn.style.display = 'none';
+
+            const items = pictograms[currentCategory];
+            currentPictogram = items[Math.floor(Math.random() * items.length)];
+
+            pictogramEl.textContent = currentPictogram.emoji;
+            wordEl.textContent = currentPictogram.word;
+
+            // Hablar automáticamente
+            setTimeout(() => speak(currentPictogram.word), 300);
+
+            // Generar opciones
+            generateOptions();
+        }
+
+        function generateOptions() {
+            const items = pictograms[currentCategory];
+            const options = [currentPictogram];
+
+            // Agregar 3 opciones incorrectas
+            while (options.length < 4) {
+                const random = items[Math.floor(Math.random() * items.length)];
+                if (!options.includes(random)) {
+                    options.push(random);
+                }
+            }
+
+            // Mezclar opciones
+            options.sort(() => Math.random() - 0.5);
+
+            // Mostrar opciones
+            optionsEl.innerHTML = '';
+            options.forEach(option => {
+                const card = document.createElement('div');
+                card.className = 'option-card';
+                card.innerHTML = `
+                    <div class="emoji">${option.emoji}</div>
+                    <div class="label">${option.word}</div>
+                `;
+                card.addEventListener('click', () => checkAnswer(option, card));
+                optionsEl.appendChild(card);
+            });
+        }
+
+        function checkAnswer(selected, card) {
+            if (answered) return;
+            answered = true;
+
+            const allCards = document.querySelectorAll('.option-card');
+
+            if (selected.word === currentPictogram.word) {
+                card.classList.add('correct');
+                feedbackEl.textContent = '¡Muy bien! 🎉';
+                feedbackEl.className = 'feedback correct';
+                score += 10;
+                scoreEl.textContent = score;
+                speak('¡Muy bien!');
+            } else {
+                card.classList.add('incorrect');
+                feedbackEl.textContent = '¡Intenta de nuevo! 💪';
+                feedbackEl.className = 'feedback incorrect';
+                
+                // Mostrar la respuesta correcta
+                allCards.forEach(c => {
+                    const emoji = c.querySelector('.emoji').textContent;
+                    if (emoji === currentPictogram.emoji) {
+                        c.classList.add('correct');
+                    }
+                });
+            }
+
+            nextBtn.style.display = 'block';
+        }
+
+        nextBtn.addEventListener('click', loadNewPictogram);
+
+        // Iniciar juego
+        loadNewPictogram();
+    </script>
+</body>
+</html>
