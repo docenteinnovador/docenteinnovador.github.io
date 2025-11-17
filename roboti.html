@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Repetidor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #764ba2;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .game-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .robot-container {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 500px;
+        }
+
+        .robot {
+            position: relative;
+            width: 250px;
+            height: 400px;
+        }
+
+        .robot-part {
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.5s, transform 0.5s;
+        }
+
+        .robot-part.visible {
+            opacity: 1;
+            animation: partAppear 0.5s;
+        }
+
+        @keyframes partAppear {
+            0% { transform: scale(0) rotate(-180deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        /* Cabeza */
+        .head {
+            width: 120px;
+            height: 120px;
+            background: #34495e;
+            border-radius: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 20px;
+            border: 4px solid #2c3e50;
+        }
+
+        /* Antena */
+        .antenna {
+            width: 6px;
+            height: 30px;
+            background: #95a5a6;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 0;
+            border-radius: 3px;
+        }
+
+        .antenna::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #e74c3c;
+            border-radius: 50%;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Ojos */
+        .eyes {
+            display: flex;
+            gap: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 60px;
+        }
+
+        .eye {
+            width: 25px;
+            height: 25px;
+            background: #3498db;
+            border-radius: 50%;
+            border: 3px solid #2980b9;
+            animation: eyeGlow 2s infinite;
+        }
+
+        @keyframes eyeGlow {
+            0%, 100% { box-shadow: 0 0 10px #3498db; }
+            50% { box-shadow: 0 0 20px #3498db; }
+        }
+
+        /* Boca */
+        .mouth {
+            width: 60px;
+            height: 8px;
+            background: #e74c3c;
+            border-radius: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 110px;
+        }
+
+        /* Cuerpo */
+        .body {
+            width: 100px;
+            height: 120px;
+            background: #34495e;
+            border-radius: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 150px;
+            border: 4px solid #2c3e50;
+        }
+
+        /* Panel de control */
+        .panel {
+            position: absolute;
+            width: 70px;
+            height: 50px;
+            background: #2c3e50;
+            border-radius: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 180px;
+        }
+
+        .button {
+            width: 15px;
+            height: 15px;
+            background: #e74c3c;
+            border-radius: 50%;
+            position: absolute;
+            animation: buttonBlink 1.5s infinite;
+        }
+
+        .button:nth-child(1) { left: 10px; top: 10px; }
+        .button:nth-child(2) { right: 10px; top: 10px; }
+        .button:nth-child(3) { left: 10px; bottom: 10px; background: #f39c12; }
+        .button:nth-child(4) { right: 10px; bottom: 10px; background: #2ecc71; }
+
+        @keyframes buttonBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Brazos */
+        .arm {
+            width: 20px;
+            height: 100px;
+            background: #34495e;
+            border-radius: 10px;
+            top: 160px;
+            border: 3px solid #2c3e50;
+        }
+
+        .arm-left {
+            left: 10px;
+            transform: rotate(-20deg);
+        }
+
+        .arm-right {
+            right: 10px;
+            transform: rotate(20deg);
+        }
+
+        .hand {
+            width: 25px;
+            height: 25px;
+            background: #95a5a6;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 3px solid #7f8c8d;
+        }
+
+        /* Piernas */
+        .leg {
+            width: 25px;
+            height: 80px;
+            background: #34495e;
+            border-radius: 10px;
+            top: 280px;
+            border: 3px solid #2c3e50;
+        }
+
+        .leg-left {
+            left: 70px;
+        }
+
+        .leg-right {
+            right: 70px;
+        }
+
+        .foot {
+            width: 35px;
+            height: 15px;
+            background: #95a5a6;
+            border-radius: 8px;
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 3px solid #7f8c8d;
+        }
+
+        /* Panel de control del juego */
+        .control-panel {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .level-selector {
+            margin-bottom: 30px;
+        }
+
+        .level-selector h3 {
+            color: #2d3436;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .level-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .level-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            color: #2d3436;
+        }
+
+        .level-btn.active {
+            background: #6c5ce7;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .level-btn:hover {
+            background: #a29bfe;
+            color: white;
+        }
+
+        .word-display {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .word-display h3 {
+            color: #6c5ce7;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .word {
+            font-size: 3em;
+            color: #2d3436;
+            font-weight: bold;
+            margin-bottom: 20px;
+            letter-spacing: 5px;
+        }
+
+        .syllables {
+            font-size: 2em;
+            color: #e17055;
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .speak-btn {
+            background: #00b894;
+            color: white;
+        }
+
+        .speak-btn:hover {
+            background: #00a383;
+            transform: scale(1.05);
+        }
+
+        .correct-btn {
+            background: #6c5ce7;
+            color: white;
+        }
+
+        .correct-btn:hover {
+            background: #5f4fd1;
+            transform: scale(1.05);
+        }
+
+        .next-btn {
+            background: #fd79a8;
+            color: white;
+        }
+
+        .next-btn:hover {
+            background: #e84393;
+            transform: scale(1.05);
+        }
+
+        .progress {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .progress h3 {
+            color: #2d3436;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .instructions {
+            background: #74b9ff;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .instructions h3 {
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .celebration {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5em;
+            animation: celebrate 1s;
+            z-index: 1000;
+            display: none;
+        }
+
+        @keyframes celebrate {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) scale(1.5) rotate(180deg); }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(360deg); }
+        }
+
+        .complete-message {
+            background: #00b894;
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .complete-message h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Robot Repetidor 🤖</h1>
+        <p class="subtitle">¡Ayuda a construir el robot repitiendo correctamente!</p>
+
+        <div class="instructions">
+            <h3>📋 Instrucciones</h3>
+            <p>Escucha la palabra, repítela como un robot (lento y segmentado), ¡y presiona "¡Correcto!" para ganar una pieza del robot!</p>
+        </div>
+
+        <div class="game-layout">
+            <div class="robot-container">
+                <div class="robot" id="robot">
+                    <div class="robot-part antenna" data-part="1"></div>
+                    <div class="robot-part head" data-part="2"></div>
+                    <div class="robot-part eyes" data-part="3">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                    <div class="robot-part mouth" data-part="4"></div>
+                    <div class="robot-part body" data-part="5">
+                        <div class="panel">
+                            <div class="button"></div>
+                            <div class="button"></div>
+                            <div class="button"></div>
+                            <div class="button"></div>
+                        </div>
+                    </div>
+                    <div class="robot-part arm arm-left" data-part="6">
+                        <div class="hand"></div>
+                    </div>
+                    <div class="robot-part arm arm-right" data-part="7">
+                        <div class="hand"></div>
+                    </div>
+                    <div class="robot-part leg leg-left" data-part="8">
+                        <div class="foot"></div>
+                    </div>
+                    <div class="robot-part leg leg-right" data-part="9">
+                        <div class="foot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="level-selector">
+                    <h3>Nivel de dificultad:</h3>
+                    <div class="level-buttons">
+                        <button class="level-btn active" data-level="silabas">Sílabas</button>
+                        <button class="level-btn" data-level="palabras-cortas">Palabras Cortas</button>
+                        <button class="level-btn" data-level="palabras-largas">Palabras Largas</button>
+                        <button class="level-btn" data-level="frases">Frases</button>
+                    </div>
+                </div>
+
+                <div class="word-display">
+                    <h3>Repite como robot:</h3>
+                    <div class="word" id="word"></div>
+                    <div class="syllables" id="syllables"></div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn speak-btn" id="speakBtn">🔊 Escuchar</button>
+                        <button class="btn correct-btn" id="correctBtn">✓ ¡Correcto!</button>
+                        <button class="btn next-btn" id="nextBtn">➜ Siguiente</button>
+                    </div>
+                </div>
+
+                <div class="progress">
+                    <h3>Progreso del Robot</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill">0/9</div>
+                    </div>
+                </div>
+
+                <div class="complete-message" id="completeMessage">
+                    <h2>🎉 ¡Robot Completado! 🎉</h2>
+                    <p>¡Excelente trabajo! Has construido todo el robot.</p>
+                    <button class="btn next-btn" id="resetBtn">🔄 Jugar de nuevo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="celebration" id="celebration"></div>
+
+    <script>
+        const exercises = {
+            silabas: [
+                { text: 'PA-PE-PI-PO-PU', syllables: 'PA - PE - PI - PO - PU' },
+                { text: 'MA-ME-MI-MO-MU', syllables: 'MA - ME - MI - MO - MU' },
+                { text: 'SA-SE-SI-SO-SU', syllables: 'SA - SE - SI - SO - SU' },
+                { text: 'LA-LE-LI-LO-LU', syllables: 'LA - LE - LI - LO - LU' },
+                { text: 'TA-TE-TI-TO-TU', syllables: 'TA - TE - TI - TO - TU' },
+                { text: 'RA-RE-RI-RO-RU', syllables: 'RA - RE - RI - RO - RU' },
+                { text: 'CA-CO-CU', syllables: 'CA - CO - CU' },
+                { text: 'BA-BE-BI-BO-BU', syllables: 'BA - BE - BI - BO - BU' },
+                { text: 'DA-DE-DI-DO-DU', syllables: 'DA - DE - DI - DO - DU' },
+                { text: 'FA-FE-FI-FO-FU', syllables: 'FA - FE - FI - FO - FU' }
+            ],
+            'palabras-cortas': [
+                { text: 'CASA', syllables: 'CA - SA' },
+                { text: 'MESA', syllables: 'ME - SA' },
+                { text: 'PELO', syllables: 'PE - LO' },
+                { text: 'MANO', syllables: 'MA - NO' },
+                { text: 'PATO', syllables: 'PA - TO' },
+                { text: 'GATO', syllables: 'GA - TO' },
+                { text: 'BOCA', syllables: 'BO - CA' },
+                { text: 'LUPA', syllables: 'LU - PA' },
+                { text: 'DADO', syllables: 'DA - DO' },
+                { text: 'LOBO', syllables: 'LO - BO' }
+            ],
+            'palabras-largas': [
+                { text: 'MARIPOSA', syllables: 'MA - RI - PO - SA' },
+                { text: 'HELICÓPTERO', syllables: 'HE - LI - CÓP - TE - RO' },
+                { text: 'REFRIGERADOR', syllables: 'RE - FRI - GE - RA - DOR' },
+                { text: 'DINOSAURIO', syllables: 'DI - NO - SAU - RIO' },
+                { text: 'COMPUTADORA', syllables: 'COM - PU - TA - DO - RA' },
+                { text: 'ELEFANTE', syllables: 'E - LE - FAN - TE' },
+                { text: 'BIBLIOTECA', syllables: 'BI - BLIO - TE - CA' },
+                { text: 'CHOCOLATE', syllables: 'CHO - CO - LA - TE' },
+                { text: 'TELEVISIÓN', syllables: 'TE - LE - VI - SIÓN' },
+                { text: 'AUTOMÓVIL', syllables: 'AU - TO - MÓ - VIL' }
+            ],
+            frases: [
+                { text: 'EL PERRO COME', syllables: 'EL - PE - RRO - CO - ME' },
+                { text: 'LA CASA ES GRANDE', syllables: 'LA - CA - SA - ES - GRAN - DE' },
+                { text: 'ME GUSTA JUGAR', syllables: 'ME - GUS - TA - JU - GAR' },
+                { text: 'MAMÁ ESTÁ AQUÍ', syllables: 'MA - MÁ - ES - TÁ - A - QUÍ' },
+                { text: 'VOY A LA ESCUELA', syllables: 'VOY - A - LA - ES - CUE - LA' },
+                { text: 'EL SOL BRILLA', syllables: 'EL - SOL - BRI - LLA' },
+                { text: 'TENGO UN GATO', syllables: 'TEN - GO - UN - GA - TO' },
+                { text: 'VAMOS A COMER', syllables: 'VA - MOS - A - CO - MER' }
+            ]
+        };
+
+        let currentLevel = 'silabas';
+        let currentExercises = [...exercises[currentLevel]];
+        let currentExercise = null;
+        let partsCompleted = 0;
+        const totalParts = 9;
+
+        const wordEl = document.getElementById('word');
+        const syllablesEl = document.getElementById('syllables');
+        const speakBtn = document.getElementById('speakBtn');
+        const correctBtn = document.getElementById('correctBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const progressFill = document.getElementById('progressFill');
+        const celebration = document.getElementById('celebration');
+        const completeMessage = document.getElementById('completeMessage');
+
+        // Cambiar nivel
+        document.querySelectorAll('.level-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentLevel = btn.dataset.level;
+                currentExercises = [...exercises[currentLevel]];
+                resetGame();
+            });
+        });
+
+        // Síntesis de voz robot
+        function speakRobot(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'es-ES';
+            utterance.rate = 0.5; // Velocidad lenta como robot
+            utterance.pitch = 1.2; // Tono más alto
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+        }
+
+        speakBtn.addEventListener('click', () => {
+            speakRobot(currentExercise.text);
+        });
+
+        // Cargar nuevo ejercicio
+        function loadExercise() {
+            if (currentExercises.length === 0) {
+                currentExercises = [...exercises[currentLevel]];
+            }
+            
+            const randomIndex = Math.floor(Math.random() * currentExercises.length);
+            currentExercise = currentExercises[randomIndex];
+            currentExercises.splice(randomIndex, 1);
+
+            wordEl.textContent = currentExercise.text;
+            syllablesEl.textContent = currentExercise.syllables;
+
+            setTimeout(() => speakRobot(currentExercise.text), 500);
+        }
+
+        // Respuesta correcta
+        correctBtn.addEventListener('click', () => {
+            if (partsCompleted < totalParts) {
+                partsCompleted++;
+                
+                // Mostrar pieza del robot
+                const part = document.querySelector(`.robot-part[data-part="${partsCompleted}"]`);
+                if (part) {
+                    part.classList.add('visible');
+                }
+
+                // Actualizar progreso
+                const percentage = (partsCompleted / totalParts) * 100;
+                progressFill.style.width = percentage + '%';
+                progressFill.textContent = `${partsCompleted}/${totalParts}`;
+
+                // Celebración
+                celebration.textContent = '⭐';
+                celebration.style.display = 'block';
+                setTimeout(() => {
+                    celebration.style.display = 'none';
+                }, 1000);
+
+                // Verificar si completó el robot
+                if (partsCompleted === totalParts) {
+                    setTimeout(() => {
+                        completeMessage.style.display = 'block';
+                        speakRobot('¡Felicidades! Robot completado');
+                    }, 1000);
+                }
+            }
+        });
+
+        // Siguiente ejercicio
+        nextBtn.addEventListener('click', loadExercise);
+
+        // Reiniciar juego
+        resetBtn.addEventListener('click', resetGame);
+
+        function resetGame() {
+            partsCompleted = 0;
+            progressFill.style.width = '0%';
+            progressFill.textContent = '0/9';
+            completeMessage.style.display = 'none';
+            
+            document.querySelectorAll('.robot-part').forEach(part => {
+                part.classList.remove('visible');
+            });
+
+            loadExercise();
+        }
+
+        // Iniciar juego
+        loadExercise();
+    </script>
+</body>
+</html>
