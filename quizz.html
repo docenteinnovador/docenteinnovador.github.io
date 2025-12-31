@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Creador</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            max-width: 800px;
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+            min-height: 550px;
+            position: relative;
+        }
+
+        /* --- PANTALLAS --- */
+        .screen {
+            padding: 40px;
+            display: none;
+            height: 100%;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* --- MODO CREADOR (ADMIN) --- */
+        .creator-form {
+            width: 100%;
+            max-width: 500px;
+            text-align: left;
+        }
+
+        h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .correct-input {
+            border-color: #48bb78 !important;
+            background-color: #f0fff4;
+        }
+
+        .btn-add {
+            background: #4a5568;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .btn-play {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            width: 100%;
+        }
+
+        .counter {
+            text-align: center;
+            margin-top: 20px;
+            color: #718096;
+            font-style: italic;
+        }
+
+        /* --- MODO JUEGO --- */
+        .question-text {
+            font-size: 1.8em;
+            color: #2d3748;
+            margin-bottom: 30px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #667eea;
+            color: #5a67d8;
+            padding: 20px;
+            font-size: 1.1em;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .option-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct { background: #48bb78 !important; border-color: #48bb78 !important; color: white !important; }
+        .option-btn.wrong { background: #f56565 !important; border-color: #f56565 !important; color: white !important; opacity: 0.7; }
+        .option-btn.disabled { pointer-events: none; }
+
+        .feedback-msg {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 30px;
+        }
+
+        /* --- RESULTADOS --- */
+        .score-box {
+            font-size: 4em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .options-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="screen active" id="creator-screen">
+        <h2>🛠️ Panel de Creación</h2>
+        <div class="creator-form">
+            <div class="input-group">
+                <label>Pregunta (ej: ¿Quién el otro año se va casar?)</label>
+                <input type="text" id="new-question" placeholder="Escribe la pregunta aquí...">
+            </div>
+            
+            <div class="input-group">
+                <label style="color: #38a169;">✅ Respuesta Correcta (ej: Teodoro)</label>
+                <input type="text" id="new-correct" class="correct-input" placeholder="Nombre correcto">
+            </div>
+
+            <div class="input-group">
+                <label>❌ Opción Incorrecta 1</label>
+                <input type="text" id="new-wrong1" placeholder="Nombre incorrecto">
+            </div>
+            <div class="input-group">
+                <label>❌ Opción Incorrecta 2</label>
+                <input type="text" id="new-wrong2" placeholder="Nombre incorrecto">
+            </div>
+            <div class="input-group">
+                <label>❌ Opción Incorrecta 3</label>
+                <input type="text" id="new-wrong3" placeholder="Nombre incorrecto">
+            </div>
+
+            <button class="btn-add" onclick="agregarPregunta()">➕ Guardar Pregunta</button>
+            
+            <div class="counter" id="question-counter">Preguntas guardadas: 0</div>
+            
+            <button class="btn-play" id="btn-start-game" onclick="empezarJuego()" disabled>
+                ¡Listo! Comenzar Juego 🎮
+            </button>
+        </div>
+    </div>
+
+    <div class="screen" id="game-screen">
+        <div style="width: 100%; text-align: right; color: #ccc; margin-bottom: 10px;">
+            Pregunta <span id="current-q-num">1</span> de <span id="total-q-num">0</span>
+        </div>
+        <div class="question-text" id="display-question">...</div>
+        <div class="options-grid" id="options-container"></div>
+        <div class="feedback-msg" id="feedback"></div>
+    </div>
+
+    <div class="screen" id="result-screen" style="justify-content: center;">
+        <h2>¡Juego Terminado!</h2>
+        <div class="score-box"><span id="final-score">0</span> pts</div>
+        <p id="final-message" style="font-size: 1.2em; color: #4a5568;">...</p>
+        <button class="btn-play" onclick="location.reload()">Crear Nuevo Juego</button>
+    </div>
+
+</div>
+
+<script>
+    // Variables globales
+    let preguntas = [];
+    let indiceActual = 0;
+    let puntaje = 0;
+    let puedeResponder = true;
+
+    // Elementos del DOM
+    const questionInput = document.getElementById('new-question');
+    const correctInput = document.getElementById('new-correct');
+    const wrong1Input = document.getElementById('new-wrong1');
+    const wrong2Input = document.getElementById('new-wrong2');
+    const wrong3Input = document.getElementById('new-wrong3');
+    const counterDisplay = document.getElementById('question-counter');
+    const startBtn = document.getElementById('btn-start-game');
+
+    // 1. FUNCIÓN PARA AGREGAR PREGUNTA A LA LISTA
+    function agregarPregunta() {
+        const p = questionInput.value.trim();
+        const c = correctInput.value.trim();
+        const w1 = wrong1Input.value.trim();
+        const w2 = wrong2Input.value.trim();
+        const w3 = wrong3Input.value.trim();
+
+        if (!p || !c || !w1) {
+            alert("Por favor escribe al menos la pregunta, la respuesta correcta y una incorrecta.");
+            return;
+        }
+
+        // Crear array de opciones mezcladas
+        let opciones = [c, w1, w2, w3].filter(opt => opt !== ""); // Eliminar vacíos
+        opciones = mezclarArray(opciones);
+
+        // Guardar objeto
+        preguntas.push({
+            pregunta: p,
+            correcta: c,
+            opciones: opciones
+        });
+
+        // Limpiar inputs
+        questionInput.value = '';
+        correctInput.value = '';
+        wrong1Input.value = '';
+        wrong2Input.value = '';
+        wrong3Input.value = '';
+        questionInput.focus();
+
+        // Actualizar contador UI
+        counterDisplay.textContent = `Preguntas guardadas: ${preguntas.length}`;
+        
+        // Habilitar botón de jugar si hay al menos 1 pregunta
+        if (preguntas.length > 0) {
+            startBtn.disabled = false;
+            startBtn.style.opacity = "1";
+            startBtn.textContent = `¡Listo! Jugar con ${preguntas.length} preguntas`;
+        }
+    }
+
+    // 2. FUNCIÓN PARA MEZCLAR OPCIONES (Shuffle)
+    function mezclarArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    // 3. EMPEZAR EL JUEGO (Cambio de pantalla)
+    function empezarJuego() {
+        document.getElementById('creator-screen').classList.remove('active');
+        document.getElementById('game-screen').classList.add('active');
+        document.getElementById('total-q-num').textContent = preguntas.length;
+        cargarPreguntaEnPantalla();
+    }
+
+    // 4. LÓGICA DEL JUEGO
+    function cargarPreguntaEnPantalla() {
+        puedeResponder = true;
+        const datos = preguntas[indiceActual];
+        
+        document.getElementById('current-q-num').textContent = indiceActual + 1;
+        document.getElementById('display-question').textContent = datos.pregunta;
+        document.getElementById('feedback').textContent = "";
+        
+        const contenedor = document.getElementById('options-container');
+        contenedor.innerHTML = ''; // Limpiar anterior
+
+        datos.opciones.forEach(texto => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = texto;
+            btn.onclick = () => verificar(texto, btn, datos.correcta);
+            contenedor.appendChild(btn);
+        });
+    }
+
+    function verificar(seleccion, btn, respuestaCorrecta) {
+        if (!puedeResponder) return;
+        puedeResponder = false;
+
+        const todosBotones = document.querySelectorAll('.option-btn');
+        todosBotones.forEach(b => b.classList.add('disabled'));
+
+        if (seleccion === respuestaCorrecta) {
+            btn.classList.add('correct');
+            document.getElementById('feedback').textContent = "¡Correcto! 🎉";
+            document.getElementById('feedback').style.color = "#48bb78";
+            puntaje++;
+        } else {
+            btn.classList.add('wrong');
+            document.getElementById('feedback').textContent = `Ups... era ${respuestaCorrecta}`;
+            document.getElementById('feedback').style.color = "#f56565";
+            
+            // Mostrar cuál era la correcta
+            todosBotones.forEach(b => {
+                if (b.textContent === respuestaCorrecta) b.classList.add('correct');
+            });
+        }
+
+        setTimeout(() => {
+            indiceActual++;
+            if (indiceActual < preguntas.length) {
+                cargarPreguntaEnPantalla();
+            } else {
+                finalizarJuego();
+            }
+        }, 2000);
+    }
+
+    function finalizarJuego() {
+        document.getElementById('game-screen').classList.remove('active');
+        document.getElementById('result-screen').classList.add('active');
+        document.getElementById('final-score').textContent = `${puntaje}/${preguntas.length}`;
+        
+        const mensaje = document.getElementById('final-message');
+        if (puntaje === preguntas.length) mensaje.textContent = "¡PERFECTO! Son los mejores amigos.";
+        else if (puntaje > preguntas.length / 2) mensaje.textContent = "¡Muy bien! Se conocen bastante.";
+        else mensaje.textContent = "Necesitan pasar más tiempo juntos... 😅";
+    }
+</script>
+
+</body>
+</html>
