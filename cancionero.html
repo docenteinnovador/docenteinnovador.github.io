@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Canta la Palabra! - Modo Eliminación</title>
+    <style>
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --accent: #ff0055;
+            --success: #00e676;
+            --text: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 5px;
+        }
+
+        /* Marcador de Puntos */
+        .score-board {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        /* Inputs */
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 12px;
+            border-radius: 50px;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-add {
+            background-color: #00c6ff;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+        }
+
+        /* Área de Juego */
+        .game-area {
+            margin: 20px 0;
+            border-top: 2px solid rgba(255,255,255,0.1);
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding: 20px 0;
+            position: relative;
+        }
+
+        #word-display {
+            font-size: 3.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            min-height: 70px;
+            color: var(--text);
+            text-shadow: 0 0 15px rgba(255,255,255,0.3);
+            transition: color 0.3s;
+        }
+
+        /* Barra de tiempo */
+        .timer-container {
+            width: 100%;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            margin-top: 15px;
+            overflow: hidden;
+            display: none; 
+        }
+
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background: var(--accent);
+            transform-origin: left;
+        }
+
+        .btn-spin {
+            background-color: var(--secondary);
+            border: 2px solid white;
+            color: white;
+            font-size: 1.2rem;
+            padding: 10px 30px;
+            border-radius: 50px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .btn-spin:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Botones de Juez */
+        .judge-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .btn-judge {
+            flex: 1;
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            color: white;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .btn-correct { background-color: var(--success); box-shadow: 0 4px 10px rgba(0, 230, 118, 0.4); }
+        .btn-wrong { background-color: var(--accent); box-shadow: 0 4px 10px rgba(255, 0, 85, 0.4); }
+
+        .active-judge {
+            opacity: 1;
+            pointer-events: all;
+            transform: scale(1.05);
+        }
+
+        /* Lista pequeña */
+        .words-list {
+            text-align: left;
+            margin-top: 10px;
+            max-height: 100px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+        }
+        .tag {
+            display: inline-block;
+            background: rgba(0,0,0,0.3);
+            padding: 3px 8px;
+            border-radius: 10px;
+            margin: 2px;
+        }
+        .tag span { margin-left: 5px; cursor: pointer; color: #ff6b6b; }
+
+    </style>
+</head>
+<body>
+
+    <div class="score-board">Puntos: <span id="scoreVal">0</span></div>
+
+    <div class="container">
+        <div class="input-group">
+            <input type="text" id="wordInput" placeholder="Añadir palabra..." autocomplete="off">
+            <button class="btn-add" onclick="addWord()">+</button>
+        </div>
+
+        <div id="wordsListContainer" class="words-list"></div>
+
+        <div class="game-area">
+            <div id="word-display">🎤</div>
+            <div class="timer-container" id="timerContainer">
+                <div class="timer-bar" id="timerBar"></div>
+            </div>
+        </div>
+
+        <button class="btn-spin" id="spinBtn" onclick="spinWord()">¡GIRAR!</button>
+
+        <div class="judge-controls">
+            <button class="btn-judge btn-correct" id="btnCorrect" onclick="judge(1)">✅ ¡Correcto!</button>
+            <button class="btn-judge btn-wrong" id="btnWrong" onclick="judge(-1)">❌ Falló</button>
+        </div>
+    </div>
+
+    <script>
+        let words = [];
+        let score = 0;
+        let isSpinning = false;
+        let timerInterval;
+        const TIME_LIMIT = 15; // 15 segundos para cantar
+
+        const input = document.getElementById('wordInput');
+        const listContainer = document.getElementById('wordsListContainer');
+        const display = document.getElementById('word-display');
+        const scoreVal = document.getElementById('scoreVal');
+        const timerContainer = document.getElementById('timerContainer');
+        const timerBar = document.getElementById('timerBar');
+        const btnCorrect = document.getElementById('btnCorrect');
+        const btnWrong = document.getElementById('btnWrong');
+        const spinBtn = document.getElementById('spinBtn');
+
+        input.addEventListener("keypress", (e) => { if(e.key==="Enter") addWord(); });
+
+        function addWord() {
+            const val = input.value.trim();
+            if (val) {
+                words.push(val);
+                renderList();
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function removeWord(index) {
+            words.splice(index, 1);
+            renderList();
+        }
+
+        function renderList() {
+            listContainer.innerHTML = '';
+            words.forEach((word, index) => {
+                const tag = document.createElement('div');
+                tag.className = 'tag';
+                tag.innerHTML = `${word} <span onclick="removeWord(${index})">×</span>`;
+                listContainer.appendChild(tag);
+            });
+        }
+
+        function spinWord() {
+            if (words.length === 0) { alert("¡Se acabaron las palabras! Añade más."); return; }
+            if (isSpinning) return;
+
+            resetRoundUI();
+            isSpinning = true;
+            spinBtn.disabled = true;
+
+            let counter = 0;
+            // Animación visual solamente (no borra nada aún)
+            const interval = setInterval(() => {
+                const randomIndex = Math.floor(Math.random() * words.length);
+                display.innerText = words[randomIndex];
+                display.style.color = "#fff"; 
+                counter++;
+                if (counter >= 20) {
+                    clearInterval(interval);
+                    startRound();
+                }
+            }, 80);
+        }
+
+        function startRound() {
+            // 1. Elegir la palabra final
+            const finalIndex = Math.floor(Math.random() * words.length);
+            const chosenWord = words[finalIndex];
+
+            // 2. BORRARLA INMEDIATAMENTE DEL ARRAY Y ACTUALIZAR LISTA
+            words.splice(finalIndex, 1);
+            renderList(); 
+
+            // 3. Mostrarla en grande
+            display.innerText = chosenWord;
+            display.style.color = "#ffe600"; 
+            display.style.transform = "scale(1.2)";
+            setTimeout(()=> display.style.transform = "scale(1)", 200);
+
+            // 4. Activar controles
+            btnCorrect.classList.add('active-judge');
+            btnWrong.classList.add('active-judge');
+
+            // 5. Iniciar cuenta atrás
+            startTimer();
+        }
+
+        function startTimer() {
+            timerContainer.style.display = 'block';
+            timerBar.style.width = '100%';
+            timerBar.style.transition = `width ${TIME_LIMIT}s linear`;
+            
+            void timerBar.offsetWidth; // Forzar reflow
+            
+            timerBar.style.width = '0%';
+
+            timerInterval = setTimeout(() => {
+                display.style.color = "#ff0055"; // Rojo indicando fin de tiempo
+            }, TIME_LIMIT * 1000);
+        }
+
+        function judge(points) {
+            clearTimeout(timerInterval);
+            timerBar.style.transition = 'none';
+            
+            score += points;
+            scoreVal.innerText = score;
+            
+            if(points > 0) {
+                display.innerText = "¡PUNTO! 🎉";
+                document.body.style.background = "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)";
+            } else {
+                display.innerText = "FALLO 💀";
+                document.body.style.background = "linear-gradient(135deg, #cb2d3e 0%, #ef473a 100%)";
+            }
+
+            isSpinning = false;
+            btnCorrect.classList.remove('active-judge');
+            btnWrong.classList.remove('active-judge');
+            
+            setTimeout(() => {
+                document.body.style.background = ""; 
+                display.innerText = "🎤";
+                spinBtn.disabled = false;
+                timerContainer.style.display = 'none';
+            }, 1500);
+        }
+
+        function resetRoundUI() {
+            display.style.color = "#fff";
+            timerContainer.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
