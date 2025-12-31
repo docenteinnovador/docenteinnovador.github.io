@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Impostor</title>
+    <style>
+        :root {
+            --bg: #0d0d0d;
+            --card: #1a1a1a;
+            --accent: #00ff41; /* Verde hacker */
+            --danger: #ff003c; /* Rojo alerta */
+            --text: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+            user-select: none;
+        }
+
+        .container {
+            background-color: var(--card);
+            border: 1px solid #333;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+        }
+
+        h1 { color: var(--accent); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 5px; }
+        h2 { font-size: 1.2rem; margin-top: 0; color: #777; }
+
+        input {
+            background: #000;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 10px;
+            font-family: inherit;
+            width: 60%;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        button:hover { background: #fff; }
+        button.btn-danger { background: var(--danger); color: white; }
+        
+        ul { list-style: none; padding: 0; }
+        li { padding: 5px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; }
+        
+        .hidden { display: none; }
+
+        /* Estilos de la tarjeta de identidad */
+        .identity-card {
+            border: 2px dashed #444;
+            padding: 40px 20px;
+            margin: 20px 0;
+            cursor: pointer;
+            background: #111;
+        }
+        
+        .reveal-content { display: none; }
+        .identity-card:active { background: #222; border-color: var(--accent); }
+        .identity-card:active .instruction { display: none; }
+        .identity-card:active .reveal-content { display: block; }
+
+        .role-title { font-size: 2rem; font-weight: bold; margin-bottom: 10px; }
+        .location-name { font-size: 2.5rem; color: var(--accent); font-weight: bold; text-transform: uppercase;}
+        .impostor-text { color: var(--danger); font-size: 2.5rem; font-weight: bold; }
+
+        #timer { font-size: 4rem; margin: 20px 0; color: var(--danger); }
+        
+        .locations-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 20px;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="screen-setup">
+            <h1>🕵️ El Impostor</h1>
+            <h2>Configuración de la Misión</h2>
+            
+            <p>Ingresa los nombres de los jugadores (Mínimo 3):</p>
+            <div>
+                <input type="text" id="playerInput" placeholder="Nombre..." autocomplete="off">
+                <button onclick="addPlayer()">Añadir</button>
+            </div>
+            
+            <ul id="playerList"></ul>
+            
+            <button id="btnStart" class="hidden" style="width: 100%; margin-top: 20px; padding: 15px;" onclick="startGame()">CONFIRMAR Y EMPEZAR</button>
+        </div>
+
+        <div id="screen-pass" class="hidden">
+            <h1>IDENTIFICACIÓN</h1>
+            <p>Pasa el dispositivo a:</p>
+            <h2 id="currentPlayerName" style="color: white; font-size: 2rem;">NOMBRE</h2>
+            <p style="color: #666;">(Asegúrate de que nadie más mire)</p>
+            
+            <button onclick="showIdentityScreen()">Ya lo tengo, soy yo</button>
+        </div>
+
+        <div id="screen-reveal" class="hidden">
+            <h1>TU IDENTIDAD</h1>
+            <p class="instruction">Mantén presionado el cuadro para ver tu rol.</p>
+            
+            <div class="identity-card" 
+                 onmousedown="startPeek()" onmouseup="endPeek()" 
+                 ontouchstart="startPeek()" ontouchend="endPeek()">
+                
+                <div class="instruction">
+                    🔒<br>MANTÉN PRESIONADO<br>AQUÍ
+                </div>
+
+                <div class="reveal-content">
+                    <div id="roleDisplay"></div>
+                </div>
+            </div>
+
+            <button onclick="nextPlayer()">Entendido, borrar pantalla</button>
+        </div>
+
+        <div id="screen-game" class="hidden">
+            <h1>⏳ INTERROGATORIO</h1>
+            <p>¡Descubran al impostor!</p>
+            
+            <div id="timer">8:00</div>
+            
+            <button class="btn-danger" onclick="stopTimer()">⏹️ DETENER Y VOTAR</button>
+            
+            <div style="margin-top: 20px;">
+                <p style="font-size: 0.9rem; color: #888;">Posibles Lugares:</p>
+                <div class="locations-grid" id="locationsGrid"></div>
+            </div>
+
+            <button onclick="resetGame()" style="margin-top: 30px; background: #333; color: #888; font-size: 0.8rem;">Nueva Partida (Mismos Jugadores)</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- BASE DE DATOS DE LUGARES ---
+        const lugares = [
+            "Avión", "Banco", "Playa", "Circo", "Casino", 
+            "Universidad", "Embajada", "Hospital", "Hotel", "Base Militar", 
+            "Cine", "Barco Pirata", "Estación Polar", "Comisaría", "Restaurante", 
+            "Escuela", "Estación Espacial", "Submarino", "Supermercado", "Teatro",
+            "Zoológico", "Cementerio", "Concierto de Rock", "Boda", "Ascensor"
+        ];
+
+        let players = [];
+        let currentPlayerIndex = 0;
+        let impostorIndex = -1;
+        let currentLocation = "";
+        let timerInterval;
+        let timeLeft = 480; // 8 minutos
+
+        const input = document.getElementById('playerInput');
+        
+        // Enter para agregar
+        input.addEventListener("keypress", (e) => { if(e.key === "Enter") addPlayer(); });
+
+        function addPlayer() {
+            const name = input.value.trim();
+            if(name) {
+                players.push(name);
+                renderList();
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function renderList() {
+            const list = document.getElementById('playerList');
+            list.innerHTML = '';
+            players.forEach((p, i) => {
+                list.innerHTML += `<li>${p} <span onclick="removePlayer(${i})" style="cursor:pointer; color:red;">x</span></li>`;
+            });
+            
+            const btnStart = document.getElementById('btnStart');
+            if(players.length >= 3) {
+                btnStart.classList.remove('hidden');
+                btnStart.innerText = `JUGAR CON ${players.length} PERSONAS`;
+            } else {
+                btnStart.classList.add('hidden');
+            }
+        }
+
+        function removePlayer(i) {
+            players.splice(i, 1);
+            renderList();
+        }
+
+        function startGame() {
+            // Configurar partida
+            currentPlayerIndex = 0;
+            currentLocation = lugares[Math.floor(Math.random() * lugares.length)];
+            impostorIndex = Math.floor(Math.random() * players.length);
+            
+            // Mostrar lista de lugares en la pantalla final para referencia
+            const grid = document.getElementById('locationsGrid');
+            grid.innerHTML = '';
+            lugares.sort().forEach(l => {
+                grid.innerHTML += `<div>• ${l}</div>`;
+            });
+
+            changeScreen('screen-pass');
+            updatePassScreen();
+        }
+
+        function updatePassScreen() {
+            document.getElementById('currentPlayerName').innerText = players[currentPlayerIndex];
+        }
+
+        function showIdentityScreen() {
+            changeScreen('screen-reveal');
+            
+            const display = document.getElementById('roleDisplay');
+            
+            if (currentPlayerIndex === impostorIndex) {
+                // Es el impostor
+                display.innerHTML = `
+                    <div class="role-title">TÚ ERES EL</div>
+                    <div class="impostor-text">☠️ IMPOSTOR</div>
+                    <p style="font-size:0.9rem; color:#aaa; margin-top:10px;">No sabes dónde están.<br>Finge, escucha y trata de adivinar el lugar.</p>
+                `;
+            } else {
+                // Es un civil
+                display.innerHTML = `
+                    <div class="role-title">ESTAMOS EN:</div>
+                    <div class="location-name">${currentLocation}</div>
+                    <p style="font-size:0.9rem; color:#aaa; margin-top:10px;">¡Encuentra al impostor!<br>Haz preguntas sutiles sobre este lugar.</p>
+                `;
+            }
+        }
+
+        function nextPlayer() {
+            currentPlayerIndex++;
+            if (currentPlayerIndex < players.length) {
+                changeScreen('screen-pass');
+                updatePassScreen();
+            } else {
+                startMainGame();
+            }
+        }
+
+        function startMainGame() {
+            changeScreen('screen-game');
+            timeLeft = 60 * players.length; // 1 minuto por jugador aprox, max 8
+            if(timeLeft > 480) timeLeft = 480; 
+            
+            updateTimerDisplay();
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if(timeLeft <= 0) stopTimer();
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            document.getElementById('timer').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            document.getElementById('timer').style.color = "#666";
+            alert("¡TIEMPO! Es hora de votar. Señalen al sospechoso a la de 3.");
+        }
+
+        function resetGame() {
+            startGame(); // Vuelve a repartir roles con los mismos jugadores
+        }
+
+        // Utilidad
+        function changeScreen(id) {
+            document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        // Funciones dummy para peek (lógica en CSS)
+        function startPeek() {}
+        function endPeek() {}
+
+    </script>
+</body>
+</html>

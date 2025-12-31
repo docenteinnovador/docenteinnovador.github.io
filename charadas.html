@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charadas con Robo</title>
+    <style>
+        :root {
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --text: #ffffff;
+            --primary: #BB86FC;
+            --team1: #03DAC6; /* Cian */
+            --team2: #CF6679; /* Rojo/Rosa */
+            --timer-color: #ff9800;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            user-select: none;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            width: 90%;
+            max-width: 600px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        /* --- SCOREBOARD --- */
+        .scoreboard {
+            display: flex;
+            justify-content: space-between;
+            width: 90%;
+            max-width: 600px;
+            margin: 20px 0;
+            background: #2c2c2c;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .team-box {
+            text-align: center;
+            width: 45%;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .team-box h3 { margin: 0; font-size: 1rem; }
+        .score { font-size: 2.5rem; font-weight: bold; margin: 5px 0; }
+        
+        .active-t1 { border: 3px solid var(--team1); box-shadow: 0 0 10px var(--team1); }
+        .active-t2 { border: 3px solid var(--team2); box-shadow: 0 0 10px var(--team2); }
+
+        /* --- TIMER --- */
+        #timer {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--timer-color);
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        .timer-warning { color: red !important; animation: blink 1s infinite; }
+
+        @keyframes blink { 50% { opacity: 0.5; } }
+
+        /* --- INPUTS Y BOTONES --- */
+        input {
+            padding: 15px;
+            width: 70%;
+            border-radius: 8px;
+            border: none;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        button {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            color: white;
+            transition: 0.2s;
+        }
+        button:active { transform: scale(0.98); }
+
+        .btn-add { background-color: var(--primary); width: auto; }
+        .btn-start { background-color: #4CAF50; font-size: 1.5rem; }
+        
+        /* Botones de Juego */
+        .btn-timer { background-color: var(--primary); margin-bottom: 20px; }
+        .btn-win { background-color: #28a745; display: none; } /* Verde */
+        .btn-fail { background-color: #d32f2f; display: none; } /* Rojo */
+
+        /* Botones de Robo */
+        .steal-section { 
+            background: #333; 
+            padding: 15px; 
+            border-radius: 10px; 
+            border: 2px solid orange;
+            animation: popIn 0.3s;
+        }
+        .btn-steal-yes { background-color: orange; color: black; }
+        .btn-steal-no { background-color: #555; }
+
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; }}
+
+        /* --- PEEK AREA (Espiar) --- */
+        .peek-area {
+            background-color: #333;
+            color: #aaa;
+            border: 4px dashed #555;
+            border-radius: 15px;
+            padding: 40px 20px;
+            margin: 20px 0;
+            cursor: pointer;
+            position: relative;
+        }
+        .peek-area:active { background-color: white; color: black; border-style: solid; }
+        .peek-text { font-size: 1.2rem; pointer-events: none; }
+        .secret-word { display: none; font-size: 3rem; font-weight: bold; text-transform: uppercase; line-height: 1; }
+        .peek-area:active .peek-text { display: none; }
+        .peek-area:active .secret-word { display: block; }
+
+        .hidden { display: none; }
+        ul { list-style: none; padding: 0; text-align: left; max-height: 100px; overflow-y: auto; color: #aaa;}
+        li { border-bottom: 1px solid #333; padding: 5px; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+
+    <div class="scoreboard hidden" id="scoreboard">
+        <div class="team-box" id="box-t1">
+            <h3 style="color: var(--team1)">EQUIPO 1</h3>
+            <div class="score" id="score-t1">0</div>
+        </div>
+        <div class="team-box" id="box-t2">
+            <h3 style="color: var(--team2)">EQUIPO 2</h3>
+            <div class="score" id="score-t2">0</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="setup-screen">
+            <h1>⏱️ Charadas VS</h1>
+            <p>Agreguen personajes al sombrero:</p>
+            
+            <div style="display: flex; justify-content: center; gap: 5px; margin-bottom: 10px;">
+                <input type="text" id="charInput" placeholder="Ej: Harry Potter..." autocomplete="off">
+                <button class="btn-add" onclick="agregarPersonaje()">+</button>
+            </div>
+            
+            <ul id="listaPersonajes"></ul>
+
+            <button id="btnStartGame" class="btn-start hidden" onclick="iniciarJuego()">¡A JUGAR!</button>
+        </div>
+
+        <div id="game-screen" class="hidden">
+            <h2 id="turn-indicator">Turno del Equipo 1</h2>
+            
+            <div id="timer">60</div>
+
+            <button id="btn-start-timer" class="btn-timer" onclick="iniciarTemporizador()">▶️ INICIAR TIEMPO (60s)</button>
+
+            <div class="peek-area" id="peekBtn" 
+                 onmousedown="verPalabra()" onmouseup="ocultarPalabra()" 
+                 ontouchstart="verPalabra()" ontouchend="ocultarPalabra()">
+                <div class="peek-text">🔒 MANTÉN CLIC PARA VER<br>(Solo el actor)</div>
+                <div id="secret-word-display" class="secret-word">???</div>
+            </div>
+
+            <div id="action-buttons">
+                <button class="btn-win" onclick="equipoAdivino()">✅ ¡Adivinaron!</button>
+                <button class="btn-fail" onclick="tiempoAgotado()">❌ Rendirse / Parar Tiempo</button>
+            </div>
+
+            <div id="steal-screen" class="steal-section hidden">
+                <h3 style="color: orange; margin:0;">🚨 ¡TIEMPO! Oportunidad de Robo</h3>
+                <p>¿El equipo contrario adivinó?</p>
+                <button class="btn-steal-yes" onclick="roboExitoso()">😈 SÍ, ROBARON EL PUNTO</button>
+                <button class="btn-steal-no" onclick="roboFallido()">💀 NO, NADIE SUPO</button>
+            </div>
+        </div>
+
+        <div id="end-screen" class="hidden">
+            <h1>🏆 ¡Juego Terminado!</h1>
+            <h2 id="winner-text"></h2>
+            <button class="btn-add" onclick="location.reload()">Jugar Nueva Partida</button>
+        </div>
+    </div>
+
+    <script>
+        // --- VARIABLES DEL JUEGO ---
+        let personajes = [];
+        let personajesBarajados = [];
+        let personajeActual = "";
+        
+        let turnoEquipo = 1; // 1 o 2
+        let puntos = { 1: 0, 2: 0 };
+        
+        let tiempo = 60;
+        let intervalo = null;
+        let juegoActivo = false;
+
+        // --- FUNCIONES DE SETUP ---
+        const input = document.getElementById('charInput');
+        
+        input.addEventListener("keypress", (e) => { if(e.key === "Enter") agregarPersonaje(); });
+
+        function agregarPersonaje() {
+            const val = input.value.trim();
+            if(val) {
+                personajes.push(val);
+                actualizarLista();
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function actualizarLista() {
+            const lista = document.getElementById('listaPersonajes');
+            lista.innerHTML = '';
+            personajes.forEach((p, i) => {
+                lista.innerHTML += `<li>${p} <span onclick="personajes.splice(${i},1);actualizarLista()" style="cursor:pointer;color:red">✕</span></li>`;
+            });
+            
+            if(personajes.length > 0) document.getElementById('btnStartGame').classList.remove('hidden');
+        }
+
+        // --- INICIO DEL JUEGO ---
+        function iniciarJuego() {
+            personajesBarajados = [...personajes].sort(() => Math.random() - 0.5);
+            
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('scoreboard').classList.remove('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            
+            cargarNuevoTurno();
+        }
+
+        function cargarNuevoTurno() {
+            if(personajesBarajados.length === 0) {
+                finalizarPartida();
+                return;
+            }
+
+            // Resetear estados
+            clearInterval(intervalo);
+            tiempo = 60;
+            juegoActivo = false;
+            document.getElementById('timer').innerText = tiempo;
+            document.getElementById('timer').classList.remove('timer-warning');
+
+            // Sacar personaje
+            personajeActual = personajesBarajados.pop();
+            document.getElementById('secret-word-display').innerText = personajeActual;
+
+            // UI Reset
+            document.getElementById('btn-start-timer').style.display = 'block';
+            document.querySelector('.btn-win').style.display = 'none';
+            document.querySelector('.btn-fail').style.display = 'none';
+            document.getElementById('steal-screen').classList.add('hidden');
+            document.getElementById('peekBtn').style.display = 'block'; // Mostrar tarjeta
+
+            actualizarIndicadorTurno();
+        }
+
+        function actualizarIndicadorTurno() {
+            const ind = document.getElementById('turn-indicator');
+            const box1 = document.getElementById('box-t1');
+            const box2 = document.getElementById('box-t2');
+
+            ind.innerText = `Turno del Equipo ${turnoEquipo}`;
+            ind.style.color = turnoEquipo === 1 ? 'var(--team1)' : 'var(--team2)';
+
+            if(turnoEquipo === 1) {
+                box1.classList.add('active-t1');
+                box2.classList.remove('active-t2');
+            } else {
+                box1.classList.remove('active-t1');
+                box2.classList.add('active-t2');
+            }
+        }
+
+        // --- LÓGICA DEL TEMPORIZADOR ---
+        function iniciarTemporizador() {
+            document.getElementById('btn-start-timer').style.display = 'none';
+            document.querySelector('.btn-win').style.display = 'block';
+            document.querySelector('.btn-fail').style.display = 'block';
+            
+            juegoActivo = true;
+            
+            intervalo = setInterval(() => {
+                tiempo--;
+                const timerDisplay = document.getElementById('timer');
+                timerDisplay.innerText = tiempo;
+
+                if(tiempo <= 10) timerDisplay.classList.add('timer-warning');
+
+                if(tiempo <= 0) {
+                    tiempoAgotado();
+                }
+            }, 1000);
+        }
+
+        // --- ACCIONES DE JUEGO ---
+        
+        // 1. Adivinaron correctamente (gana punto el equipo actual)
+        function equipoAdivino() {
+            clearInterval(intervalo);
+            puntos[turnoEquipo]++;
+            actualizarPuntos();
+            cambiarEquipo();
+            cargarNuevoTurno();
+        }
+
+        // 2. Se acabó el tiempo o se rindieron (Fase de Robo)
+        function tiempoAgotado() {
+            clearInterval(intervalo);
+            document.getElementById('timer').innerText = "0";
+            
+            // Ocultar botones normales, mostrar zona de robo
+            document.querySelector('.btn-win').style.display = 'none';
+            document.querySelector('.btn-fail').style.display = 'none';
+            document.getElementById('peekBtn').style.display = 'none'; // Ocultar para que no sigan viendo
+            
+            document.getElementById('steal-screen').classList.remove('hidden');
+        }
+
+        // 3. El otro equipo robó el punto
+        function roboExitoso() {
+            // El punto va para el equipo que NO estaba jugando
+            const equipoRobador = turnoEquipo === 1 ? 2 : 1;
+            puntos[equipoRobador]++;
+            actualizarPuntos();
+            alert(`¡Punto robado por el Equipo ${equipoRobador}!`);
+            
+            cambiarEquipo();
+            cargarNuevoTurno();
+        }
+
+        // 4. Nadie supo
+        function roboFallido() {
+            alert(`Nadie adivinó. La palabra era: ${personajeActual}`);
+            cambiarEquipo();
+            cargarNuevoTurno();
+        }
+
+        function cambiarEquipo() {
+            turnoEquipo = turnoEquipo === 1 ? 2 : 1;
+        }
+
+        function actualizarPuntos() {
+            document.getElementById('score-t1').innerText = puntos[1];
+            document.getElementById('score-t2').innerText = puntos[2];
+        }
+
+        // --- FUNCIONES VISUALES (PEEK) ---
+        function verPalabra() {
+            // Lógica manejada por CSS (:active), esto es backup
+        }
+        function ocultarPalabra() {
+            // Backup
+        }
+
+        function finalizarPartida() {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('scoreboard').classList.add('hidden');
+            document.getElementById('end-screen').classList.remove('hidden');
+
+            let mensaje = "";
+            if(puntos[1] > puntos[2]) mensaje = "¡Gana el Equipo 1! 🏆";
+            else if(puntos[2] > puntos[1]) mensaje = "¡Gana el Equipo 2! 🏆";
+            else mensaje = "¡Es un Empate! 🤝";
+
+            document.getElementById('winner-text').innerText = 
+                `${mensaje}\n(Eq1: ${puntos[1]} - Eq2: ${puntos[2]})`;
+        }
+    </script>
+</body>
+</html>
