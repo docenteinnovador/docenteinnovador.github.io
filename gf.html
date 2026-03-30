@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gimnasio Lingual 30s</title>
+    <style>
+        :root {
+            --primario: #27ae60;
+            --acento: #e67e22;
+            --fondo: #f8f9fa;
+            --texto: #2c3e50;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--fondo); 
+            color: var(--texto);
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .contenedor { max-width: 900px; width: 100%; text-align: center; }
+
+        h1 { color: var(--primario); margin-bottom: 5px; font-size: 2.2rem; }
+        .sub { margin-bottom: 30px; color: #7f8c8d; }
+
+        /* Secciones */
+        .seccion-titulo { 
+            font-weight: bold; font-size: 1.1rem; margin-top: 25px; margin-bottom: 10px;
+            text-align: left; border-left: 5px solid var(--acento); padding-left: 10px;
+        }
+
+        .grid-ejercicios {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn-ejercicio {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .btn-ejercicio:hover { 
+            border-color: var(--acento); 
+            background: #fff9f4;
+            transform: translateY(-3px);
+        }
+
+        /* Panel del Cronómetro (Sticky) */
+        #panel-reto {
+            position: sticky;
+            bottom: 20px;
+            background: white;
+            border: 4px solid var(--primario);
+            border-radius: 25px;
+            padding: 25px;
+            width: 95%;
+            max-width: 550px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            z-index: 100;
+        }
+
+        #timer-display {
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--primario);
+            margin: 5px 0;
+        }
+
+        .instruccion-activa { font-size: 1.4rem; color: var(--acento); font-weight: bold; }
+        .desc-activa { font-size: 1.1rem; margin: 10px 0; line-height: 1.3; }
+
+        .progreso-bar {
+            width: 100%; height: 12px; background: #eee;
+            border-radius: 6px; overflow: hidden; margin-top: 15px;
+        }
+
+        #barra { width: 100%; height: 100%; background: var(--primario); transition: width 1s linear; }
+
+        .alerta { color: #e74c3c !important; animation: blink 0.5s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        
+        .highlight { color: var(--acento); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="contenedor">
+    <h1>👅 Gimnasio Lingual: Reto 30s</h1>
+    <p class="sub">Haz clic en un ejercicio y mantén el esfuerzo durante 30 segundos.</p>
+
+    <div class="seccion-titulo">Puntos y Contacto</div>
+    <div class="grid-ejercicios" id="grupo1"></div>
+
+    <div class="seccion-titulo">Fuerza y Resistencia</div>
+    <div class="grid-ejercicios" id="grupo2"></div>
+
+    <div class="seccion-titulo">Agilidad y Movimiento</div>
+    <div class="grid-ejercicios" id="grupo3"></div>
+
+    <div id="panel-reto" style="display:none">
+        <div id="nombre-ej" class="instruccion-activa"></div>
+        <div id="timer-display">30</div>
+        <div id="desc-ej" class="desc-activa"></div>
+        <div class="progreso-bar"><div id="barra"></div></div>
+    </div>
+</div>
+
+<script>
+    const ejercicios = [
+        { g: 1, t: "Techo Delantero", d: "Toca las <span class='highlight'>arrugas del paladar</span> detrás de los dientes." },
+        { g: 1, t: "Sótano", d: "Apoya la punta detrás de los <span class='highlight'>dientes de abajo</span>." },
+        { g: 1, t: "El Tobogán", d: "Punta abajo y empuja el <span class='highlight'>centro</span> de la lengua hacia afuera." },
+        { g: 1, t: "Campanilla", d: "Intenta tocar la <span class='highlight'>zona de atrás</span> del paladar." },
+        { g: 1, t: "Diente por Diente", d: "Recorre cada <span class='highlight'>diente superior</span> uno a uno lentamente." },
+        { g: 1, t: "Diente Abajo", d: "Recorre cada <span class='highlight'>diente inferior</span> con la punta." },
+        
+        { g: 2, t: "Beso Derecho", d: "Empuja la <span class='highlight'>mejilla derecha</span> con mucha fuerza." },
+        { g: 2, t: "Beso Izquierdo", d: "Empuja la <span class='highlight'>mejilla izquierda</span> con fuerza." },
+        { g: 2, t: "Palo de Escoba", d: "Saca la lengua lo más <span class='highlight'>estirada y rígida</span> posible." },
+        { g: 2, t: "Ancla", d: "Pega la lengua al <span class='highlight'>paladar</span> y abre la boca sin despegarla." },
+        { g: 2, t: "Cuchara", d: "Saca la lengua y dobla los <span class='highlight'>bordes</span> hacia arriba." },
+        { g: 2, t: "El Tubito", d: "Dobla la lengua para hacer un <span class='highlight'>tubito</span> y sopla por él." },
+        { g: 2, t: "Pesas de Labio", d: "Empuja el <span class='highlight'>labio superior</span> hacia afuera desde adentro." },
+
+        { g: 3, t: "Limpiaparabrisas", d: "Mueve la lengua de <span class='highlight'>comisura a comisura</span> rápido." },
+        { g: 3, t: "El Pintor", d: "Lame el paladar desde los dientes <span class='highlight'>hacia atrás</span> y vuelve." },
+        { g: 3, t: "El Galope", d: "Haz el sonido de un <span class='highlight'>caballo</span> contra el paladar." },
+        { g: 3, t: "Vibración Labial", d: "Haz <span class='highlight'>vibrar</span> la lengua entre los labios relajados." },
+        { g: 3, t: "Círculo Externo", d: "Pasa la lengua por fuera de los dientes, <span class='highlight'>vuelta completa</span>." },
+        { g: 3, t: "Círculo Interno", d: "Igual, pero con la <span class='highlight'>boca cerrada</span>." },
+        { g: 3, t: "Reloj Veloz", d: "Toca arriba, abajo, izq. y der. <span class='highlight'>lo más rápido</span> posible." }
+    ];
+
+    let timerInterval;
+
+    function iniciar() {
+        ejercicios.forEach(ej => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-ejercicio';
+            btn.innerText = ej.t;
+            btn.onclick = () => empezarCronometro(ej);
+            document.getElementById(`grupo${ej.g}`).appendChild(btn);
+        });
+    }
+
+    function empezarCronometro(ej) {
+        clearInterval(timerInterval);
+        const panel = document.getElementById('panel-reto');
+        const display = document.getElementById('timer-display');
+        const barra = document.getElementById('barra');
+        
+        panel.style.display = 'block';
+        document.getElementById('nombre-ej').innerText = ej.t;
+        document.getElementById('desc-ej').innerHTML = ej.d;
+        
+        let seg = 30;
+        display.innerText = seg;
+        display.classList.remove('alerta');
+        barra.style.width = '100%';
+        barra.style.backgroundColor = '#27ae60';
+
+        timerInterval = setInterval(() => {
+            seg--;
+            display.innerText = seg;
+            barra.style.width = (seg / 30 * 100) + '%';
+
+            if (seg <= 10) {
+                display.classList.add('alerta');
+                barra.style.backgroundColor = '#e74c3c';
+            }
+
+            if (seg <= 0) {
+                clearInterval(timerInterval);
+                display.innerText = "¡COMPLETO!";
+                display.classList.remove('alerta');
+            }
+        }, 1000);
+
+        // Scroll automático suave hacia el panel para verlo bien
+        panel.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
+    iniciar();
+</script>
+</body>
+</html>

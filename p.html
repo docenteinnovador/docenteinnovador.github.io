@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenador de Articulación</title>
+    <style>
+        :root {
+            --fondo: #1a1a1a; /* Fondo oscuro para que resalte el texto */
+            --texto: #f0f0f0;
+            --acento: #ffdf00; /* Amarillo brillante para la instrucción principal */
+            --letra-color: #4da6ff; /* Azul para el botón de la letra */
+            --box-bg: #2d2d2d;
+        }
+
+        body { 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            text-align: center; 
+            background-color: var(--fondo); 
+            color: var(--texto);
+            margin: 0; padding: 20px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 { margin-bottom: 10px; font-size: 2rem; }
+        p.subtitulo { color: #aaa; margin-bottom: 30px; }
+
+        /* Cuadrícula de botones (Teclado) */
+        .contenedor-letras {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(65px, 1fr));
+            gap: 12px;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 40px;
+        }
+
+        .btn-letra {
+            padding: 20px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border: 2px solid #444;
+            border-radius: 12px;
+            background: var(--box-bg);
+            color: var(--letra-color);
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            text-transform: uppercase;
+        }
+
+        .btn-letra:hover {
+            background-color: #3d3d3d;
+            border-color: var(--letra-color);
+            transform: scale(1.05);
+        }
+
+        .btn-letra:active { transform: scale(0.95); }
+
+        /* Área de visualización de instrucciones */
+        #pantalla-instruccion {
+            background: var(--box-bg);
+            border: 3px solid #444;
+            border-radius: 25px;
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Estilos para los textos dentro de la instrucción */
+        .accion { 
+            font-size: 1.5rem; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        .onomatopeya { 
+            font-size: 4rem; /* ¡Muy grande! */
+            font-weight: 900; 
+            color: var(--acento); 
+            margin: 10px 0;
+            font-family: 'Courier New', Courier, monospace; /* Monospace para ritmo */
+        }
+
+        .descripcion { 
+            font-size: 1.3rem; 
+            color: var(--texto); 
+            line-height: 1.4;
+            margin-top: 15px;
+        }
+
+        .letra-activa {
+            font-size: 1.2rem;
+            color: var(--letra-color);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--letra-color);
+        }
+
+        /* Ocultar elementos inicialmente */
+        .oculto { display: none !important; }
+
+    </style>
+</head>
+<body>
+
+    <h1>🗣️ Entrenador de Voz</h1>
+    <p class="subtitulo">Selecciona una letra y sigue la instrucción en voz alta.</p>
+
+    <div class="contenedor-letras" id="teclado"></div>
+
+    <div id="pantalla-instruccion">
+        <div id="mensaje-inicial">Toca una letra para ver la instrucción de sonido.</div>
+        
+        <div id="bloque-instruccion" class="oculto">
+            <div id="letra-mostrada" class="letra-activa"></div>
+            <div class="accion">REPETIR FUERTE:</div>
+            <div id="sonido-onomatopeya" class="onomatopeya"></div>
+            <div id="descripcion-sonido" class="descripcion"></div>
+        </div>
+    </div>
+
+    <script>
+        // Base de datos de instrucciones de articulación
+        const datosArticulacion = [
+            { L: 'A', O: '¡AAAAA!', D: 'Abre bien la boca, como en el dentista.' },
+            { L: 'B', O: 'BUM-BUM', D: 'Explosión suave pegando los labios.' },
+            { L: 'C', O: '¡CUAC-CUAC!', D: 'Sonido seco atrás en la garganta (como K).' },
+            { L: 'CH', O: 'CHH-CHH', D: 'Como un tren de vapor, aire continuo.' },
+            { L: 'D', O: 'DZZZZZ', D: 'Lengua entre los dientes, como una abeja.' },
+            { L: 'E', O: '¡EEEEE!', D: 'Sonrisa estirada, sonido medio.' },
+            { L: 'F', O: 'FFFFF', D: 'Muerde suave el labio inferior y sopla.' },
+            { L: 'G', O: 'GLU-GLU', D: 'Sonido suave de gárgaras atrás.' },
+            { L: 'H', O: 'HMMM', D: 'Silencio... solo el aire salir por la nariz.' },
+            { L: 'I', O: '¡IIIII!', D: 'Sonrisa muy estirada, sonido agudo.' },
+            { L: 'J', O: 'JAAAA', D: 'Aire fuerte raspando la garganta.' },
+            { L: 'K', O: '¡K-K-K!', D: 'Sonido seco, rompiendo una rama atrás.' },
+            { L: 'L', O: 'LA-LA-LA', D: 'Punta de la lengua arriba, detrás de los dientes.' },
+            { L: 'M', O: 'MMMMM', D: 'Labios pegados, sonido vibra en la nariz.' },
+            { L: 'N', O: 'NNNNN', D: 'Lengua arriba, aire sale por la nariz.' },
+            { L: 'Ñ', O: 'ÑAM-ÑAM', D: 'Pega toda la lengua al paladar.' },
+            { L: 'O', O: '¡OOOOO!', D: 'Boca redonda, como sorprendido.' },
+            { L: 'P', O: '¡PUM!', D: 'Explosión fuerte pegando los labios.' },
+            { L: 'Q', O: 'QUÉ-QUÉ', D: 'Sonido seco (igual que K y C).' },
+            { L: 'R', O: 'RRRRRRR', D: 'Repite fuerte como hacen los carros.' },
+            { L: 'S', O: 'SSSSS', D: 'Dientes casi juntos, sopla aire frío.' },
+            { L: 'T', O: 'TIC-TAC', D: 'Punta de la lengua golpea los dientes superiores.' },
+            { L: 'U', O: '¡UUUUU!', D: 'Labios muy hacia afuera, boca pequeña.' },
+            { L: 'V', O: 'VVVVV', D: 'Como el viento, vibración suave en los labios.' },
+            { L: 'W', O: 'WUA-WUA', D: 'Sonido de guau, labios se mueven.' },
+            { L: 'X', O: 'KS-KS', D: 'Unión de K y S, sonido de "taxi".' },
+            { L: 'Y', O: '¡YAAA!', D: 'Pega los lados de la lengua arriba.' },
+            { L: 'Z', O: 'ZZZZZ', D: 'Lengua entre los dientes (español), sopla.' }
+        ];
+
+        const teclado = document.getElementById('teclado');
+        const pantallaInstruccion = document.getElementById('pantalla-instruccion');
+        const mensajeInicial = document.getElementById('mensaje-inicial');
+        const bloqueInstruccion = document.getElementById('bloque-instruccion');
+        const letraMostrada = document.getElementById('letra-mostrada');
+        const sonidoOnomatopeya = document.getElementById('sonido-onomatopeya');
+        const descripcionSonido = document.getElementById('descripcion-sonido');
+
+        // Generar el teclado de botones
+        datosArticulacion.forEach(item => {
+            const boton = document.createElement('button');
+            boton.innerText = item.L;
+            boton.className = 'btn-letra';
+            boton.onclick = () => {
+                // Ocultar mensaje inicial y mostrar instrucción
+                mensajeInicial.classList.add('oculto');
+                bloqueInstruccion.classList.remove('oculto');
+
+                // Actualizar contenido
+                letraMostrada.innerText = `Letra ${item.L}`;
+                sonidoOnomatopeya.innerText = item.O;
+                descripcionSonido.innerText = item.D;
+            };
+            teclado.appendChild(boton);
+        });
+    </script>
+</body>
+</html>

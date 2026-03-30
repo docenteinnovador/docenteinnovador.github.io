@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Tablero SAAC Profesional </title>
+    <style>
+        :root {
+            --persona: #fff176; --accion: #81c784; --objeto: #64b5f6; 
+            --lugar: #ba68c8; --social: #ffb74d; --tiempo: #a1887f; --bg: #f8f9fa;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 10px; }
+        .container { max-width: 1200px; margin: auto; }
+        
+        /* Frase construida */
+        .frase-contenedor {
+            background: white; border: 3px solid #2c3e50; border-radius: 15px;
+            margin-bottom: 20px; min-height: 120px; display: flex; align-items: center;
+            padding: 15px; gap: 10px; overflow-x: auto;
+        }
+
+        .grid-pictos { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
+            gap: 10px; 
+        }
+
+        .picto {
+            background: white; border-radius: 10px; padding: 10px; text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer;
+            border-bottom: 6px solid #ccc; transition: 0.2s;
+        }
+        .picto:active { transform: scale(0.9); }
+
+        /* Colores por Categoría */
+        .persona { border-color: var(--persona); }
+        .accion { border-color: var(--accion); }
+        .objeto { border-color: var(--objeto); }
+        .lugar { border-color: var(--lugar); }
+        .social { border-color: var(--social); }
+        .tiempo { border-color: var(--tiempo); }
+
+        .emoji { font-size: 45px; display: block; margin-bottom: 5px; }
+        .texto { font-size: 12px; font-weight: bold; text-transform: uppercase; color: #333; }
+
+        .controles { margin-top: 20px; text-align: center; }
+        button.main { padding: 15px 30px; font-size: 18px; border-radius: 10px; cursor: pointer; border: none; background: #2c3e50; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="frase-contenedor" id="barra-frase"></div>
+
+    <div class="grid-pictos">
+        <div class="picto persona" onclick="add('👤', 'Yo')"><span class="emoji">👤</span><span class="texto">Yo</span></div>
+        <div class="picto persona" onclick="add('👩', 'Mamá')"><span class="emoji">👩</span><span class="texto">Mamá</span></div>
+        <div class="picto persona" onclick="add('👨', 'Papá')"><span class="emoji">👨</span><span class="texto">Papá</span></div>
+        <div class="picto persona" onclick="add('👧', 'Niña')"><span class="emoji">👧</span><span class="texto">Niña</span></div>
+        <div class="picto persona" onclick="add('👦', 'Niño')"><span class="emoji">👦</span><span class="texto">Niño</span></div>
+        <div class="picto persona" onclick="add('👩‍🏫', 'Profe')"><span class="emoji">👩‍🏫</span><span class="texto">Profe</span></div>
+
+        <div class="picto accion" onclick="add('😋', 'Quiero')"><span class="emoji">😋</span><span class="texto">Quiero</span></div>
+        <div class="picto accion" onclick="add('🍽️', 'Comer')"><span class="emoji">🍽️</span><span class="texto">Comer</span></div>
+        <div class="picto accion" onclick="add('🥤', 'Beber')"><span class="emoji">🥤</span><span class="texto">Beber</span></div>
+        <div class="picto accion" onclick="add('🧸', 'Jugar')"><span class="emoji">🧸</span><span class="texto">Jugar</span></div>
+        <div class="picto accion" onclick="add('🚶', 'Ir')"><span class="emoji">🚶</span><span class="texto">Ir</span></div>
+        <div class="picto accion" onclick="add('👀', 'Ver')"><span class="emoji">👀</span><span class="texto">Ver</span></div>
+        <div class="picto accion" onclick="add('👂', 'Oír')"><span class="emoji">👂</span><span class="texto">Oír</span></div>
+        <div class="picto accion" onclick="add('😴', 'Dormir')"><span class="emoji">😴</span><span class="texto">Dormir</span></div>
+        <div class="picto accion" onclick="add('✍️', 'Pintar')"><span class="emoji">✍️</span><span class="texto">Pintar</span></div>
+        <div class="picto accion" onclick="add('🛁', 'Bañar')"><span class="emoji">🛁</span><span class="texto">Bañar</span></div>
+
+        <div class="picto objeto" onclick="add('🍎', 'Manzana')"><span class="emoji">🍎</span><span class="texto">Manzana</span></div>
+        <div class="picto objeto" onclick="add('💧', 'Agua')"><span class="emoji">💧</span><span class="texto">Agua</span></div>
+        <div class="picto objeto" onclick="add('🚽', 'Baño')"><span class="emoji">🚽</span><span class="texto">Baño</span></div>
+        <div class="picto objeto" onclick="add('📖', 'Libro')"><span class="emoji">📖</span><span class="texto">Libro</span></div>
+        <div class="picto objeto" onclick="add('🧥', 'Abrigo')"><span class="emoji">🧥</span><span class="texto">Abrigo</span></div>
+        <div class="picto objeto" onclick="add('👟', 'Zapatos')"><span class="emoji">👟</span><span class="texto">Zapatos</span></div>
+        <div class="picto objeto" onclick="add('💻', 'Tablet')"><span class="emoji">💻</span><span class="texto">Tablet</span></div>
+        <div class="picto objeto" onclick="add('🧸', 'Juguete')"><span class="emoji">🧸</span><span class="texto">Juguete</span></div>
+
+        <div class="picto lugar" onclick="add('🏠', 'Casa')"><span class="emoji">🏠</span><span class="texto">Casa</span></div>
+        <div class="picto lugar" onclick="add('🏫', 'Cole')"><span class="emoji">🏫</span><span class="texto">Cole</span></div>
+        <div class="picto lugar" onclick="add('🌳', 'Parque')"><span class="emoji">🌳</span><span class="texto">Parque</span></div>
+        <div class="picto lugar" onclick="add('🏥', 'Médico')"><span class="emoji">🏥</span><span class="texto">Médico</span></div>
+
+        <div class="picto social" onclick="add('✅', 'Sí')"><span class="emoji">✅</span><span class="texto">Sí</span></div>
+        <div class="picto social" onclick="add('❌', 'No')"><span class="emoji">❌</span><span class="texto">No</span></div>
+        <div class="picto social" onclick="add('😊', 'Feliz')"><span class="emoji">😊</span><span class="texto">Feliz</span></div>
+        <div class="picto social" onclick="add('😢', 'Triste')"><span class="emoji">😢</span><span class="texto">Triste</span></div>
+        <div class="picto social" onclick="add('😡', 'Enojado')"><span class="emoji">😡</span><span class="texto">Enojado</span></div>
+        <div class="picto social" onclick="add('🩹', 'Duele')"><span class="emoji">🩹</span><span class="texto">Duele</span></div>
+        <div class="picto social" onclick="add('👋', 'Hola')"><span class="emoji">👋</span><span class="texto">Hola</span></div>
+        <div class="picto social" onclick="add('🙏', 'Gracias')"><span class="emoji">🙏</span><span class="texto">Gracias</span></div>
+
+        <div class="picto tiempo" onclick="add('⏰', 'Ahora')"><span class="emoji">⏰</span><span class="texto">Ahora</span></div>
+        <div class="picto tiempo" onclick="add('🔜', 'Luego')"><span class="emoji">🔜</span><span class="texto">Luego</span></div>
+        <div class="picto tiempo" onclick="add('☀️', 'Día')"><span class="emoji">☀️</span><span class="texto">Día</span></div>
+        <div class="picto tiempo" onclick="add('🌙', 'Noche')"><span class="emoji">🌙</span><span class="texto">Noche</span></div>
+    </div>
+
+    <div class="controles">
+        <button class="main" onclick="hablarFrase()">🔊 Escuchar Frase</button>
+        <button class="main" style="background:#e74c3c" onclick="borrar()">🗑️ Borrar</button>
+    </div>
+</div>
+
+<script>
+    let frase = [];
+
+    function add(emoji, texto) {
+        frase.push(texto);
+        const div = document.createElement('div');
+        div.style.textAlign = 'center';
+        div.innerHTML = `<span style="font-size:40px">${emoji}</span><br><b style="font-size:10px">${texto}</b>`;
+        document.getElementById('barra-frase').appendChild(div);
+        
+        // Voz individual al tocar
+        speak(texto);
+    }
+
+    function borrar() {
+        frase = [];
+        document.getElementById('barra-frase').innerHTML = '';
+    }
+
+    function hablarFrase() {
+        if(frase.length > 0) speak(frase.join(' '));
+    }
+
+    function speak(texto) {
+        const msg = new SpeechSynthesisUtterance();
+        msg.text = texto;
+        msg.lang = 'es-ES';
+        window.speechSynthesis.speak(msg);
+    }
+</script>
+
+</body>
+</html>

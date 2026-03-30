@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fonemas — Juego de Articulación</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fef6ee;
+    --card: #fff;
+    --accent1: #ff6b6b;
+    --accent2: #4ecdc4;
+    --accent3: #ffe66d;
+    --accent4: #a29bfe;
+    --accent5: #fd79a8;
+    --dark: #2d3436;
+    --mid: #636e72;
+    --light: #dfe6e9;
+    --success: #00b894;
+    --error: #d63031;
+    --shadow: 0 8px 32px rgba(44,44,44,.13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--dark);
+    padding: 0 0 60px;
+  }
+  header {
+    background: linear-gradient(135deg, #ff6b6b 0%, #fd79a8 50%, #a29bfe 100%);
+    color: #fff;
+    padding: 28px 20px 22px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='25' fill='none' stroke='rgba(255,255,255,.08)' stroke-width='2'/%3E%3C/svg%3E") repeat;
+  }
+  header h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 800;
+    letter-spacing: -1px;
+    text-shadow: 0 2px 8px rgba(0,0,0,.18);
+  }
+  header p { font-size: 1rem; opacity: .9; margin-top: 6px; }
+
+  .score-bar {
+    display: flex; justify-content: center; gap: 16px; align-items: center;
+    padding: 14px 20px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    position: sticky; top: 0; z-index: 100;
+    flex-wrap: wrap;
+  }
+  .score-pill {
+    background: var(--bg);
+    border-radius: 99px;
+    padding: 6px 18px;
+    font-weight: 700;
+    font-size: .95rem;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .score-pill span { font-size: 1.3em; }
+  #progress-bar-wrap {
+    width: 100%; max-width: 340px;
+    height: 10px; background: var(--light);
+    border-radius: 99px; overflow: hidden;
+  }
+  #progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4ecdc4, #a29bfe);
+    border-radius: 99px;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+
+  .mode-selector {
+    display: flex; justify-content: center; gap: 10px;
+    padding: 18px 20px 8px;
+    flex-wrap: wrap;
+  }
+  .mode-btn {
+    padding: 8px 20px;
+    border-radius: 99px;
+    border: 2px solid var(--light);
+    background: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700; font-size: .9rem;
+    cursor: pointer;
+    transition: all .2s;
+    color: var(--mid);
+  }
+  .mode-btn.active, .mode-btn:hover {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(78,205,196,.3);
+  }
+
+  .game-area {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 16px;
+  }
+
+  /* MODO EXPLORAR */
+  .category-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.3rem; font-weight: 800;
+    margin: 24px 0 10px;
+    display: flex; align-items: center; gap: 8px;
+    color: var(--dark);
+  }
+  .phoneme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+  .phoneme-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    padding: 18px 10px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .18s, box-shadow .18s;
+    border: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+  .phoneme-card:hover { transform: translateY(-6px) scale(1.03); box-shadow: 0 16px 40px rgba(0,0,0,.15); }
+  .phoneme-card.active { border-color: var(--accent2); }
+  .phoneme-letter {
+    font-family: 'Baloo 2', cursive;
+    font-size: 2.4rem; font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .phoneme-ipa {
+    font-size: .8rem; color: var(--mid);
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 2px 8px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .mouth-svg-small { width: 64px; height: 48px; }
+
+  /* DETAIL PANEL */
+  .detail-panel {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 16px 60px rgba(0,0,0,.13);
+    padding: 28px 24px;
+    margin-top: 22px;
+    display: none;
+    animation: slideUp .3s ease;
+  }
+  .detail-panel.visible { display: block; }
+  @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  .detail-header { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .detail-letter {
+    font-family: 'Baloo 2', cursive;
+    font-size: 5rem; font-weight: 800;
+    line-height: 1;
+    min-width: 80px; text-align: center;
+  }
+  .detail-info { flex: 1; min-width: 200px; }
+  .detail-info h2 { font-family: 'Baloo 2', cursive; font-size: 1.6rem; margin-bottom: 4px; }
+  .detail-info .tag {
+    display: inline-block;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 3px 10px;
+    font-size: .85rem;
+    font-weight: 700;
+    margin: 2px 3px 2px 0;
+    color: var(--mid);
+  }
+  .detail-info p { margin-top: 10px; font-size: .95rem; line-height: 1.6; color: var(--mid); }
+  .mouth-diagram-wrap {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    margin-top: 22px; justify-content: center;
+  }
+  .mouth-diagram-wrap svg { width: 200px; height: 160px; }
+  .diagram-label {
+    text-align: center; font-size: .82rem;
+    font-weight: 700; color: var(--mid);
+    margin-top: 6px;
+  }
+  .tip-box {
+    background: linear-gradient(135deg, #e8f8f5, #d5f4f0);
+    border-left: 4px solid var(--accent2);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-top: 16px;
+    font-size: .93rem;
+  }
+  .tip-box strong { color: #00796b; }
+
+  /* MODO JUEGO */
+  .quiz-container {
+    max-width: 600px; margin: 0 auto;
+    text-align: center;
+  }
+  .quiz-question {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    padding: 32px 24px;
+    margin-bottom: 22px;
+    animation: slideUp .3s ease;
+  }
+  .quiz-question p { font-size: 1rem; color: var(--mid); margin-bottom: 12px; }
+  .quiz-phoneme-display {
+    font-family: 'Baloo 2', cursive;
+    font-size: 5rem; font-weight: 800;
+    margin-bottom: 10px;
+    line-height: 1;
+  }
+  .quiz-mouth-svg { width: 220px; height: 170px; margin: 0 auto 10px; display: block; }
+  .quiz-options {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-top: 8px;
+  }
+  .option-btn {
+    padding: 14px 10px;
+    border-radius: 16px;
+    border: 3px solid var(--light);
+    background: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    cursor: pointer;
+    transition: all .18s;
+    color: var(--dark);
+  }
+  .option-btn:hover { border-color: var(--accent2); background: #e8faf9; transform: scale(1.03); }
+  .option-btn.correct { background: #d4efdf; border-color: var(--success); color: var(--success); }
+  .option-btn.wrong { background: #fde8e8; border-color: var(--error); color: var(--error); }
+  .option-btn:disabled { cursor: default; transform: none; }
+  .feedback {
+    font-size: 1.05rem; font-weight: 700;
+    margin-top: 12px; min-height: 28px;
+    transition: all .2s;
+  }
+  .feedback.correct { color: var(--success); }
+  .feedback.wrong { color: var(--error); }
+  .next-btn {
+    margin-top: 16px;
+    padding: 12px 36px;
+    border-radius: 99px;
+    border: none;
+    background: linear-gradient(135deg, #4ecdc4, #a29bfe);
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.05rem; font-weight: 800;
+    cursor: pointer;
+    display: none;
+    transition: transform .15s, box-shadow .15s;
+    box-shadow: 0 6px 20px rgba(78,205,196,.35);
+  }
+  .next-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(78,205,196,.4); }
+
+  /* RESULTS */
+  .results-panel {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    padding: 40px 28px;
+    text-align: center;
+    display: none;
+    animation: slideUp .4s ease;
+  }
+  .results-panel h2 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 2.2rem; font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .big-score {
+    font-family: 'Baloo 2', cursive;
+    font-size: 4rem; font-weight: 800;
+    color: var(--accent1);
+    margin: 12px 0;
+  }
+  .star-row { font-size: 2.5rem; margin: 8px 0 20px; }
+  .restart-btn {
+    padding: 14px 40px;
+    border-radius: 99px;
+    border: none;
+    background: linear-gradient(135deg, #ff6b6b, #fd79a8);
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem; font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255,107,107,.35);
+    transition: transform .15s;
+  }
+  .restart-btn:hover { transform: scale(1.05); }
+  .filter-btn {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 2px solid var(--light);
+    background: #fff;
+    font-weight: 700;
+    font-size: .85rem;
+    cursor: pointer;
+    transition: all .2s;
+    color: var(--mid);
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--accent3);
+    border-color: var(--accent3);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🗣️ Fonemas & Boca</h1>
+  <p>Aprende cómo colocar tu lengua y labios para cada sonido</p>
+</header>
+
+<div class="score-bar">
+  <div class="score-pill"><span>⭐</span> <span id="score-display">0</span> pts</div>
+  <div class="score-pill"><span>🔥</span> <span id="streak-display">0</span> racha</div>
+  <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+</div>
+
+<div class="mode-selector">
+  <button class="mode-btn active" onclick="setMode('explore')">🔍 Explorar</button>
+  <button class="mode-btn" onclick="setMode('quiz-mouth')">🎮 Adivina el sonido</button>
+  <button class="mode-btn" onclick="setMode('quiz-letter')">🔤 Adivina la letra</button>
+</div>
+<div class="mode-selector" id="filter-selector" style="display:none;">
+  <button class="filter-btn active" id="filter-all" onclick="setFilter('all')">🎵 Todos</button>
+  <button class="filter-btn" id="filter-cons" onclick="setFilter('cons')">🗣️ Solo Consonantes</button>
+</div>
+
+
+<div class="game-area" id="game-area"></div>
+
+<script>
+// ===== DATA =====
+const phonemes = [
+  // VOCALES
+  { id:'a', letter:'A', ipa:'/a/', cat:'Vocales', color:'#ff6b6b',
+    name:'Vocal A', type:'Vocal abierta central',
+    desc:'La lengua está baja y plana. La boca se abre ampliamente. Los labios no tienen posición especial.',
+    tips:'Boca bien abierta. Lengua baja, toca los dientes inferiores. ¡Como cuando el médico pide "aaah"!',
+    tongue:'low', lips:'open', features:['Baja','Central','Abierta']
+  },
+  { id:'e', letter:'E', ipa:'/e/', cat:'Vocales', color:'#fd79a8',
+    name:'Vocal E', type:'Vocal media frontal',
+    desc:'La lengua se eleva ligeramente hacia el frente. Los labios se estiran en una posición de sonrisa leve.',
+    tips:'Lengua media-alta, acercada a los dientes superiores. Labios estirados como sonrisa.',
+    tongue:'mid-front', lips:'spread', features:['Media','Frontal','Estirada']
+  },
+  { id:'i', letter:'I', ipa:'/i/', cat:'Vocales', color:'#a29bfe',
+    name:'Vocal I', type:'Vocal alta frontal',
+    desc:'La lengua sube al frente de la boca. Los labios se estiran hacia los lados, casi sonriendo.',
+    tips:'Lengua muy alta y adelante. Labios bien estirados. ¡Como cuando dices "queso" para una foto!',
+    tongue:'high-front', lips:'spread-wide', features:['Alta','Frontal','Muy estirada']
+  },
+  { id:'o', letter:'O', ipa:'/o/', cat:'Vocales', color:'#fdcb6e',
+    name:'Vocal O', type:'Vocal media posterior',
+    desc:'La lengua se eleva hacia la parte posterior. Los labios se redondean formando un círculo.',
+    tips:'Lengua media-alta y atrás. Labios redondeados como si soplaras suavemente.',
+    tongue:'mid-back', lips:'round', features:['Media','Posterior','Redondeada']
+  },
+  { id:'u', letter:'U', ipa:'/u/', cat:'Vocales', color:'#4ecdc4',
+    name:'Vocal U', type:'Vocal alta posterior',
+    desc:'La lengua sube en la parte posterior de la boca. Los labios se redondean y proyectan hacia adelante.',
+    tips:'Lengua muy alta y atrás. Labios muy redondeados y proyectados. ¡Como si dijeras "uuu" de susto!',
+    tongue:'high-back', lips:'round-tight', features:['Alta','Posterior','Muy redondeada']
+  },
+  // CONSONANTES LABIALES
+  { id:'p', letter:'P', ipa:'/p/', cat:'Labiales', color:'#e17055',
+    name:'Consonante P', type:'Oclusiva bilabial sorda',
+    desc:'Los dos labios se juntan completamente cortando el aire. Luego se separan bruscamente liberando un pequeño soplo.',
+    tips:'Cierra ambos labios. Acumula aire. ¡Ábrelos de golpe! No uses la voz, solo el soplo.',
+    tongue:'neutral', lips:'closed-bilabial', features:['Bilabial','Oclusiva','Sorda']
+  },
+  { id:'b', letter:'B', ipa:'/b/', cat:'Labiales', color:'#e17055',
+    name:'Consonante B', type:'Oclusiva bilabial sonora',
+    desc:'Igual que la P, pero activando las cuerdas vocales. Los labios se cierran y la voz vibra.',
+    tips:'Misma posición que la P. Ahora activa tu voz: siente la vibración en la garganta.',
+    tongue:'neutral', lips:'closed-bilabial', features:['Bilabial','Oclusiva','Sonora']
+  },
+  { id:'m', letter:'M', ipa:'/m/', cat:'Labiales', color:'#d63031',
+    name:'Consonante M', type:'Nasal bilabial sonora',
+    desc:'Los labios se cierran pero el aire sale por la nariz. La voz vibra creando resonancia nasal.',
+    tips:'Cierra los labios. El aire sale por la nariz. Haz vibrar la voz: siente el cosquilleo en los labios.',
+    tongue:'neutral', lips:'closed-nasal', features:['Bilabial','Nasal','Sonora']
+  },
+  { id:'f', letter:'F', ipa:'/f/', cat:'Labiales', color:'#fab1a0',
+    name:'Consonante F', type:'Fricativa labiodental sorda',
+    desc:'El labio inferior toca ligeramente los dientes superiores. El aire pasa produciendo fricción.',
+    tips:'Labio inferior contra dientes superiores. Deja pasar aire rozando. No uses voz.',
+    tongue:'neutral', lips:'labiodental', features:['Labiodental','Fricativa','Sorda']
+  },
+  // CONSONANTES DENTALES/ALVEOLARES
+  { id:'t', letter:'T', ipa:'/t/', cat:'Dentales', color:'#00b894',
+    name:'Consonante T', type:'Oclusiva dental sorda',
+    desc:'La punta de la lengua toca la base de los dientes superiores. Se cierra el paso del aire y se libera bruscamente.',
+    tips:'Punta de la lengua detrás de los dientes superiores. Acumula presión y suelta. Sin voz.',
+    tongue:'dental', lips:'slightly-open', features:['Dental','Oclusiva','Sorda']
+  },
+  { id:'d', letter:'D', ipa:'/d/', cat:'Dentales', color:'#00b894',
+    name:'Consonante D', type:'Oclusiva dental sonora',
+    desc:'Igual que la T, pero con vibración de cuerdas vocales. La lengua toca los dientes superiores.',
+    tips:'Lengua contra dientes superiores. Activa la voz. Siente la vibración en la garganta.',
+    tongue:'dental', lips:'slightly-open', features:['Dental','Oclusiva','Sonora']
+  },
+  { id:'n', letter:'N', ipa:'/n/', cat:'Dentales', color:'#55efc4',
+    name:'Consonante N', type:'Nasal alveolar sonora',
+    desc:'La punta de la lengua toca los alvéolos (detrás de los dientes superiores). El aire sale por la nariz.',
+    tips:'Lengua contra el paladar justo detrás de los dientes. Aire por la nariz. Voz activada.',
+    tongue:'alveolar', lips:'slightly-open', features:['Alveolar','Nasal','Sonora']
+  },
+  { id:'s', letter:'S', ipa:'/s/', cat:'Dentales', color:'#74b9ff',
+    name:'Consonante S', type:'Fricativa alveolar sorda',
+    desc:'La lengua se acerca a los alvéolos sin tocarlos. El aire pasa por un canal central produciendo silbido.',
+    tips:'Lengua cerca del paladar sin tocarlo. Dientes casi juntos. Sopla con fuerza por el centro.',
+    tongue:'alveolar-near', lips:'teeth-together', features:['Alveolar','Fricativa','Sorda']
+  },
+  { id:'l', letter:'L', ipa:'/l/', cat:'Dentales', color:'#0984e3',
+    name:'Consonante L', type:'Lateral alveolar sonora',
+    desc:'La punta de la lengua toca los alvéolos. El aire escapa por los lados de la lengua, no por el centro.',
+    tips:'Lengua arriba tocando el paladar. El aire sale por los LADOS. Voz activada.',
+    tongue:'alveolar-lateral', lips:'open', features:['Alveolar','Lateral','Sonora']
+  },
+  { id:'r', letter:'R', ipa:'/r/', cat:'Dentales', color:'#6c5ce7',
+    name:'Consonante R (suave)', type:'Vibrante simple alveolar',
+    desc:'La punta de la lengua sube y toca brevemente los alvéolos una sola vez, como un toque rápido.',
+    tips:'Punta de la lengua sube y toca el paladar UNA VEZ muy rápido. Como en "cara" o "pero".',
+    tongue:'alveolar-tap', lips:'open', features:['Alveolar','Vibrante simple','Sonora']
+  },
+  { id:'rr', letter:'RR', ipa:'/r̄/', cat:'Dentales', color:'#6c5ce7',
+    name:'Consonante RR (fuerte)', type:'Vibrante múltiple alveolar',
+    desc:'La punta de la lengua vibra repetidamente contra los alvéolos. Requiere relajar la lengua y soplar fuerte.',
+    tips:'Lengua relajada, punta arriba. Sopla aire con fuerza: la lengua vibrará varias veces. Como en "perro".',
+    tongue:'alveolar-trill', lips:'open', features:['Alveolar','Vibrante múltiple','Sonora']
+  },
+  // PALATALES
+  { id:'ch', letter:'CH', ipa:'/tʃ/', cat:'Palatales', color:'#fd79a8',
+    name:'Consonante CH', type:'Africada palatal sorda',
+    desc:'La lengua se apoya ampliamente en el paladar duro. Se libera con fricción. Labios ligeramente redondeados.',
+    tips:'Lengua plana contra el paladar. Suelta el aire con un "shhh". Sin voz. Labios algo hacia adelante.',
+    tongue:'palatal', lips:'rounded-slight', features:['Palatal','Africada','Sorda']
+  },
+  { id:'y', letter:'Y', ipa:'/j/', cat:'Palatales', color:'#ff7675',
+    name:'Consonante Y', type:'Fricativa palatal sonora',
+    desc:'La lengua se eleva hacia el paladar duro sin tocarlo. El aire roza produciendo vibración.',
+    tips:'Lengua alta hacia el paladar, sin tocarlo. Deja pasar el aire. Activa la voz.',
+    tongue:'palatal-near', lips:'spread', features:['Palatal','Fricativa','Sonora']
+  },
+  // VELARES
+  { id:'k', letter:'K/C', ipa:'/k/', cat:'Velares', color:'#2d3436',
+    name:'Consonante K/C', type:'Oclusiva velar sorda',
+    desc:'La parte posterior de la lengua sube y toca el velo del paladar (paladar blando). Se cierra y libera el aire.',
+    tips:'La PARTE DE ATRÁS de la lengua sube y toca el paladar blando. Suelta. Sin voz.',
+    tongue:'velar', lips:'slightly-open', features:['Velar','Oclusiva','Sorda']
+  },
+  { id:'g', letter:'G', ipa:'/g/', cat:'Velares', color:'#636e72',
+    name:'Consonante G', type:'Oclusiva velar sonora',
+    desc:'Igual que la K, pero con vibración de cuerdas vocales. Parte posterior de la lengua contra el velo.',
+    tips:'Parte trasera de la lengua contra el paladar blando. Activa la voz. Siente la vibración.',
+    tongue:'velar', lips:'slightly-open', features:['Velar','Oclusiva','Sonora']
+  },
+  { id:'j', letter:'J', ipa:'/x/', cat:'Velares', color:'#b2bec3',
+    name:'Consonante J', type:'Fricativa velar sorda',
+    desc:'La parte posterior de la lengua se acerca al velo sin tocarlo. Fuerte fricción de aire en la garganta.',
+    tips:'Lengua atrás, cerca del paladar blando. Sopla fuerte por esa zona. Sin voz. Como un susurro fuerte.',
+    tongue:'velar-near', lips:'slightly-open', features:['Velar','Fricativa','Sorda']
+  },
+];
+
+const categories = [...new Set(phonemes.map(p => p.cat))];
+
+let mode = 'explore';
+let currentFilter = 'all'; // 'all' or 'cons'
+let score = 0;
+let streak = 0;
+let quizIndex = 0;
+let quizList = [];
+let quizAnswered = false;
+let totalAnswered = 0;
+const TOTAL_QUIZ = 10;
+
+
+// ===== MOUTH SVG GENERATOR =====
+function getMouthSVG(phoneme, size='small') {
+  const w = size === 'big' ? 220 : 200;
+  const h = size === 'big' ? 170 : 155;
+  const cx = w / 2, cy = h / 2;
+  
+  const configs = {
+    // lip configs: [width, height of mouth opening, roundness]
+    'open':           { mouthW: 70, mouthH: 40, lipStyle: 'open', tonguePos: 'low' },
+    'spread':         { mouthW: 75, mouthH: 22, lipStyle: 'spread', tonguePos: 'mid-f' },
+    'spread-wide':    { mouthW: 80, mouthH: 18, lipStyle: 'spread', tonguePos: 'high-f' },
+    'round':          { mouthW: 42, mouthH: 36, lipStyle: 'round', tonguePos: 'mid-b' },
+    'round-tight':    { mouthW: 32, mouthH: 30, lipStyle: 'round', tonguePos: 'high-b' },
+    'closed-bilabial':{ mouthW: 0,  mouthH: 0,  lipStyle: 'closed', tonguePos: 'neutral' },
+    'closed-nasal':   { mouthW: 0,  mouthH: 0,  lipStyle: 'closed-nasal', tonguePos: 'neutral' },
+    'labiodental':    { mouthW: 55, mouthH: 20, lipStyle: 'labiodental', tonguePos: 'neutral' },
+    'slightly-open':  { mouthW: 58, mouthH: 20, lipStyle: 'open', tonguePos: 'neutral' },
+    'teeth-together': { mouthW: 60, mouthH: 12, lipStyle: 'teeth', tonguePos: 'alveolar-near' },
+    'rounded-slight': { mouthW: 50, mouthH: 25, lipStyle: 'round-s', tonguePos: 'palatal' },
+  };
+
+  const lip = phoneme.lips || 'slightly-open';
+  const tng = phoneme.tongue || 'neutral';
+  const cfg = configs[lip] || configs['slightly-open'];
+  const col = phoneme.color || '#4ecdc4';
+
+  // Build SVG
+  let svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
+  
+  // Background
+  svg += `<rect width="${w}" height="${h}" rx="16" fill="#fff5f0" opacity=".5"/>`;
+
+  // === SIDE VIEW (cross-section of mouth) ===
+  // Head outline (side profile simplified)
+  svg += `<ellipse cx="${cx+10}" cy="${cy}" rx="${w*0.38}" ry="${h*0.44}" fill="#fde9d9" stroke="#e0b090" stroke-width="2"/>`;
+  
+  // Palate (top of mouth)
+  svg += `<path d="M${cx-52},${cy-22} Q${cx-20},${cy-62} ${cx+30},${cy-52} Q${cx+60},${cy-40} ${cx+58},${cy-10}" fill="none" stroke="#c9956a" stroke-width="3" stroke-linecap="round"/>`;
+  
+  // Soft palate / velum
+  svg += `<path d="M${cx+58},${cy-10} Q${cx+72},${cy+8} ${cx+58},${cy+20}" fill="none" stroke="#c9956a" stroke-width="2.5" stroke-dasharray="4,2"/>`;
+  
+  // Teeth upper
+  svg += `<rect x="${cx-52}" y="${cy-22}" width="14" height="9" rx="2" fill="white" stroke="#ddd" stroke-width="1"/>`;
+  svg += `<rect x="${cx-39}" y="${cy-21}" width="12" height="8" rx="2" fill="white" stroke="#ddd" stroke-width="1"/>`;
+  svg += `<rect x="${cx-28}" y="${cy-20}" width="10" height="8" rx="2" fill="white" stroke="#ddd" stroke-width="1"/>`;
+  
+  // Teeth lower
+  svg += `<rect x="${cx-52}" y="${cy+12}" width="14" height="8" rx="2" fill="white" stroke="#ddd" stroke-width="1"/>`;
+  svg += `<rect x="${cx-39}" y="${cy+12}" width="12" height="8" rx="2" fill="white" stroke="#ddd" stroke-width="1"/>`;
+  svg += `<rect x="${cx-28}" y="${cy+12}" width="10" height="7" rx="2" fill="white" stroke="#ddd" stroke-width="1"/>`;
+  
+  // Lower jaw / floor
+  svg += `<path d="M${cx-52},${cy+20} Q${cx-10},${cy+45} ${cx+50},${cy+35}" fill="none" stroke="#c9956a" stroke-width="2.5"/>`;
+
+  // === TONGUE ===
+  const tongueColor = col;
+  const tongueDark = col;
+
+  const tongueShapes = {
+    'low':            `M${cx-42},${cy+28} Q${cx-10},${cy+38} ${cx+30},${cy+28} Q${cx+20},${cy+18} ${cx-32},${cy+18} Z`,
+    'mid-f':          `M${cx-42},${cy+15} Q${cx-5},${cy+28} ${cx+20},${cy+10} Q${cx+5},${cy+2} ${cx-32},${cy+8} Z`,
+    'high-f':         `M${cx-42},${cy+12} Q${cx-15},${cy+5} ${cx+10},${cy-8} Q${cx-5},${cy+5} ${cx-35},${cy+6} Z`,
+    'mid-b':          `M${cx-38},${cy+20} Q${cx+10},${cy+30} ${cx+52},${cy+10} Q${cx+42},${cy+2} ${cx+10},${cy+12} Q${cx-10},${cy+15} ${cx-35},${cy+12} Z`,
+    'high-b':         `M${cx-38},${cy+18} Q${cx+15},${cy+22} ${cx+58},${cy+0} Q${cx+48},${cy-8} ${cx+18},${cy+8} Q${cx-5},${cy+12} ${cx-35},${cy+10} Z`,
+    'neutral':        `M${cx-42},${cy+22} Q${cx+5},${cy+32} ${cx+40},${cy+22} Q${cx+25},${cy+14} ${cx-28},${cy+14} Z`,
+    'alveolar':       `M${cx-42},${cy+18} Q${cx-15},${cy+20} ${cx-10},${cy-14} Q${cx-20},${cy-16} ${cx-38},${cy+10} Z`,
+    'alveolar-near':  `M${cx-42},${cy+16} Q${cx-10},${cy+22} ${cx+15},${cy+5} Q${cx},${cy-2} ${cx-35},${cy+8} Z`,
+    'alveolar-lateral':`M${cx-42},${cy+16} Q${cx-20},${cy+18} ${cx-12},${cy-16} Q${cx-22},${cy-18} ${cx-38},${cy+8} Z`,
+    'alveolar-tap':   `M${cx-42},${cy+18} Q${cx-15},${cy+20} ${cx-8},${cy-12} Q${cx-18},${cy-14} ${cx-37},${cy+10} Z`,
+    'alveolar-trill': `M${cx-42},${cy+18} Q${cx-15},${cy+20} ${cx-8},${cy-14} Q${cx-15},${cy-16} ${cx-37},${cy+10} Z`,
+    'dental':         `M${cx-46},${cy+16} Q${cx-20},${cy+18} ${cx-14},${cy-16} Q${cx-25},${cy-18} ${cx-42},${cy+8} Z`,
+    'palatal':        `M${cx-40},${cy+14} Q${cx+5},${cy+5} ${cx+28},${cy-20} Q${cx+18},${cy-28} ${cx-5},${cy-8} Q${cx-20},${cy+2} ${cx-38},${cy+6} Z`,
+    'palatal-near':   `M${cx-40},${cy+16} Q${cx+5},${cy+10} ${cx+22},${cy-12} Q${cx+10},${cy-20} ${cx-5},${cy-4} Q${cx-20},${cy+4} ${cx-38},${cy+8} Z`,
+    'velar':          `M${cx-38},${cy+16} Q${cx+15},${cy+24} ${cx+60},${cy+5} Q${cx+58},${cy-12} ${cx+28},${cy+6} Q${cx+5},${cy+16} ${cx-35},${cy+8} Z`,
+    'velar-near':     `M${cx-38},${cy+18} Q${cx+15},${cy+24} ${cx+55},${cy+10} Q${cx+52},${cy-2} ${cx+28},${cy+8} Q${cx+5},${cy+16} ${cx-35},${cy+10} Z`,
+  };
+
+  const tPath = tongueShapes[tng] || tongueShapes['neutral'];
+  svg += `<path d="${tPath}" fill="${tongueColor}" opacity=".85" stroke="${tongueDark}" stroke-width="1.5"/>`;
+
+  // Tongue tip indicator
+  let tipX, tipY;
+  if (tng.includes('high-f') || tng.includes('mid-f')) { tipX = cx+8; tipY = cy-10; }
+  else if (tng.includes('high-b') || tng.includes('mid-b')) { tipX = cx+55; tipY = cy+5; }
+  else if (tng.includes('alveolar')) { tipX = cx-12; tipY = cy-15; }
+  else if (tng.includes('dental')) { tipX = cx-16; tipY = cy-15; }
+  else if (tng.includes('palatal')) { tipX = cx+25; tipY = cy-22; }
+  else if (tng.includes('velar')) { tipX = cx+58; tipY = cy+4; }
+  else { tipX = cx-42; tipY = cy+22; }
+  svg += `<circle cx="${tipX}" cy="${tipY}" r="5" fill="${col}" stroke="white" stroke-width="2"/>`;
+  svg += `<circle cx="${tipX}" cy="${tipY}" r="2.5" fill="white"/>`;
+
+  // Lips front indicator
+  if (lip === 'closed-bilabial' || lip === 'closed-nasal') {
+    svg += `<line x1="${cx-55}" y1="${cy-2}" x2="${cx-43}" y2="${cy-2}" stroke="${col}" stroke-width="4" stroke-linecap="round"/>`;
+    svg += `<text x="${cx-80}" y="${cy+2}" font-size="9" fill="${col}" font-weight="bold">━ labios</text>`;
+  } else if (lip === 'labiodental') {
+    svg += `<path d="M${cx-58},${cy-16} L${cx-44},${cy-5}" stroke="${col}" stroke-width="2.5" stroke-dasharray="3,2"/>`;
+    svg += `<text x="${cx-82}" y="${cy-12}" font-size="9" fill="${col}" font-weight="bold">↗ labio</text>`;
+  }
+
+  // Arrow label for tongue position
+  const labels = {
+    'low': 'baja', 'mid-f': 'media-front', 'high-f': 'alta-front',
+    'mid-b': 'media-post', 'high-b': 'alta-post', 'neutral': 'neutra',
+    'alveolar': 'alveolar', 'alveolar-near': 'alveolar', 'alveolar-lateral': 'alveolar',
+    'alveolar-tap': 'alveolar', 'alveolar-trill': 'alveolar',
+    'dental': 'dental', 'palatal': 'palatal', 'palatal-near': 'palatal',
+    'velar': 'velar', 'velar-near': 'velar',
+  };
+  svg += `<text x="${w-4}" y="${h-6}" text-anchor="end" font-size="9" fill="${col}" font-weight="bold" opacity=".8">lengua: ${labels[tng]||tng}</text>`;
+
+  svg += `</svg>`;
+  return svg;
+}
+
+function getFrontMouthSVG(phoneme) {
+  const w = 160, h = 120;
+  const cx = w/2, cy = h/2;
+  const col = phoneme.color || '#4ecdc4';
+  const lip = phoneme.lips || 'slightly-open';
+
+  let svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
+  svg += `<rect width="${w}" height="${h}" rx="14" fill="#fff5f0" opacity=".5"/>`;
+
+  // Lips shape (front view)
+  const lipShapes = {
+    'open':           { ow: 60, oh: 38, shape: 'oval' },
+    'spread':         { ow: 70, oh: 22, shape: 'wide' },
+    'spread-wide':    { ow: 78, oh: 16, shape: 'wide' },
+    'round':          { ow: 38, oh: 34, shape: 'circle' },
+    'round-tight':    { ow: 28, oh: 26, shape: 'circle' },
+    'closed-bilabial':{ ow: 65, oh: 2, shape: 'line' },
+    'closed-nasal':   { ow: 65, oh: 2, shape: 'line' },
+    'labiodental':    { ow: 56, oh: 16, shape: 'labio' },
+    'slightly-open':  { ow: 55, oh: 18, shape: 'oval' },
+    'teeth-together': { ow: 58, oh: 10, shape: 'teeth' },
+    'rounded-slight': { ow: 46, oh: 24, shape: 'circle' },
+    'round-s':        { ow: 44, oh: 26, shape: 'circle' },
+  };
+  const lc = lipShapes[lip] || lipShapes['slightly-open'];
+
+  // Face (oval)
+  svg += `<ellipse cx="${cx}" cy="${cy}" rx="68" ry="52" fill="#fde9d9" stroke="#e0b090" stroke-width="1.5"/>`;
+  // Nose
+  svg += `<ellipse cx="${cx}" cy="${cy-18}" rx="10" ry="7" fill="#f5c6a0"/>`;
+  svg += `<circle cx="${cx-4}" cy="${cy-16}" r="3" fill="#e0a080"/>`;
+  svg += `<circle cx="${cx+4}" cy="${cy-16}" r="3" fill="#e0a080"/>`;
+
+  // Mouth opening
+  if (lc.shape === 'line') {
+    svg += `<line x1="${cx-lc.ow/2}" y1="${cy+16}" x2="${cx+lc.ow/2}" y2="${cy+16}" stroke="${col}" stroke-width="4" stroke-linecap="round"/>`;
+  } else {
+    svg += `<ellipse cx="${cx}" cy="${cy+16}" rx="${lc.ow/2}" ry="${lc.oh/2}" fill="#c0392b" opacity=".9"/>`;
+    // Teeth
+    if (lc.oh > 10) {
+      svg += `<rect x="${cx-lc.ow/2+4}" y="${cy+16-lc.oh/4}" width="${lc.ow-8}" height="${lc.oh/4+1}" rx="2" fill="white" opacity=".9"/>`;
+      svg += `<rect x="${cx-lc.ow/2+4}" y="${cy+16+2}" width="${lc.ow-8}" height="${lc.oh/4}" rx="2" fill="white" opacity=".9"/>`;
+    }
+  }
+  // Upper lip
+  svg += `<path d="M${cx-lc.ow/2-4},${cy+13} Q${cx-lc.ow/4},${cy+8} ${cx},${cy+10} Q${cx+lc.ow/4},${cy+8} ${cx+lc.ow/2+4},${cy+13}" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round"/>`;
+  // Lower lip
+  svg += `<path d="M${cx-lc.ow/2-4},${cy+20} Q${cx},${cy+26+lc.oh/4} ${cx+lc.ow/2+4},${cy+20}" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round"/>`;
+
+  // Tongue visible?
+  const tng = phoneme.tongue || 'neutral';
+  if (tng.includes('dental') || tng.includes('alveolar')) {
+    // tongue tip visible behind teeth
+    svg += `<ellipse cx="${cx}" cy="${cy+16+lc.oh/4}" rx="14" ry="7" fill="${col}" opacity=".7"/>`;
+  }
+
+  svg += `</svg>`;
+  return svg;
+}
+
+// ===== RENDER =====
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['explore','quiz-mouth','quiz-letter'][i] === m);
+  });
+  const filterSel = document.getElementById('filter-selector');
+  if (m === 'explore') {
+    filterSel.style.display = 'flex';
+    renderExplore();
+  } else {
+    filterSel.style.display = 'none';
+    startQuiz(m);
+  }
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.getElementById('filter-all').classList.toggle('active', f === 'all');
+  document.getElementById('filter-cons').classList.toggle('active', f === 'cons');
+  renderExplore();
+}
+
+
+function renderExplore() {
+  const area = document.getElementById('game-area');
+  let html = '';
+  const catColors = { Vocales:'#ff6b6b', Labiales:'#e17055', Dentales:'#00b894', Palatales:'#fd79a8', Velares:'#636e72' };
+  
+  // Filter phonemes
+  let filteredPhonemes = phonemes;
+  if (currentFilter === 'cons') {
+    filteredPhonemes = phonemes.filter(p => p.cat !== 'Vocales');
+  }
+  const filteredCats = [...new Set(filteredPhonemes.map(p => p.cat))];
+  
+  filteredCats.forEach(cat => {
+    const items = filteredPhonemes.filter(p => p.cat === cat);
+    html += `<div class="category-title" style="color:${catColors[cat]||'#333'}">
+      ${cat === 'Vocales' ? '🔵' : cat === 'Labiales' ? '👄' : cat === 'Dentales' ? '🦷' : cat === 'Palatales' ? '👅' : 'Velares' ? '🌊' : ''} ${cat}
+    </div>`;
+    html += `<div class="phoneme-grid">`;
+    items.forEach(p => {
+      html += `<div class="phoneme-card" id="card-${p.id}" onclick="showDetail('${p.id}')">
+        <div class="phoneme-letter" style="color:${p.color}">${p.letter}</div>
+        <div class="phoneme-ipa">${p.ipa}</div>
+        <div class="mouth-svg-small">${getMouthSVG(p,'small')}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  html += `<div class="detail-panel" id="detail-panel"></div>`;
+  area.innerHTML = html;
+}
+
+
+function showDetail(id) {
+  const p = phonemes.find(x => x.id === id);
+  if (!p) return;
+  document.querySelectorAll('.phoneme-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('card-'+id).classList.add('active');
+  const panel = document.getElementById('detail-panel');
+  panel.classList.add('visible');
+  panel.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-letter" style="color:${p.color}">${p.letter}</div>
+      <div class="detail-info">
+        <h2>${p.name}</h2>
+        <div>${p.features.map(f=>`<span class="tag">${f}</span>`).join('')}</div>
+        <p>${p.desc}</p>
+      </div>
+    </div>
+    <div class="mouth-diagram-wrap">
+      <div>
+        ${getMouthSVG(p,'big')}
+        <div class="diagram-label">Vista lateral (corte)</div>
+      </div>
+      <div>
+        ${getFrontMouthSVG(p)}
+        <div class="diagram-label">Vista frontal (labios)</div>
+      </div>
+    </div>
+    <div class="tip-box"><strong>💡 Cómo practicarlo:</strong> ${p.tips}</div>
+  `;
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ===== QUIZ =====
+function startQuiz(type) {
+  score = 0; streak = 0; quizIndex = 0; totalAnswered = 0;
+  updateScore();
+  quizList = shuffle([...phonemes]).slice(0, TOTAL_QUIZ);
+  renderQuiz(type);
+}
+
+function renderQuiz(type) {
+  const area = document.getElementById('game-area');
+  if (quizIndex >= TOTAL_QUIZ) {
+    showResults();
+    return;
+  }
+  const current = quizList[quizIndex];
+  updateProgress();
+
+  // Generate wrong options
+  const pool = phonemes.filter(p => p.id !== current.id);
+  const wrongs = shuffle(pool).slice(0,3);
+  const options = shuffle([current, ...wrongs]);
+
+  let questionHTML, optionsHTML;
+
+  if (type === 'quiz-mouth') {
+    // Show mouth image → guess phoneme letter
+    questionHTML = `
+      <p>¿Qué fonema corresponde a esta posición?</p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+        <div>${getMouthSVG(current,'big')}<div class="diagram-label">Vista lateral</div></div>
+        <div>${getFrontMouthSVG(current)}<div class="diagram-label">Vista frontal</div></div>
+      </div>`;
+    optionsHTML = options.map(o => `
+      <button class="option-btn" onclick="checkAnswer('${o.id}','${current.id}','${type}')">
+        <span style="font-family:'Baloo 2',cursive;font-size:1.6rem;color:${o.color}">${o.letter}</span><br>
+        <span style="font-size:.8rem;color:#888">${o.ipa}</span>
+      </button>`).join('');
+  } else {
+    // Show letter → guess description
+    const descOptions = options.map(o => ({ id: o.id, text: o.tips }));
+    questionHTML = `
+      <p>¿Cómo se articula este fonema?</p>
+      <div class="quiz-phoneme-display" style="color:${current.color}">${current.letter}</div>
+      <div style="color:#888;font-size:.95rem;margin-bottom:4px">${current.ipa} — ${current.type}</div>`;
+    optionsHTML = descOptions.map(o => `
+      <button class="option-btn" style="text-align:left;font-size:.82rem;padding:12px 14px" 
+        onclick="checkAnswer('${o.id}','${current.id}','${type}')">${o.text}</button>`).join('');
+  }
+
+  area.innerHTML = `
+    <div class="quiz-container">
+      <div class="quiz-question" id="quiz-q">
+        ${questionHTML}
+      </div>
+      <div class="quiz-options" id="quiz-opts">${optionsHTML}</div>
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion('${type}')">Siguiente →</button>
+    </div>`;
+}
+
+function checkAnswer(selected, correct, type) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  totalAnswered++;
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  const fb = document.getElementById('feedback');
+  const correctP = phonemes.find(p => p.id === correct);
+
+  if (selected === correct) {
+    score += 10 + streak * 2;
+    streak++;
+    btns.forEach(b => { if (b.onclick?.toString().includes(`'${correct}'`)) b.classList.add('correct'); });
+    fb.textContent = `✅ ¡Correcto! +${10 + (streak-1)*2} puntos ${streak > 2 ? '🔥 Racha x'+streak : ''}`;
+    fb.className = 'feedback correct';
+  } else {
+    streak = 0;
+    btns.forEach(b => {
+      if (b.onclick?.toString().includes(`'${selected}'`)) b.classList.add('wrong');
+      if (b.onclick?.toString().includes(`'${correct}'`)) b.classList.add('correct');
+    });
+    fb.textContent = `❌ Era ${correctP.letter} (${correctP.ipa})`;
+    fb.className = 'feedback wrong';
+  }
+  updateScore();
+  document.getElementById('next-btn').style.display = 'inline-block';
+  quizAnswered = false;
+  quizIndex++;
+}
+
+function nextQuestion(type) {
+  renderQuiz(type);
+}
+
+function showResults() {
+  const pct = Math.round((score / (TOTAL_QUIZ * 12)) * 100);
+  const stars = score > 90 ? '⭐⭐⭐' : score > 50 ? '⭐⭐' : '⭐';
+  const msg = score > 90 ? '¡Eres un experto en fonética!' : score > 50 ? '¡Buen trabajo! Sigue practicando.' : '¡Practica más frente al espejo!';
+  document.getElementById('game-area').innerHTML = `
+    <div class="results-panel" style="display:block">
+      <div style="font-size:4rem;margin-bottom:8px">🏆</div>
+      <h2>¡Juego terminado!</h2>
+      <div class="big-score">${score} pts</div>
+      <div class="star-row">${stars}</div>
+      <p style="color:#636e72;margin-bottom:24px">${msg}</p>
+      <button class="restart-btn" onclick="setMode(mode)">🔄 Jugar de nuevo</button>
+      &nbsp;
+      <button class="restart-btn" style="background:linear-gradient(135deg,#4ecdc4,#a29bfe)" onclick="setMode('explore')">🔍 Explorar fonemas</button>
+    </div>`;
+}
+
+function updateScore() {
+  document.getElementById('score-display').textContent = score;
+  document.getElementById('streak-display').textContent = streak;
+}
+function updateProgress() {
+  const pct = (quizIndex / TOTAL_QUIZ) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+function shuffle(arr) { return arr.sort(() => Math.random() - .5); }
+
+// Init
+renderExplore();
+</script>
+</body>
+</html>
