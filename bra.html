@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Súper Juego de Sílabas</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --accent: #ffeb3b;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            background-color: #e3f2fd;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            touch-action: manipulation;
+        }
+
+        h1 { font-size: 1.6rem; color: #1565c0; margin: 10px 0; text-align: center; }
+        
+        .instrucciones { 
+            background: white; 
+            padding: 8px; 
+            border-radius: 15px; 
+            font-size: 0.85rem; 
+            margin-bottom: 15px; 
+            text-align: center;
+            border: 2px solid #bbdefb;
+        }
+
+        .game-area {
+            display: flex;
+            width: 100%;
+            max-width: 450px;
+            justify-content: space-around;
+            gap: 12px;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .btn-syl {
+            background-color: var(--accent);
+            border: 3px solid #fbc02d;
+            border-radius: 15px;
+            padding: 15px 5px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: center;
+            box-shadow: 0 4px 0 #fbc02d;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .btn-syl.selected {
+            background-color: #ff9800;
+            color: white;
+            border-color: #e65100;
+            box-shadow: 0 4px 0 #e65100;
+            transform: scale(1.05);
+        }
+
+        .slot-word {
+            background-color: white;
+            border: 2px dashed #bbdefb;
+            border-radius: 15px;
+            padding: 15px 5px;
+            font-size: 1.1rem;
+            text-align: center;
+            color: #333;
+            min-height: 25px;
+        }
+
+        .slot-word.correct {
+            background-color: var(--success);
+            border-color: #27ae60;
+            color: white;
+            border-style: solid;
+            box-shadow: 0 3px 0 #27ae60;
+        }
+
+        #feedback {
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 1.1rem;
+            height: 30px;
+            text-align: center;
+        }
+
+        .hidden { visibility: hidden; pointer-events: none; }
+
+        .reset-btn {
+            padding: 12px 25px;
+            background-color: #1565c0;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #0d47a1;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🌟 ¡Diver-Sílabas! 🌟</h1>
+    <div class="instrucciones">Toca la <b>sílaba amarilla</b> y luego su <b>palabra</b>.</div>
+
+    <div class="game-area">
+        <div class="column" id="col-syl"></div>
+        <div class="column" id="col-word"></div>
+    </div>
+
+    <div id="feedback"></div>
+    <button class="reset-btn" onclick="startGame()">🔄 ¡Más palabras!</button>
+
+    <script>
+        // MÁS DE 50 PALABRAS DIVIDIDAS POR FAMILIAS
+        const bank = [
+            // FAMILIA BRA, BRE, BRI, BRO, BRU
+            { s: "BRA", w: "____zo", full: "BRAZO" },
+            { s: "BRA", w: "a____zo", full: "ABRAZO" },
+            { s: "BRA", w: "ce____", full: "CEBRA" },
+            { s: "BRA", w: "____vo", full: "BRAVO" },
+            { s: "BRE", w: "so____", full: "SOBRE" },
+            { s: "BRE", w: "tim____", full: "TIMBRE" },
+            { s: "BRE", w: "nom____", full: "NOMBRE" },
+            { s: "BRE", w: "po____", full: "POBRE" },
+            { s: "BRI", w: "____llo", full: "BRILLO" },
+            { s: "BRI", w: "fa____ca", full: "FÁBRICA" },
+            { s: "BRI", w: "om____go", full: "OMBLIGO" },
+            { s: "BRI", w: "som____lla", full: "SOMBRILLA" },
+            { s: "BRO", w: "____cha", full: "BROCHA" },
+            { s: "BRO", w: "bro____", full: "BROMA" },
+            { s: "BRO", w: "li____", full: "LIBRO" },
+            { s: "BRO", w: "____coli", full: "BRÓCOLI" },
+            { s: "BRU", w: "____ja", full: "BRUJA" },
+            { s: "BRU", w: "____jula", full: "BRÚJULA" },
+            { s: "BRU", w: "bru____", full: "BRUMA" },
+            { s: "BRU", w: "bru____do", full: "BRUÑIDO" },
+
+            // FAMILIA CRA, CRE, CRI, CRO, CRU
+            { s: "CRA", w: "____neo", full: "CRÁNEO" },
+            { s: "CRA", w: "____ter", full: "CRÁTER" },
+            { s: "CRA", w: "sa____", full: "SACRA" },
+            { s: "CRE", w: "____ma", full: "CREMA" },
+            { s: "CRE", w: "____cer", full: "CRECER" },
+            { s: "CRE", w: "re____o", full: "RECREO" },
+            { s: "CRE", w: "____sta", full: "CRESTA" },
+            { s: "CRI", w: "____stal", full: "CRISTAL" },
+            { s: "CRI", w: "____sol", full: "CRISOL" },
+            { s: "CRI", w: "es____bir", full: "ESCRIBIR" },
+            { s: "CRI", w: "____ado", full: "CRIADO" },
+            { s: "CRO", w: "____mo", full: "CROMO" },
+            { s: "CRO", w: "mi____", full: "MICRO" },
+            { s: "CRO", w: "____ca", full: "CROCA" },
+            { s: "CRO", w: "____no", full: "CRONO" },
+            { s: "CRU", w: "____z", full: "CRUZ" },
+            { s: "CRU", w: "____do", full: "CRUDO" },
+            { s: "CRU", w: "____ce", full: "CRUCE" },
+            { s: "CRU", w: "____el", full: "CRUEL" },
+
+            // FAMILIA DRA, DRE, DRI, DRO, DRU
+            { s: "DRA", w: "____gón", full: "DRAGÓN" },
+            { s: "DRA", w: "pie____", full: "PIEDRA" },
+            { s: "DRA", w: "alm____", full: "ALMENDRA" },
+            { s: "DRA", w: "cua____", full: "CUADRA" },
+            { s: "DRE", w: "pa____", full: "PADRE" },
+            { s: "DRE", w: "ma____", full: "MADRE" },
+            { s: "DRE", w: "a____dre", full: "AJEDREZ" },
+            { s: "DRE", w: "dre____", full: "DRENA" },
+            { s: "DRI", w: "co____drilo", full: "COCODRILO" },
+            { s: "DRI", w: "la____llo", full: "LADRILLO" },
+            { s: "DRI", w: "vi____o", full: "VIDRIO" },
+            { s: "DRI", w: "ma____d", full: "MADRID" },
+            { s: "DRO", w: "____medario", full: "DROMEDARIO" },
+            { s: "DRO", w: "cua____", full: "CUADRO" },
+            { s: "DRO", w: "cil____", full: "CILINDRO" },
+            { s: "DRO", w: "pe____", full: "PEDRO" },
+            { s: "DRU", w: "ma____gada", full: "MADRUGADA" },
+            { s: "DRU", w: "drú____", full: "DRÚPA" }
+        ];
+
+        let selectedSyllable = null;
+        let selectedElement = null;
+
+        function startGame() {
+            const colSyl = document.getElementById('col-syl');
+            const colWord = document.getElementById('col-word');
+            const feedback = document.getElementById('feedback');
+            
+            colSyl.innerHTML = '';
+            colWord.innerHTML = '';
+            feedback.innerText = '';
+            selectedSyllable = null;
+            selectedElement = null;
+
+            // Seleccionamos 6 palabras aleatorias del banco de 55+
+            const currentPairs = [...bank].sort(() => 0.5 - Math.random()).slice(0, 6);
+
+            // Crear botones amarillos
+            [...currentPairs].sort(() => 0.5 - Math.random()).forEach((p, index) => {
+                const div = document.createElement('div');
+                div.className = 'btn-syl';
+                div.innerText = p.s;
+                // Usamos un ID único por si salen dos sílabas iguales (ej. dos BRA)
+                div.id = 'syl-' + index; 
+                div.onclick = () => {
+                    if(selectedElement) selectedElement.classList.remove('selected');
+                    selectedSyllable = p.s;
+                    selectedElement = div;
+                    div.classList.add('selected');
+                    feedback.innerText = "¡Muy bien! ¿Dónde va " + p.s + "?";
+                    feedback.style.color = "#1565c0";
+                };
+                colSyl.appendChild(div);
+            });
+
+            // Crear huecos de palabras
+            [...currentPairs].sort(() => 0.5 - Math.random()).forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'slot-word';
+                div.innerText = p.w;
+                div.dataset.match = p.s;
+                div.dataset.full = p.full;
+                div.onclick = () => {
+                    if (!selectedSyllable) {
+                        feedback.innerText = "¡Toca primero una sílaba!";
+                        return;
+                    }
+                    if (div.dataset.match === selectedSyllable) {
+                        div.innerText = div.dataset.full;
+                        div.classList.add('correct');
+                        div.onclick = null;
+                        selectedElement.classList.add('hidden');
+                        selectedSyllable = null;
+                        selectedElement = null;
+                        feedback.innerText = "¡Excelente! ✨";
+                        feedback.style.color = "#2ecc71";
+                        checkWin(currentPairs.length);
+                    } else {
+                        feedback.innerText = "¡Oh oh! Busca otra... 🐣";
+                        feedback.style.color = "#e74c3c";
+                    }
+                };
+                colWord.appendChild(div);
+            });
+        }
+
+        function checkWin(total) {
+            if (document.querySelectorAll('.correct').length === total) {
+                document.getElementById('feedback').innerHTML = "🏆 ¡GANASTE! ¡ERES INCREÍBLE! 🏆";
+            }
+        }
+
+        startGame();
+    </script>
+</body>
+</html>

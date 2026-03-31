@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Juego de la R Inicial</title>
+    <style>
+        :root {
+            --primary: #e91e63; /* Rosa fuerte para la R */
+            --success: #4caf50;
+            --error: #f44336;
+            --accent: #ffeb3b;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', sans-serif;
+            background-color: #fffde7;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            touch-action: manipulation;
+        }
+
+        h1 { font-size: 1.6rem; color: #ad1457; text-align: center; margin: 10px 0; }
+        
+        .instrucciones { 
+            background: white; 
+            padding: 10px; 
+            border-radius: 15px; 
+            font-size: 0.9rem; 
+            margin-bottom: 15px; 
+            border: 2px solid #f8bbd0;
+            text-align: center;
+        }
+
+        .game-area {
+            display: flex;
+            width: 100%;
+            max-width: 450px;
+            justify-content: space-around;
+            gap: 12px;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .btn-syl {
+            background-color: var(--accent);
+            border: 3px solid #fbc02d;
+            border-radius: 15px;
+            padding: 15px 5px;
+            font-weight: bold;
+            font-size: 1.3rem;
+            text-align: center;
+            box-shadow: 0 4px 0 #fbc02d;
+            cursor: pointer;
+        }
+
+        .btn-syl.selected {
+            background-color: var(--primary);
+            color: white;
+            border-color: #880e4f;
+            box-shadow: 0 4px 0 #880e4f;
+            transform: scale(1.05);
+        }
+
+        .slot-word {
+            background-color: white;
+            border: 2px dashed #f8bbd0;
+            border-radius: 15px;
+            padding: 15px 5px;
+            font-size: 1.2rem;
+            text-align: center;
+            color: #333;
+            min-height: 25px;
+        }
+
+        .slot-word.correct {
+            background-color: var(--success);
+            border-color: #2e7d32;
+            color: white;
+            border-style: solid;
+            box-shadow: 0 3px 0 #2e7d32;
+        }
+
+        #feedback {
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 1.1rem;
+            height: 35px;
+            text-align: center;
+        }
+
+        .hidden { visibility: hidden; pointer-events: none; }
+
+        .reset-btn {
+            padding: 12px 25px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #880e4f;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🐸 El Juego de la R 🐭</h1>
+    <div class="instrucciones">¡Une la sílaba con su palabra correcta!</div>
+
+    <div class="game-area">
+        <div class="column" id="col-syl"></div>
+        <div class="column" id="col-word"></div>
+    </div>
+
+    <div id="feedback"></div>
+    <button class="reset-btn" onclick="startGame()">🔄 ¡Palabras nuevas!</button>
+
+    <script>
+        const bank = [
+            // RA
+            { s: "RA", w: "____na", full: "RANA" },
+            { s: "RA", w: "____ma", full: "RAMA" },
+            { s: "RA", w: "____dio", full: "RADIO" },
+            { s: "RA", w: "____queta", full: "RAQUETA" },
+            { s: "RA", w: "____tón", full: "RATÓN" },
+            { s: "RA", w: "____ya", full: "RAYA" },
+            { s: "RA", w: "____pido", full: "RÁPIDO" },
+            { s: "RA", w: "____íz", full: "RAÍZ" },
+            { s: "RA", w: "____mo", full: "RAMO" },
+            { s: "RA", w: "____ba", full: "RABA" },
+            // RE
+            { s: "RE", w: "____ja", full: "REJA" },
+            { s: "RE", w: "____mo", full: "REMO" },
+            { s: "RE", w: "____galo", full: "REGALO" },
+            { s: "RE", w: "____lao", full: "RELOJ" },
+            { s: "RE", w: "____ina", full: "REINA" },
+            { s: "RE", w: "____no", full: "RENO" },
+            { s: "RE", w: "____d", full: "RED" },
+            { s: "RE", w: "____pisa", full: "REPISA" },
+            { s: "RE", w: "____cet", full: "RECETA" },
+            { s: "RE", w: "____gla", full: "REGLA" },
+            // RI
+            { s: "RI", w: "____sa", full: "RISA" },
+            { s: "RI", w: "____co", full: "RICO" },
+            { s: "RI", w: "____o", full: "RÍO" },
+            { s: "RI", w: "____mo", full: "RITMO" },
+            { s: "RI", w: "____zos", full: "RIZOS" },
+            { s: "RI", w: "____ñón", full: "RIÑÓN" },
+            { s: "RI", w: "____nco", full: "RINCÓN" },
+            { s: "RI", w: "____fle", full: "RIFLE" },
+            { s: "RI", w: "____minal", full: "RIMEL" },
+            { s: "RI", w: "____queza", full: "RIQUEZA" },
+            // RO
+            { s: "RO", w: "____ca", full: "ROCA" },
+            { s: "RO", w: "____pa", full: "ROPA" },
+            { s: "RO", w: "____sa", full: "ROSA" },
+            { s: "RO", w: "____bot", full: "ROBOT" },
+            { s: "RO", w: "____jo", full: "ROJO" },
+            { s: "RO", w: "____sca", full: "ROSCA" },
+            { s: "RO", w: "____mbo", full: "ROMBO" },
+            { s: "RO", w: "____per", full: "ROPERO" },
+            { s: "RO", w: "____deo", full: "RODEO" },
+            { s: "RO", w: "____tulo", full: "RÓTULO" },
+            // RU
+            { s: "RU", w: "____eda", full: "RUEDA" },
+            { s: "RU", w: "____ta", full: "RUTA" },
+            { s: "RU", w: "____bio", full: "RUBIO" },
+            { s: "RU", w: "____ido", full: "RUIDO" },
+            { s: "RU", w: "____leta", full: "RULETA" },
+            { s: "RU", w: "____bi", full: "RUBÍ" },
+            { s: "RU", w: "____gir", full: "RUGIR" },
+            { s: "RU", w: "____na", full: "RUNA" },
+            { s: "RU", w: "____so", full: "RUSO" },
+            { s: "RU", w: "____bor", full: "RUBOR" }
+        ];
+
+        let selectedSyllable = null;
+        let selectedElement = null;
+
+        function startGame() {
+            const colSyl = document.getElementById('col-syl');
+            const colWord = document.getElementById('col-word');
+            const feedback = document.getElementById('feedback');
+            
+            colSyl.innerHTML = '';
+            colWord.innerHTML = '';
+            feedback.innerText = '';
+            selectedSyllable = null;
+            selectedElement = null;
+
+            const currentPairs = [...bank].sort(() => 0.5 - Math.random()).slice(0, 6);
+
+            currentPairs.sort(() => 0.5 - Math.random()).forEach((p, i) => {
+                const div = document.createElement('div');
+                div.className = 'btn-syl';
+                div.innerText = p.s;
+                div.id = 'syl-' + i;
+                div.onclick = () => {
+                    if(selectedElement) selectedElement.classList.remove('selected');
+                    selectedSyllable = p.s;
+                    selectedElement = div;
+                    div.classList.add('selected');
+                    feedback.innerText = "¡Listo! ¿En qué palabra va " + p.s + "?";
+                    feedback.style.color = "#ad1457";
+                };
+                colSyl.appendChild(div);
+            });
+
+            [...currentPairs].sort(() => 0.5 - Math.random()).forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'slot-word';
+                div.innerText = p.w;
+                div.dataset.match = p.s;
+                div.dataset.full = p.full;
+                div.onclick = () => {
+                    if (!selectedSyllable) {
+                        feedback.innerText = "¡Primero elige una sílaba amarilla!";
+                        return;
+                    }
+                    if (div.dataset.match === selectedSyllable) {
+                        div.innerText = div.dataset.full;
+                        div.classList.add('correct');
+                        div.onclick = null;
+                        selectedElement.classList.add('hidden');
+                        selectedSyllable = null;
+                        selectedElement = null;
+                        feedback.innerText = "¡Eso es! 🌟";
+                        feedback.style.color = "#4caf50";
+                        checkWin(currentPairs.length);
+                    } else {
+                        feedback.innerText = "¡Uy! Prueba con otra palabra. 🧐";
+                        feedback.style.color = "#f44336";
+                    }
+                };
+                colWord.appendChild(div);
+            });
+        }
+
+        function checkWin(total) {
+            if (document.querySelectorAll('.correct').length === total) {
+                document.getElementById('feedback').innerHTML = "✨ ¡FANTÁSTICO! ✨";
+            }
+        }
+
+        startGame();
+    </script>
+</body>
+</html>

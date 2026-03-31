@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>¿C o G? El Juego de los Sonidos</title>
+    <style>
+        :root {
+            --color-c: #ff5722;
+            --color-g: #4caf50;
+            --bg: #fff9c4;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            touch-action: manipulation;
+        }
+
+        .header { text-align: center; margin-bottom: 15px; }
+        h1 { color: #5d4037; font-size: 1.5rem; margin: 5px 0; }
+        
+        .card {
+            background: white;
+            width: 90%;
+            max-width: 360px;
+            padding: 30px 15px;
+            border-radius: 25px;
+            box-shadow: 0 10px 0 #d7ccc8;
+            text-align: center;
+            border: 4px solid #8d6e63;
+        }
+
+        .word-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #3e2723;
+            margin-bottom: 25px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn-choice {
+            background: #efebe9;
+            border: 3px solid #8d6e63;
+            border-radius: 15px;
+            padding: 20px 10px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #5d4037;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #8d6e63;
+        }
+
+        .btn-choice:active { transform: translateY(3px); box-shadow: 0 2px 0 #8d6e63; }
+        
+        .correct { background: #81c784 !important; color: white !important; border-color: #2e7d32 !important; box-shadow: 0 5px 0 #2e7d32 !important; }
+        .wrong { background: #e57373 !important; color: white !important; border-color: #c62828 !important; box-shadow: 0 5px 0 #c62828 !important; }
+
+        #msg { margin-top: 20px; font-weight: bold; font-size: 1.2rem; height: 35px; text-align: center; }
+        
+        .progress { font-size: 0.9rem; color: #795548; margin-bottom: 5px; }
+
+        .btn-next {
+            margin-top: 15px;
+            padding: 10px 25px;
+            background: #5d4037;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🐱 ¿Está bien dicho? 🏠</h1>
+        <div class="progress">Pregunta <span id="idx">1</span> de 10</div>
+    </div>
+
+    <div class="card">
+        <span class="word-display" id="target">GATO</span>
+        <div class="options" id="options-box">
+            <button class="btn-choice" onclick="check(this)" id="opt1"></button>
+            <button class="btn-choice" onclick="check(this)" id="opt2"></button>
+        </div>
+    </div>
+
+    <div id="msg"></div>
+    <button class="btn-next" id="next-btn" onclick="nextQuestion()">¡Siguiente!</button>
+
+    <script>
+        const wordBank = [
+            // Parejas de C y G
+            { c: "GATO", w: "CATO" }, { c: "CASA", w: "GASA" }, { c: "COSA", w: "GOSA" },
+            { c: "GOMA", w: "COMA" }, { c: "GOTA", w: "COTA" }, { c: "CAMA", w: "GAMA" },
+            { c: "CUBO", w: "GUBO" }, { c: "GUSANO", w: "CUSANO" }, { c: "COLA", w: "GOLA" },
+            { c: "GOL", w: "COL" }, { c: "CANO", w: "GANO" }, { c: "GANA", w: "CANA" },
+            { c: "CORRO", w: "GORRO" }, { c: "CUEVA", w: "GUEVA" }, { c: "MAGO", w: "MACO" },
+            { c: "PECO", w: "PEGO" }, { c: "PICO", w: "PIGO" }, { c: "LAGO", w: "LACO" },
+            { c: "CARRO", w: "GARRO" }, { c: "COCO", w: "GOGO" }, { c: "GANCHO", w: "CANCHO" },
+            { c: "CONEJO", w: "GONEJO" }, { c: "GUITARRA", w: "CUITARRA" }, { c: "COCHE", w: "GOCHE" },
+            { c: "GALLETA", w: "CALLETA" }, { c: "COMER", w: "GOMER" }, { c: "GALLO", w: "CALLO" },
+            { c: "CUNA", w: "GUNA" }, { c: "GOLES", w: "COLES" }, { c: "GAS", w: "CAS" },
+            { c: "COPA", w: "GOPA" }, { c: "GULA", w: "CULA" }, { c: "CORA", w: "GORA" },
+            { c: "GORDO", w: "CORDO" }, { c: "CARA", w: "GARA" }, { c: "GOLPE", w: "COLPE" },
+            { c: "CAJA", w: "GAJA" }, { c: "GAVIA", w: "CAVIA" }, { c: "CODO", w: "GODO" },
+            { c: "GUSTO", w: "CUSTO" }, { c: "CARTA", w: "GARTA" }, { c: "GUANTE", w: "CUANTE" },
+            { c: "CUIDO", w: "GUIDO" }, { c: "GORILA", w: "CORILA" }, { c: "CABLE", w: "GABLE" },
+            { c: "GANADO", w: "CANADO" }, { c: "CALOR", w: "GALOR" }, { c: "GOLFO", w: "COLFO" },
+            { c: "CENA", w: "GENA" }, { c: "GIRAFA", w: "CIRAFA" }, { c: "CAMA", w: "GAMA" }
+        ];
+
+        let current = 0;
+        let gameWords = [];
+        const totalQ = 10;
+
+        function init() {
+            current = 0;
+            gameWords = [...wordBank].sort(() => 0.5 - Math.random()).slice(0, totalQ);
+            render();
+        }
+
+        function render() {
+            if (current >= totalQ) {
+                document.querySelector('.card').innerHTML = "<h2>¡Súper! 🏆</h2><p>Diferencias muy bien la C de la G.</p><button class='btn-choice' onclick='location.reload()'>Jugar de nuevo</button>";
+                document.getElementById('next-btn').style.display = 'none';
+                return;
+            }
+
+            const item = gameWords[current];
+            document.getElementById('target').innerText = item.c;
+            document.getElementById('idx').innerText = current + 1;
+            document.getElementById('msg').innerText = "";
+            document.getElementById('next-btn').style.display = 'none';
+
+            const opts = [item.c, item.w].sort(() => 0.5 - Math.random());
+            const b1 = document.getElementById('opt1');
+            const b2 = document.getElementById('opt2');
+            
+            b1.innerText = opts[0]; b1.className = "btn-choice"; b1.disabled = false;
+            b2.innerText = opts[1]; b2.className = "btn-choice"; b2.disabled = false;
+        }
+
+        function check(btn) {
+            const correctWord = gameWords[current].c;
+            const msg = document.getElementById('msg');
+            const b1 = document.getElementById('opt1');
+            const b2 = document.getElementById('opt2');
+
+            if (btn.innerText === correctWord) {
+                btn.classList.add('correct');
+                msg.innerText = "¡Excelente! 🌟";
+                msg.style.color = "#2e7d32";
+                b1.disabled = true; b2.disabled = true;
+                setTimeout(nextQuestion, 1200);
+            } else {
+                btn.classList.add('wrong');
+                msg.innerText = "¡Esa no es! Prueba la otra 🐣";
+                msg.style.color = "#c62828";
+                setTimeout(() => btn.classList.remove('wrong'), 800);
+            }
+        }
+
+        function nextQuestion() {
+            current++;
+            render();
+        }
+
+        init();
+    </script>
+</body>
+</html>

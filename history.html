@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Súper Creador de Historias</title>
+    <style>
+        :root {
+            --primario: #6c5ce7;
+            --secundario: #a29bfe;
+            --fondo: #f0f3f7;
+            --blanco: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--fondo);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+        }
+
+        header {
+            background: var(--primario);
+            color: white;
+            width: 100%;
+            padding: 15px 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 { margin: 0; font-size: 1.4rem; }
+
+        /* Contenedor de pestañas/categorías */
+        .categorias {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            width: 100%;
+            padding: 5px;
+        }
+
+        .cat-btn {
+            background: var(--blanco);
+            border: 2px solid var(--primario);
+            padding: 8px 15px;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-weight: bold;
+            color: var(--primario);
+            cursor: pointer;
+        }
+
+        .cat-btn.active {
+            background: var(--primario);
+            color: white;
+        }
+
+        /* Rejilla de elementos */
+        .grid-elementos {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255,255,255,0.5);
+            padding: 10px;
+            border-radius: 15px;
+            min-height: 250px;
+        }
+
+        .ficha {
+            background: var(--blanco);
+            border-radius: 15px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .ficha:active { transform: scale(0.9); border-color: var(--primario); }
+        .ficha span { font-size: 2.5rem; display: block; }
+        .ficha p { margin: 5px 0 0; font-size: 0.8rem; font-weight: bold; color: #444; }
+
+        /* Área de la Historia */
+        .historia-cont {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 25px;
+        }
+
+        .historia-titulo { font-weight: bold; color: var(--primario); margin-bottom: 8px; display: block; }
+
+        .pizarra {
+            background: var(--blanco);
+            border: 3px dashed var(--secundario);
+            border-radius: 20px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            overflow-x: auto;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .cromo-historia {
+            background: #fff9c4;
+            padding: 8px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 70px;
+            border: 1px solid #fbc02d;
+            position: relative;
+            animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+
+        .controles {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            color: white;
+        }
+
+        .btn-rojo { background: #ff7675; }
+        .btn-verde { background: #55efc4; color: #2d3436; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>📖 Mis Historias Fantásticas</h1>
+    </header>
+
+    <div class="categorias" id="tabs">
+        <div class="cat-btn active" onclick="filtrar('todos', this)">🌟 Todos</div>
+        <div class="cat-btn" onclick="filtrar('gente', this)">👦 Gente</div>
+        <div class="cat-btn" onclick="filtrar('animal', this)">🐶 Animales</div>
+        <div class="cat-btn" onclick="filtrar('objeto', this)">⚽ Objetos</div>
+        <div class="cat-btn" onclick="filtrar('lugar', this)">🏠 Lugares</div>
+    </div>
+
+    <div class="grid-elementos" id="catalogo">
+        </div>
+
+    <div class="historia-cont">
+        <span class="historia-titulo">Tu historia paso a paso:</span>
+        <div class="pizarra" id="pizarra"></div>
+    </div>
+
+    <div class="controles">
+        <button class="btn btn-rojo" onclick="borrar()">Limpiar</button>
+        <button class="btn btn-verde" onclick="finalizar()">¡Terminé!</button>
+    </div>
+
+    <script>
+        const datos = [
+            { n: "Niño", e: "👦", c: "gente" },
+            { n: "Niña", e: "👧", c: "gente" },
+            { n: "Mamá", e: "👩", c: "gente" },
+            { n: "Papá", e: "👨", c: "gente" },
+            { n: "Abuelo", e: "👴", c: "gente" },
+            { n: "Policía", e: "👮", c: "gente" },
+            { n: "Perro", e: "🐶", c: "animal" },
+            { n: "Gato", e: "🐱", c: "animal" },
+            { n: "Conejo", e: "🐰", c: "animal" },
+            { n: "León", e: "🦁", c: "animal" },
+            { n: "Pájaro", e: "🐦", c: "animal" },
+            { n: "Pez", e: "🐟", c: "animal" },
+            { n: "Pelota", e: "⚽", c: "objeto" },
+            { n: "Bici", e: "🚲", c: "objeto" },
+            { n: "Regalo", e: "🎁", c: "objeto" },
+            { n: "Comida", e: "🍕", c: "objeto" },
+            { n: "Libro", e: "📚", c: "objeto" },
+            { n: "Coche", e: "🚗", c: "objeto" },
+            { n: "Casa", e: "🏠", c: "lugar" },
+            { n: "Parque", e: "🌳", c: "lugar" },
+            { n: "Escuela", e: "🏫", c: "lugar" },
+            { n: "Playa", e: "🏖️", c: "lugar" },
+            { n: "Castillo", e: "🏰", c: "lugar" },
+            { n: "Montaña", e: "⛰️", c: "lugar" }
+        ];
+
+        const catalogo = document.getElementById('catalogo');
+        const pizarra = document.getElementById('pizarra');
+
+        function cargarCatalogo(filtro = 'todos') {
+            catalogo.innerHTML = '';
+            const items = filtro === 'todos' ? datos : datos.filter(i => i.c === filtro);
+            
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'ficha';
+                div.onclick = () => añadir(item.e, item.n);
+                div.innerHTML = `<span>${item.e}</span><p>${item.n}</p>`;
+                catalogo.appendChild(div);
+            });
+        }
+
+        function filtrar(cat, btn) {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            cargarCatalogo(cat);
+        }
+
+        function añadir(emoji, nombre) {
+            const cromo = document.createElement('div');
+            cromo.className = 'cromo-historia';
+            cromo.innerHTML = `<span style="font-size:1.8rem">${emoji}</span><br><small>${nombre}</small>`;
+            pizarra.appendChild(cromo);
+            pizarra.scrollLeft = pizarra.scrollWidth; // Auto-scroll
+        }
+
+        function borrar() {
+            pizarra.innerHTML = '';
+        }
+
+        function finalizar() {
+            if(pizarra.children.length === 0) return alert("¡Añade algo a tu historia!");
+            alert("¡Qué historia tan bonita! 🌟\nAhora cuéntasela a alguien usando las palabras: Primero, Después y Al final.");
+        }
+
+        // Inicio
+        cargarCatalogo();
+    </script>
+</body>
+</html>
