@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Juego CVC Pro</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background: linear-gradient(135deg, #89f7fe, #66a6ff);
+        color: #333;
+    }
+
+    h1 {
+        margin-top: 20px;
+    }
+
+    #game {
+        background: white;
+        padding: 20px;
+        border-radius: 20px;
+        width: 300px;
+        margin: 20px auto;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    #word {
+        font-size: 50px;
+        margin: 20px;
+        letter-spacing: 10px;
+    }
+
+    .btn {
+        font-size: 20px;
+        padding: 10px 15px;
+        margin: 5px;
+        cursor: pointer;
+        border-radius: 10px;
+        border: none;
+        background: #4CAF50;
+        color: white;
+        transition: 0.3s;
+    }
+
+    .btn:hover {
+        background: #45a049;
+        transform: scale(1.1);
+    }
+
+    #result {
+        font-size: 22px;
+        margin-top: 10px;
+        height: 30px;
+    }
+
+    #score {
+        font-weight: bold;
+    }
+
+    #restart {
+        background: #ff9800;
+        margin-top: 10px;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>🎮 Juego CVC</h1>
+
+<div id="game">
+    <div id="word"></div>
+    <div id="options"></div>
+    <div id="result"></div>
+    <p>Puntaje: <span id="score">0</span></p>
+    <button id="restart" class="btn" onclick="restartGame()">Reiniciar</button>
+</div>
+
+<script>
+const words = [
+    { word: "pan", missing: 0, options: ["p", "m", "s"], correct: "p" },
+    { word: "sol", missing: 1, options: ["a", "o", "u"], correct: "o" },
+    { word: "pez", missing: 2, options: ["z", "s", "t"], correct: "z" },
+    { word: "mar", missing: 0, options: ["m", "p", "l"], correct: "m" },
+    { word: "luz", missing: 1, options: ["a", "u", "o"], correct: "u" },
+    { word: "sal", missing: 2, options: ["l", "n", "r"], correct: "l" },
+    { word: "mes", missing: 1, options: ["e", "i", "a"], correct: "e" },
+    { word: "fin", missing: 2, options: ["n", "m", "s"], correct: "n" },
+    { word: "voz", missing: 0, options: ["v", "b", "d"], correct: "v" },
+    { word: "gas", missing: 1, options: ["a", "o", "u"], correct: "a" },
+    { word: "col", missing: 0, options: ["c", "p", "t"], correct: "c" },
+    { word: "mil", missing: 2, options: ["l", "n", "r"], correct: "l" },
+    { word: "gol", missing: 1, options: ["o", "a", "e"], correct: "o" },
+    { word: "paz", missing: 2, options: ["z", "s", "x"], correct: "z" }
+];
+
+let shuffledWords = [];
+let current = 0;
+let score = 0;
+
+// Mezclar palabras
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+function startGame() {
+    shuffledWords = shuffle([...words]);
+    current = 0;
+    score = 0;
+    document.getElementById("score").textContent = score;
+    loadWord();
+}
+
+function loadWord() {
+    if (current >= shuffledWords.length) {
+        document.getElementById("word").textContent = "🎉 ¡Ganaste!";
+        document.getElementById("options").innerHTML = "";
+        document.getElementById("result").textContent = "";
+        return;
+    }
+
+    const w = shuffledWords[current];
+    let display = w.word.split("");
+    display[w.missing] = "_";
+
+    document.getElementById("word").textContent = display.join(" ");
+    document.getElementById("options").innerHTML = "";
+
+    w.options.forEach(letter => {
+        let btn = document.createElement("button");
+        btn.textContent = letter;
+        btn.className = "btn";
+        btn.onclick = () => check(letter);
+        document.getElementById("options").appendChild(btn);
+    });
+
+    document.getElementById("result").textContent = "";
+}
+
+function check(letter) {
+    const w = shuffledWords[current];
+
+    if (letter === w.correct) {
+        document.getElementById("result").textContent = "✅ Correcto";
+        score++;
+        document.getElementById("score").textContent = score;
+        current++;
+        setTimeout(loadWord, 800);
+    } else {
+        document.getElementById("result").textContent = "❌ Intenta otra vez";
+    }
+}
+
+function restartGame() {
+    startGame();
+}
+
+// Iniciar automáticamente
+startGame();
+</script>
+
+</body>
+</html>
