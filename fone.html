@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Repetidor de Fonemas</title>
+
+<style>
+    body {
+        font-family: Arial;
+        text-align: center;
+        background: linear-gradient(135deg, #89f7fe, #66a6ff);
+    }
+
+    #box {
+        background: white;
+        padding: 20px;
+        border-radius: 20px;
+        width: 320px;
+        margin: 50px auto;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    input {
+        font-size: 30px;
+        text-align: center;
+        width: 100px;
+        padding: 10px;
+        margin: 10px;
+    }
+
+    .btn {
+        font-size: 18px;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background: #4CAF50;
+        color: white;
+        margin: 5px;
+    }
+
+    .btn:hover {
+        transform: scale(1.1);
+    }
+
+    #result {
+        font-size: 40px;
+        margin: 15px;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>🎤 Repetidor de Fonemas</h1>
+
+<div id="box">
+
+    <input id="text" maxlength="3" placeholder="m / sa">
+
+    <div id="result"></div>
+
+    <button class="btn" onclick="speak()">🔊 Escuchar</button>
+
+</div>
+
+<script>
+
+// 🔤 convertir letra a sonido fonético aproximado
+function toPhoneme(text) {
+    text = text.toLowerCase();
+
+    const map = {
+        "m": "mmmm",
+        "s": "ssss",
+        "l": "llll",
+        "r": "rrrr",
+        "rr": "rrrrrr",
+        "p": "pppp",
+        "t": "tttt",
+        "n": "nnnn",
+        "f": "ffff"
+    };
+
+    // si es letra sola
+    if (map[text]) return map[text];
+
+    // si es sílaba, se deja normal (ej: "ma", "sa")
+    return text;
+}
+
+function speak() {
+    let text = document.getElementById("text").value;
+    if (!text) return;
+
+    let phoneme = toPhoneme(text);
+
+    document.getElementById("result").textContent = phoneme;
+
+    let speech = new SpeechSynthesisUtterance(phoneme);
+    speech.lang = "es-ES";
+    speech.rate = 0.7; // más lento para terapia
+
+    speechSynthesis.cancel(); // detener anterior
+    speechSynthesis.speak(speech);
+}
+
+</script>
+
+</body>
+</html>
