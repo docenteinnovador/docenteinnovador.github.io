@@ -3,208 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Súper Creador de Historias</title>
+    <title>Mega Creador de Historias</title>
     <style>
         :root {
-            --primario: #6c5ce7;
-            --secundario: #a29bfe;
-            --fondo: #f0f3f7;
-            --blanco: #ffffff;
+            --p-gente: #ff7675;
+            --p-animal: #fdcb6e;
+            --p-accion: #55efc4;
+            --p-objeto: #74b9ff;
+            --p-lugar: #a29bfe;
+            --p-emocion: #fab1a0;
+            --p-tiempo: #dfe6e9;
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--fondo);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
             margin: 0;
             padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         header {
-            background: var(--primario);
+            background: #2d3436;
             color: white;
             width: 100%;
             padding: 15px 0;
             text-align: center;
             border-radius: 0 0 20px 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
-        h1 { margin: 0; font-size: 1.4rem; }
-
-        /* Contenedor de pestañas/categorías */
+        /* Menú de Categorías Gigante */
         .categorias {
             display: flex;
             gap: 8px;
             margin-bottom: 15px;
             overflow-x: auto;
             width: 100%;
-            padding: 5px;
+            padding: 10px 5px;
+            scrollbar-width: none;
         }
+        .categorias::-webkit-scrollbar { display: none; }
 
         .cat-btn {
-            background: var(--blanco);
-            border: 2px solid var(--primario);
-            padding: 8px 15px;
-            border-radius: 20px;
+            padding: 12px 20px;
+            border-radius: 15px;
             white-space: nowrap;
             font-weight: bold;
-            color: var(--primario);
             cursor: pointer;
+            border: 2px solid rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            background: white;
         }
+        .cat-btn.active { transform: scale(1.1); border-color: black; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
 
-        .cat-btn.active {
-            background: var(--primario);
-            color: white;
-        }
-
-        /* Rejilla de elementos */
+        /* Rejilla de Pictogramas */
         .grid-elementos {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
             gap: 10px;
             width: 100%;
-            max-width: 500px;
-            background: rgba(255,255,255,0.5);
-            padding: 10px;
-            border-radius: 15px;
-            min-height: 250px;
+            max-width: 800px;
+            background: white;
+            padding: 15px;
+            border-radius: 20px;
+            height: 350px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
         }
 
         .ficha {
-            background: var(--blanco);
-            border-radius: 15px;
-            padding: 10px;
+            background: white;
+            border-radius: 12px;
+            padding: 8px;
             text-align: center;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.05);
-            border: 2px solid transparent;
-            transition: 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             cursor: pointer;
+            border-bottom: 4px solid #ddd;
         }
+        .ficha:active { transform: scale(0.9); }
+        .ficha span { font-size: 2.2rem; display: block; }
+        .ficha p { margin: 5px 0 0; font-size: 0.7rem; font-weight: bold; color: #2d3436; text-transform: uppercase; }
 
-        .ficha:active { transform: scale(0.9); border-color: var(--primario); }
-        .ficha span { font-size: 2.5rem; display: block; }
-        .ficha p { margin: 5px 0 0; font-size: 0.8rem; font-weight: bold; color: #444; }
-
-        /* Área de la Historia */
+        /* La Pizarra de la Historia */
         .historia-cont {
             width: 100%;
-            max-width: 500px;
-            margin-top: 25px;
+            max-width: 800px;
+            margin-top: 20px;
         }
 
-        .historia-titulo { font-weight: bold; color: var(--primario); margin-bottom: 8px; display: block; }
-
         .pizarra {
-            background: var(--blanco);
-            border: 3px dashed var(--secundario);
+            background: #ffffff;
+            border: 4px solid #2d3436;
             border-radius: 20px;
-            min-height: 120px;
+            min-height: 150px;
             display: flex;
             align-items: center;
             gap: 10px;
             padding: 15px;
             overflow-x: auto;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.05);
         }
 
         .cromo-historia {
-            background: #fff9c4;
-            padding: 8px;
-            border-radius: 10px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 12px;
             text-align: center;
-            min-width: 70px;
-            border: 1px solid #fbc02d;
+            min-width: 75px;
+            border: 2px solid #2d3436;
             position: relative;
-            animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: aparecer 0.3s backwards;
         }
+        @keyframes aparecer { from { opacity: 0; transform: translateY(20px); } }
 
-        @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+        .btn-borrar-uno {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            border: none;
+        }
 
         .controles {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 15px;
+            margin: 20px 0;
             width: 100%;
-            max-width: 500px;
+            max-width: 800px;
         }
 
         .btn {
             flex: 1;
-            padding: 15px;
+            padding: 18px;
             border: none;
             border-radius: 15px;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 1.1rem;
             cursor: pointer;
             color: white;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
         }
+        .btn-limpiar { background: #636e72; }
+        .btn-voz { background: #00cec9; }
 
-        .btn-rojo { background: #ff7675; }
-        .btn-verde { background: #55efc4; color: #2d3436; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>📖 Mis Historias Fantásticas</h1>
+        <h1>📖 Súper Diccionario Visual</h1>
     </header>
 
     <div class="categorias" id="tabs">
-        <div class="cat-btn active" onclick="filtrar('todos', this)">🌟 Todos</div>
-        <div class="cat-btn" onclick="filtrar('gente', this)">👦 Gente</div>
-        <div class="cat-btn" onclick="filtrar('animal', this)">🐶 Animales</div>
-        <div class="cat-btn" onclick="filtrar('objeto', this)">⚽ Objetos</div>
-        <div class="cat-btn" onclick="filtrar('lugar', this)">🏠 Lugares</div>
+        <div class="cat-btn active" style="background: #fff" onclick="filtrar('todos', this)">🌟 Todos</div>
+        <div class="cat-btn" style="background: var(--p-gente)" onclick="filtrar('gente', this)">👦 Gente</div>
+        <div class="cat-btn" style="background: var(--p-animal)" onclick="filtrar('animal', this)">🐶 Animal</div>
+        <div class="cat-btn" style="background: var(--p-accion)" onclick="filtrar('accion', this)">🏃 Acciones</div>
+        <div class="cat-btn" style="background: var(--p-objeto)" onclick="filtrar('objeto', this)">⚽ Cosas</div>
+        <div class="cat-btn" style="background: var(--p-lugar)" onclick="filtrar('lugar', this)">🏠 Lugares</div>
+        <div class="cat-btn" style="background: var(--p-emocion)" onclick="filtrar('emocion', this)">😊 Sentir</div>
+        <div class="cat-btn" style="background: var(--p-tiempo)" onclick="filtrar('tiempo', this)">⏰ Tiempo</div>
     </div>
 
-    <div class="grid-elementos" id="catalogo">
-        </div>
+    <div class="grid-elementos" id="catalogo"></div>
 
     <div class="historia-cont">
-        <span class="historia-titulo">Tu historia paso a paso:</span>
         <div class="pizarra" id="pizarra"></div>
     </div>
 
     <div class="controles">
-        <button class="btn btn-rojo" onclick="borrar()">Limpiar</button>
-        <button class="btn btn-verde" onclick="finalizar()">¡Terminé!</button>
+        <button class="btn btn-limpiar" onclick="borrarTodo()">Limpiar</button>
+        <button class="btn btn-voz" onclick="leerHistoria()">🔊 Leer Historia</button>
     </div>
 
     <script>
         const datos = [
-            { n: "Niño", e: "👦", c: "gente" },
-            { n: "Niña", e: "👧", c: "gente" },
-            { n: "Mamá", e: "👩", c: "gente" },
-            { n: "Papá", e: "👨", c: "gente" },
-            { n: "Abuelo", e: "👴", c: "gente" },
-            { n: "Policía", e: "👮", c: "gente" },
-            { n: "Perro", e: "🐶", c: "animal" },
-            { n: "Gato", e: "🐱", c: "animal" },
-            { n: "Conejo", e: "🐰", c: "animal" },
-            { n: "León", e: "🦁", c: "animal" },
-            { n: "Pájaro", e: "🐦", c: "animal" },
-            { n: "Pez", e: "🐟", c: "animal" },
-            { n: "Pelota", e: "⚽", c: "objeto" },
-            { n: "Bici", e: "🚲", c: "objeto" },
-            { n: "Regalo", e: "🎁", c: "objeto" },
-            { n: "Comida", e: "🍕", c: "objeto" },
-            { n: "Libro", e: "📚", c: "objeto" },
-            { n: "Coche", e: "🚗", c: "objeto" },
-            { n: "Casa", e: "🏠", c: "lugar" },
-            { n: "Parque", e: "🌳", c: "lugar" },
-            { n: "Escuela", e: "🏫", c: "lugar" },
-            { n: "Playa", e: "🏖️", c: "lugar" },
-            { n: "Castillo", e: "🏰", c: "lugar" },
-            { n: "Montaña", e: "⛰️", c: "lugar" }
+            // GENTE (20)
+            { n: "Yo", e: "🙋‍♂️", c: "gente" }, { n: "Tú", e: "👈", c: "gente" }, { n: "Niño", e: "👦", c: "gente" }, { n: "Niña", e: "👧", c: "gente" },
+            { n: "Mamá", e: "👩", c: "gente" }, { n: "Papá", e: "👨", c: "gente" }, { n: "Abuelo", e: "👴", c: "gente" }, { n: "Abuela", e: "👵", c: "gente" },
+            { n: "Bebé", e: "👶", c: "gente" }, { n: "Amigo", e: "🧑‍🤝‍🧑", c: "gente" }, { n: "Doctor", e: "👨‍⚕️", c: "gente" }, { n: "Policía", e: "👮", c: "gente" },
+            { n: "Bombero", e: "👨‍🚒", c: "gente" }, { n: "Profesor", e: "👨‍🏫", c: "gente" }, { n: "Pirata", e: "🏴‍☠️", c: "gente" }, { n: "Rey", e: "🤴", c: "gente" },
+            { n: "Hada", e: "🧚‍♀️", c: "gente" }, { n: "Payaso", e: "🤡", c: "gente" }, { n: "Astronauta", e: "👨‍🚀", c: "gente" }, { n: "Cocinero", e: "👨‍🍳", c: "gente" },
+
+            // ANIMALES (20)
+            { n: "Perro", e: "🐶", c: "animal" }, { n: "Gato", e: "🐱", c: "animal" }, { n: "Pez", e: "🐟", c: "animal" }, { n: "Pájaro", e: "🐦", c: "animal" },
+            { n: "Conejo", e: "🐰", c: "animal" }, { n: "León", e: "🦁", c: "animal" }, { n: "Elefante", e: "🐘", c: "animal" }, { n: "Mono", e: "🐒", c: "animal" },
+            { n: "Vaca", e: "🐄", c: "animal" }, { n: "Cerdo", e: "🐖", c: "animal" }, { n: "Caballo", e: "🐎", c: "animal" }, { n: "Oveja", e: "🐑", c: "animal" },
+            { n: "Dinosaurio", e: "🦖", c: "animal" }, { n: "Tiburón", e: "🦈", c: "animal" }, { n: "Tortuga", e: "🐢", c: "animal" }, { n: "Rana", e: "🐸", c: "animal" },
+            { n: "Abeja", e: "🐝", c: "animal" }, { n: "Mariposa", e: "🦋", c: "animal" }, { n: "Dragón", e: "🐲", c: "animal" }, { n: "Unicornio", e: "🦄", c: "animal" },
+
+            // ACCIONES (20)
+            { n: "Comer", e: "🍕", c: "accion" }, { n: "Beber", e: "🥤", c: "accion" }, { n: "Dormir", e: "😴", c: "accion" }, { n: "Jugar", e: "⚽", c: "accion" },
+            { n: "Correr", e: "🏃", c: "accion" }, { n: "Caminar", e: "🚶", c: "accion" }, { n: "Saltar", e: "🦘", c: "accion" }, { n: "Nadar", e: "🏊", c: "accion" },
+            { n: "Bailar", e: "💃", c: "accion" }, { n: "Cantar", e: "🎤", c: "accion" }, { n: "Ver", e: "👁️", c: "accion" }, { n: "Oír", e: "👂", c: "accion" },
+            { n: "Hablar", e: "🗣️", c: "accion" }, { n: "Escribir", e: "✍️", c: "accion" }, { n: "Leer", e: "📖", c: "accion" }, { n: "Lavar", e: "🧼", c: "accion" },
+            { n: "Comprar", e: "🛒", c: "accion" }, { n: "Volar", e: "✈️", c: "accion" }, { n: "Subir", e: "🪜", c: "accion" }, { n: "Bajar", e: "📉", c: "accion" },
+
+            // OBJETOS (20)
+            { n: "Pelota", e: "🏀", c: "objeto" }, { n: "Coche", e: "🚗", c: "objeto" }, { n: "Bici", e: "🚲", c: "objeto" }, { n: "Libro", e: "📚", c: "objeto" },
+            { n: "Juguete", e: "🧸", c: "objeto" }, { n: "Teléfono", e: "📱", c: "objeto" }, { n: "Silla", e: "🪑", c: "objeto" }, { n: "Mesa", e: "🧱", c: "objeto" },
+            { n: "Cama", e: "🛏️", c: "objeto" }, { n: "Ropa", e: "👕", c: "objeto" }, { n: "Zapatos", e: "👟", c: "objeto" }, { n: "Vaso", e: "🥛", c: "objeto" },
+            { n: "Plato", e: "🍽️", c: "objeto" }, { n: "Cuchara", e: "🥄", c: "objeto" }, { n: "Regalo", e: "🎁", c: "objeto" }, { n: "Dinero", e: "💰", c: "objeto" },
+            { n: "Llave", e: "🔑", c: "objeto" }, { n: "Ordenador", e: "💻", c: "objeto" }, { n: "Mochila", e: "🎒", c: "objeto" }, { n: "Lápiz", e: "✏️", c: "objeto" },
+
+            // LUGARES (15)
+            { n: "Casa", e: "🏠", c: "lugar" }, { n: "Colegio", e: "🏫", c: "lugar" }, { n: "Parque", e: "🌳", c: "lugar" }, { n: "Playa", e: "🏖️", c: "lugar" },
+            { n: "Bosque", e: "🌲", c: "lugar" }, { n: "Montaña", e: "⛰️", c: "lugar" }, { n: "Tienda", e: "🏪", c: "lugar" }, { n: "Hospital", e: "🏥", c: "lugar" },
+            { n: "Cine", e: "🍿", c: "lugar" }, { n: "Granja", e: "🚜", c: "lugar" }, { n: "Piscina", e: "🏊‍♂️", c: "lugar" }, { n: "Espacio", e: "🚀", c: "lugar" },
+            { n: "Castillo", e: "🏰", c: "lugar" }, { n: "Isla", e: "🏝️", c: "lugar" }, { n: "Zoo", e: "🦓", c: "lugar" },
+
+            // EMOCIONES (10)
+            { n: "Feliz", e: "😊", c: "emocion" }, { n: "Triste", e: "😢", c: "emocion" }, { n: "Enojado", e: "😠", c: "emocion" }, { n: "Asustado", e: "😱", c: "emocion" },
+            { n: "Sorpresa", e: "😲", c: "emocion" }, { n: "Cansado", e: "😴", c: "emocion" }, { n: "Enfermo", e: "🤒", c: "emocion" }, { n: "Hambre", e: "🤤", c: "emocion" },
+            { n: "Amor", e: "😍", c: "emocion" }, { n: "Genial", e: "😎", c: "emocion" },
+
+            // TIEMPO (8)
+            { n: "Hoy", e: "📅", c: "tiempo" }, { n: "Mañana", e: "☀️", c: "tiempo" }, { n: "Noche", e: "🌙", c: "tiempo" }, { n: "Lluvia", e: "🌧️", c: "tiempo" },
+            { n: "Sol", e: "☀️", c: "tiempo" }, { n: "Nieve", e: "❄️", c: "tiempo" }, { n: "Relámpago", e: "⚡", c: "tiempo" }, { n: "Viento", e: "💨", c: "tiempo" }
         ];
 
         const catalogo = document.getElementById('catalogo');
         const pizarra = document.getElementById('pizarra');
+        let historiaActual = [];
 
         function cargarCatalogo(filtro = 'todos') {
             catalogo.innerHTML = '';
@@ -213,7 +244,8 @@
             items.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'ficha';
-                div.onclick = () => añadir(item.e, item.n);
+                div.style.borderBottomColor = `var(--p-${item.c})`;
+                div.onclick = () => añadir(item);
                 div.innerHTML = `<span>${item.e}</span><p>${item.n}</p>`;
                 catalogo.appendChild(div);
             });
@@ -225,24 +257,39 @@
             cargarCatalogo(cat);
         }
 
-        function añadir(emoji, nombre) {
+        function añadir(item) {
+            historiaActual.push(item.n);
             const cromo = document.createElement('div');
             cromo.className = 'cromo-historia';
-            cromo.innerHTML = `<span style="font-size:1.8rem">${emoji}</span><br><small>${nombre}</small>`;
+            cromo.innerHTML = `
+                <button class="btn-borrar-uno" onclick="this.parentElement.remove()">X</button>
+                <span style="font-size:2.2rem">${item.e}</span><br>
+                <small style="font-weight:bold">${item.n}</small>
+            `;
             pizarra.appendChild(cromo);
-            pizarra.scrollLeft = pizarra.scrollWidth; // Auto-scroll
+            pizarra.scrollLeft = pizarra.scrollWidth;
+            hablar(item.n);
         }
 
-        function borrar() {
+        function hablar(texto) {
+            const ut = new SpeechSynthesisUtterance(texto);
+            ut.lang = 'es-ES';
+            window.speechSynthesis.speak(ut);
+        }
+
+        function borrarTodo() {
             pizarra.innerHTML = '';
+            historiaActual = [];
         }
 
-        function finalizar() {
-            if(pizarra.children.length === 0) return alert("¡Añade algo a tu historia!");
-            alert("¡Qué historia tan bonita! 🌟\nAhora cuéntasela a alguien usando las palabras: Primero, Después y Al final.");
+        function leerHistoria() {
+            const cromos = pizarra.querySelectorAll('small');
+            let textoCompleto = "";
+            cromos.forEach(c => textoCompleto += c.innerText + ". ");
+            if(textoCompleto === "") return hablar("La pizarra está vacía");
+            hablar(textoCompleto);
         }
 
-        // Inicio
         cargarCatalogo();
     </script>
 </body>

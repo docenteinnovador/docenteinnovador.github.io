@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mega Galería de Pictogramas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --bg-color: #f4f7f6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 { color: var(--primary-color); }
+
+        /* Contenedor de la cuadrícula */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Estilo de cada celda de pictograma */
+        .icon-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .icon-card i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .icon-card span {
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* Buscador */
+        #searchBar {
+            padding: 12px;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 25px;
+            border: 2px solid #ddd;
+            margin-bottom: 20px;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🌟 Mi Gran Colección de Pictogramas</h1>
+    <input type="text" id="searchBar" placeholder="Buscar pictograma (ej: dog, home, heart)..." onkeyup="filterIcons()">
+
+    <div class="grid-container" id="iconGrid">
+        </div>
+
+    <script>
+        // Lista masiva de nombres de iconos de Font Awesome
+        const icons = [
+            'house', 'user', 'heart', 'star', 'check', 'envelope', 'gear', 'trash', 'home', 
+            'magnifying-glass', 'user-group', 'video', 'camera', 'image', 'ghost', 'gift', 
+            'cart-shopping', 'bag-shopping', 'music', 'clapperboard', 'phone', 'location-dot',
+            'book', 'bookmark', 'fire', 'bolt', 'leaf', 'tree', 'sun', 'moon', 'cloud', 
+            'bicycle', 'car', 'plane', 'rocket', 'truck', 'ship', 'briefcase', 'database', 
+            'code', 'terminal', 'laptop', 'mobile-screen', 'gamepad', 'keyboard', 'headphones',
+            'circle-play', 'stop', 'forward', 'backward', 'volume-high', 'microchip',
+            'dna', 'atom', 'flask', 'brain', 'lightbulb', 'earth-americas', 'mountain',
+            'cookie', 'pizza-slice', 'mug-hot', 'ice-cream', 'apple-whole', 'burger',
+            'dumbbell', 'football', 'basketball', 'trophy', 'medal', 'guitar', 'drum',
+            'paw', 'dog', 'cat', 'fish', 'crow', 'hippo', 'horse', 'dragon',
+            'smile', 'face-grin-tears', 'ghost', 'robot', 'skull', 'poo', 'alien'
+        ];
+
+        const grid = document.getElementById('iconGrid');
+
+        // Función para renderizar los iconos
+        function renderIcons(filter = '') {
+            grid.innerHTML = '';
+            const filteredIcons = icons.filter(icon => icon.includes(filter.toLowerCase()));
+
+            filteredIcons.forEach(iconName => {
+                const card = document.createElement('div');
+                card.className = 'icon-card';
+                card.innerHTML = `
+                    <i class="fa-solid fa-${iconName}"></i>
+                    <span>${iconName}</span>
+                `;
+                // Al hacer clic, copia la clase al portapapeles
+                card.onclick = () => {
+                    const text = `<i class="fa-solid fa-${iconName}"></i>`;
+                    navigator.clipboard.writeText(text);
+                    alert('Copiado: ' + text);
+                };
+                grid.appendChild(card);
+            });
+        }
+
+        // Filtro de búsqueda
+        function filterIcons() {
+            const searchText = document.getElementById('searchBar').value;
+            renderIcons(searchText);
+        }
+
+        // Inicializar
+        renderIcons();
+    </script>
+</body>
+</html>
