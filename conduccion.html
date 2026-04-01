@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Abecedario Fonético - Carrera de Voz</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            width: 95%;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        h1 { text-align: center; margin-bottom: 10px; color: var(--accent); }
+        p.sub { text-align: center; color: #94a3b8; margin-bottom: 25px; }
+
+        /* Grid del Abecedario */
+        .alphabet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-bottom: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            border: 1px solid #334155;
+        }
+
+        .letter-card {
+            background: #334155;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .letter-card:hover { transform: translateY(-5px); background: #475569; }
+        .letter-card.active {
+            background: #0369a1;
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .letter-main { font-size: 1.5rem; font-weight: bold; display: block; color: var(--accent); }
+        .letter-emoji { font-size: 1.2rem; margin: 5px 0; display: block; }
+        .letter-sound { font-size: 0.8rem; color: #cbd5e1; font-family: monospace; }
+
+        /* Juego y Feedback */
+        canvas {
+            width: 100%;
+            height: 150px;
+            background: #020617;
+            border-radius: 16px;
+            border: 2px solid #1e293b;
+            margin-bottom: 20px;
+        }
+
+        .audio-meter {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 50px;
+            margin-bottom: 25px;
+        }
+
+        #vol-bar {
+            flex-grow: 1;
+            height: 12px;
+            background: #334155;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #vol-level {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #38bdf8, #4ade80);
+            transition: width 0.05s linear;
+        }
+
+        .btn-start {
+            display: block;
+            margin: 0 auto;
+            padding: 18px 45px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-start:hover { background: #dc2626; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔤 Abecedario Fonético</h1>
+    <p class="sub">Selecciona una letra y haz su sonido para que avance el avatar</p>
+
+    <div class="audio-meter">
+        <span>Micrófono:</span>
+        <div id="vol-bar"><div id="vol-level"></div></div>
+    </div>
+
+    <div class="alphabet-grid" id="alphabetGrid"></div>
+
+    <canvas id="raceCanvas"></canvas>
+
+    <button class="btn-start" id="startBtn" onclick="initMic()">🎤 INICIAR MICRÓFONO</button>
+</div>
+
+<script>
+    const alphabet = [
+        {l: "A", e: "📢", s: "AAAAA"}, {l: "B", e: "🐑", s: "BBBBB"},
+        {l: "C", e: "🐎", s: "CLOC!"}, {l: "D", e: "🔔", s: "DINNN"},
+        {l: "E", e: "🐘", s: "EEEEE"}, {l: "F", e: "🌬️", s: "FFFFF"},
+        {l: "G", e: "🐱", s: "GRRRR"}, {l: "H", e: "🤫", s: "H..."},
+        {l: "I", e: "🐀", s: "IIIII"}, {l: "J", e: "🎅", s: "JOJO!"},
+        {l: "K", e: "🥋", s: "KAAA!"}, {l: "L", e: "🎶", s: "LLLLL"},
+        {l: "M", e: "😋", s: "MMMMM"}, {l: "N", e: "✈️", s: "NNNNN"},
+        {l: "Ñ", e: "🪵", s: "ÑAM!"},  {l: "O", e: "😮", s: "OOOOO"},
+        {l: "P", e: "🎈", s: "POPP!"}, {l: "Q", e: "🧀", s: "QUEEE"},
+        {l: "R", e: "🚗", s: "RRRRR"}, {l: "S", e: "🐍", s: "SSSSS"},
+        {l: "T", e: "⏰", s: "TIC-TAC"}, {l: "U", e: "🦉", s: "UUUUU"},
+        {l: "V", e: "🐝", s: "VVVVV"}, {l: "W", e: "🌊", s: "WWWWW"},
+        {l: "X", e: "🎻", s: "X-X-X"}, {l: "Y", e: "🪀", s: "YYYYY"},
+        {l: "Z", e: "⚡", s: "ZZZZZ"}
+    ];
+
+    let currentSelection = alphabet[17]; // Empezamos con la R por defecto
+    let posX = 40;
+    let micActive = false;
+    let analyser, dataArray;
+
+    const grid = document.getElementById('alphabetGrid');
+    const canvas = document.getElementById('raceCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Generar las 27 letras
+    alphabet.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = `letter-card ${item.l === "R" ? 'active' : ''}`;
+        div.innerHTML = `
+            <span class="letter-main">${item.l}</span>
+            <span class="letter-emoji">${item.e}</span>
+            <span class="letter-sound">${item.s}</span>
+        `;
+        div.onclick = () => {
+            document.querySelectorAll('.letter-card').forEach(c => c.classList.remove('active'));
+            div.classList.add('active');
+            currentSelection = item;
+            posX = 40;
+            draw();
+        };
+        grid.appendChild(div);
+    });
+
+    function draw() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Meta
+        ctx.fillStyle = "#10b981";
+        ctx.fillRect(canvas.width - 50, 0, 10, canvas.height);
+
+        // Personaje
+        ctx.font = "60px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(currentSelection.e, posX, 95);
+
+        if (posX > canvas.width - 80) {
+            ctx.fillStyle = "#fbbf24";
+            ctx.font = "bold 24px Segoe UI";
+            ctx.fillText("¡FONEMA LOGRADO! 🏆", canvas.width/2, 40);
+        }
+    }
+
+    async function initMic() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioCtx.createMediaStreamSource(stream);
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 256;
+            source.connect(analyser);
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            
+            micActive = true;
+            document.getElementById('startBtn').style.display = 'none';
+            loop();
+        } catch (err) {
+            alert("Acceso al micrófono denegado. Es necesario para jugar.");
+        }
+    }
+
+    function loop() {
+        analyser.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+        let volume = sum / dataArray.length;
+
+        // Visualización de volumen
+        document.getElementById('vol-level').style.width = Math.min(volume * 2.5, 100) + "%";
+
+        // Movimiento (umbral de sonido)
+        if (volume > 22 && posX < canvas.width - 70) {
+            posX += (volume / 10);
+        }
+
+        draw();
+        requestAnimationFrame(loop);
+    }
+
+    window.onresize = draw;
+    draw();
+</script>
+
+</body>
+</html>
