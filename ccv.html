@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Súper Ruleta de Dibujo CCV Completa</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive;
+            background-color: #FFF0F5;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 40px;
+            box-shadow: 0 10px 0 #F8BBD0;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            border: 8px solid #F06292;
+        }
+
+        .drawing-zone {
+            width: 100%;
+            height: 320px;
+            background: #fff;
+            border-radius: 30px;
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 6px dashed #F06292;
+        }
+
+        .syllable-badge {
+            background: #BA68C8;
+            color: white;
+            padding: 8px 25px;
+            border-radius: 20px;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .word {
+            font-size: 3.5rem;
+            color: #880E4F;
+            margin: 15px 0;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
+        .btn-next {
+            background: #F06292;
+            color: white;
+            border: none;
+            padding: 20px 45px;
+            font-size: 1.6rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #C2185B;
+            transition: 0.1s;
+            font-weight: bold;
+        }
+
+        .btn-next:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        h1 { color: #AD1457; font-size: 1.8rem; margin: 0; }
+        .counter { color: #888; font-size: 0.9rem; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>🎨 ¡Reto de Dibujo!</h1>
+    
+    <div class="drawing-zone">
+        <div class="syllable-badge" id="tag">¡Empezamos!</div>
+        <div class="word" id="word">¿Lista?</div>
+        <div style="font-size: 4rem;">✏️</div>
+    </div>
+
+    <button class="btn-next" onclick="generate()">¡Otro Dibujo! ✨</button>
+    <div class="counter">¡Todas las combinaciones incluidas!</div>
+</div>
+
+<script>
+    const challenges = [
+        // --- GRUPOS CON R ---
+        { s: 'BRA-BRU', p: 'Brazo' }, { s: 'BRA-BRU', p: 'Bruja' }, { s: 'BRA-BRU', p: 'Brújula' }, { s: 'BRA-BRU', p: 'Brócoli' }, { s: 'BRA-BRU', p: 'Brocha' }, { s: 'BRA-BRU', p: 'Cebra' }, { s: 'BRA-BRU', p: 'Cofre' }, { s: 'BRA-BRU', p: 'Libro' }, { s: 'BRA-BRU', p: 'Sobre' },
+        { s: 'CRA-CRU', p: 'Crema' }, { s: 'CRA-CRU', p: 'Crucero' }, { s: 'CRA-CRU', p: 'Cruz' }, { s: 'CRA-CRU', p: 'Cráneo' }, { s: 'CRA-CRU', p: 'Cristal' }, { s: 'CRA-CRU', p: 'Micro' }, { s: 'CRA-CRU', p: 'Recreo' },
+        { s: 'DRA-DRU', p: 'Dragón' }, { s: 'DRA-DRU', p: 'Cocodrilo' }, { s: 'DRA-DRU', p: 'Ladrillo' }, { s: 'DRA-DRU', p: 'Cuadro' }, { s: 'DRA-DRU', p: 'Piedra' }, { s: 'DRA-DRU', p: 'Madre' }, { s: 'DRA-DRU', p: 'Padre' }, { s: 'DRA-DRU', p: 'Almendra' },
+        { s: 'FRA-FRU', p: 'Fresa' }, { s: 'FRA-FRU', p: 'Frasco' }, { s: 'FRA-FRU', p: 'Fritura' }, { s: 'FRA-FRU', p: 'Fruta' }, { s: 'FRA-FRU', p: 'Cofre' }, { s: 'FRA-FRU', p: 'Disfraz' }, { s: 'FRA-FRU', p: 'Frío' }, { s: 'FRA-FRU', p: 'Frijol' },
+        { s: 'GRA-GRU', p: 'Tigre' }, { s: 'GRA-GRU', p: 'Ogro' }, { s: 'GRA-GRU', p: 'Grillo' }, { s: 'GRA-GRU', p: 'Grifo' }, { s: 'GRA-GRU', p: 'Grúa' }, { s: 'GRA-GRU', p: 'Granja' }, { s: 'GRA-GRU', p: 'Gris' }, { s: 'GRA-GRU', p: 'Negro' }, { s: 'GRA-GRU', p: 'Globo' },
+        { s: 'PRA-PRU', p: 'Princesa' }, { s: 'PRA-PRU', p: 'Prado' }, { s: 'PRA-PRU', p: 'Premio' }, { s: 'PRA-PRU', p: 'Preso' }, { s: 'PRA-PRU', p: 'Precio' }, { s: 'PRA-PRU', p: 'Prisma' }, { s: 'PRA-PRU', p: 'Prueba' },
+        { s: 'TRA-TRU', p: 'Tractor' }, { s: 'TRA-TRU', p: 'Estrella' }, { s: 'TRA-TRU', p: 'Tren' }, { s: 'TRA-TRU', p: 'Trono' }, { s: 'TRA-TRU', p: 'Trigo' }, { s: 'TRA-TRU', p: 'Trompo' }, { s: 'TRA-TRU', p: 'Tres' }, { s: 'TRA-TRU', p: 'Triángulo' }, { s: 'TRA-TRU', p: 'Postre' },
+
+        // --- GRUPOS CON L ---
+        { s: 'BLA-BLU', p: 'Blusa' }, { s: 'BLA-BLU', p: 'Bloque' }, { s: 'BLA-BLU', p: 'Blanco' }, { s: 'BLA-BLU', p: 'Biblia' }, { s: 'BLA-BLU', p: 'Pueblo' }, { s: 'BLA-BLU', p: 'Tabla' }, { s: 'BLA-BLU', p: 'Niebla' },
+        { s: 'CLA-CLU', p: 'Clavo' }, { s: 'CLA-CLU', p: 'Chicle' }, { s: 'CLA-CLU', p: 'Clip' }, { s: 'CLA-CLU', p: 'Clase' }, { s: 'CLA-CLU', p: 'Clima' }, { s: 'CLA-CLU', p: 'Triciclo' }, { s: 'CLA-CLU', p: 'Ancla' },
+        { s: 'FLA-FLU', p: 'Flor' }, { s: 'FLA-FLU', p: 'Flan' }, { s: 'FLA-FLU', p: 'Flecha' }, { s: 'FLA-FLU', p: 'Flauta' }, { s: 'FLA-FLU', p: 'Flotador' }, { s: 'FLA-FLU', p: 'Flequillo' }, { s: 'FLA-FLU', p: 'Rifle' },
+        { s: 'GLA-GLU', p: 'Globo' }, { s: 'GLA-GLU', p: 'Regla' }, { s: 'GLA-GLU', p: 'Iglesia' }, { s: 'GLA-GLU', p: 'Iglú' }, { s: 'GLA-GLU', p: 'Gladiador' }, { s: 'GLA-GLU', p: 'Gladiolo' },
+        { s: 'PLA-PLU', p: 'Plato' }, { s: 'PLA-PLU', p: 'Pluma' }, { s: 'PLA-PLU', p: 'Plátano' }, { s: 'PLA-PLU', p: 'Plancha' }, { s: 'PLA-PLU', p: 'Playa' }, { s: 'PLA-PLU', p: 'Plaza' }, { s: 'PLA-PLU', p: 'Plata' }, { s: 'PLA-PLU', p: 'Soplar' }
+    ];
+
+    let lastIndex = -1;
+
+    function generate() {
+        let randomIndex;
+        do {
+            randomIndex = Math.floor(Math.random() * challenges.length);
+        } while (randomIndex === lastIndex);
+        
+        lastIndex = randomIndex;
+        const item = challenges[randomIndex];
+
+        document.getElementById('tag').innerText = "Sonido: " + item.s;
+        document.getElementById('word').innerText = item.p;
+    }
+</script>
+
+</body>
+</html>
