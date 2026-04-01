@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Juego de Artículos PRO</title>
+
+<style>
+    body {
+        font-family: Arial;
+        text-align: center;
+        background: linear-gradient(135deg, #84fab0, #8fd3f4);
+    }
+
+    #game {
+        background: white;
+        padding: 20px;
+        border-radius: 20px;
+        width: 340px;
+        margin: 30px auto;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+        margin-bottom: 10px;
+    }
+
+    #word {
+        font-size: 32px;
+        margin: 20px;
+    }
+
+    .btn {
+        font-size: 18px;
+        padding: 10px 15px;
+        margin: 5px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background: #2196F3;
+        color: white;
+        transition: 0.3s;
+    }
+
+    .btn:hover {
+        transform: scale(1.1);
+        background: #1976D2;
+    }
+
+    #result {
+        font-size: 20px;
+        height: 30px;
+        margin-top: 10px;
+    }
+
+    #restart {
+        background: orange;
+        margin-top: 10px;
+    }
+
+    #lives {
+        font-size: 20px;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>🎮 Juego de Artículos</h1>
+
+<div id="game">
+
+    <div id="lives">❤️❤️❤️</div>
+    <p>Puntaje: <span id="score">0</span></p>
+
+    <div id="word"></div>
+
+    <div id="options">
+        <button class="btn" onclick="check('el')">EL</button>
+        <button class="btn" onclick="check('la')">LA</button>
+        <button class="btn" onclick="check('los')">LOS</button>
+        <button class="btn" onclick="check('las')">LAS</button>
+        <button class="btn" onclick="check('un')">UN</button>
+        <button class="btn" onclick="check('una')">UNA</button>
+    </div>
+
+    <div id="result"></div>
+
+    <button id="restart" class="btn" onclick="startGame()">Reiniciar</button>
+
+</div>
+
+<script>
+
+// 📚 Palabras con artículos
+const words = [
+    { word: "niño", article: "el" },
+    { word: "gato", article: "el" },
+    { word: "perro", article: "el" },
+    { word: "libro", article: "el" },
+
+    { word: "niña", article: "la" },
+    { word: "casa", article: "la" },
+    { word: "mesa", article: "la" },
+    { word: "flor", article: "la" },
+
+    { word: "niños", article: "los" },
+    { word: "gatos", article: "los" },
+    { word: "perros", article: "los" },
+
+    { word: "niñas", article: "las" },
+    { word: "casas", article: "las" },
+    { word: "flores", article: "las" },
+
+    { word: "niño", article: "un" },
+    { word: "gato", article: "un" },
+
+    { word: "niña", article: "una" },
+    { word: "casa", article: "una" }
+];
+
+let currentWord = {};
+let score = 0;
+let lives = 3;
+let shuffled = [];
+
+// Mezclar
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+function updateLives() {
+    document.getElementById("lives").textContent = "❤️".repeat(lives);
+}
+
+function loadWord() {
+    if (lives <= 0) {
+        document.getElementById("word").textContent = "💀 Game Over";
+        document.getElementById("options").style.display = "none";
+        return;
+    }
+
+    if (shuffled.length === 0) {
+        document.getElementById("word").textContent = "🏆 ¡Ganaste!";
+        document.getElementById("options").style.display = "none";
+        return;
+    }
+
+    currentWord = shuffled.pop();
+    document.getElementById("word").textContent = "_ " + currentWord.word;
+    document.getElementById("result").textContent = "";
+}
+
+function check(answer) {
+    if (answer === currentWord.article) {
+        document.getElementById("result").textContent = "✅ Correcto";
+        score++;
+        document.getElementById("score").textContent = score;
+    } else {
+        document.getElementById("result").textContent = "❌ Incorrecto";
+        lives--;
+        updateLives();
+    }
+
+    setTimeout(loadWord, 700);
+}
+
+function startGame() {
+    score = 0;
+    lives = 3;
+    shuffled = shuffle([...words]);
+
+    document.getElementById("score").textContent = score;
+    document.getElementById("options").style.display = "block";
+
+    updateLives();
+    loadWord();
+}
+
+// iniciar
+startGame();
+
+</script>
+
+</body>
+</html>

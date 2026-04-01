@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Analizador de Oraciones</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 450px;
+            margin-bottom: 20px;
+        }
+        h2 { text-align: center; color: #2c3e50; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.85rem; color: #7f8c8d; margin-bottom: 5px; }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        button:hover { background-color: #219150; }
+        
+        /* Sección de Desafío */
+        #desafio {
+            display: none; /* Oculto hasta que se genera la frase */
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+        .frase-display {
+            background: #34495e;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .correcto { color: #27ae60; }
+        .incorrecto { color: #e74c3c; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>1. Crea la Oración</h2>
+    <div class="input-group">
+        <label>Artículo</label>
+        <input type="text" id="art" placeholder="Ej: El">
+    </div>
+    <div class="input-group">
+        <label>Sustantivo</label>
+        <input type="text" id="sus" placeholder="Ej: perro">
+    </div>
+    <div class="input-group">
+        <label>Verbo</label>
+        <input type="text" id="ver" placeholder="Ej: corre">
+    </div>
+    <div class="input-group">
+        <label>Complemento</label>
+        <input type="text" id="com" placeholder="Ej: por el parque">
+    </div>
+    <button onclick="prepararReto()">Generar y Analizar</button>
+
+    <div id="desafio">
+        <h2>2. Identifica las Partes</h2>
+        <div class="frase-display" id="fraseFinal"></div>
+        
+        <div class="input-group">
+            <label>¿Cuál es el Sujeto? (Artículo + Sustantivo)</label>
+            <input type="text" id="respSujeto">
+        </div>
+        <div class="input-group">
+            <label>¿Cuál es el Verbo?</label>
+            <input type="text" id="respVerbo">
+        </div>
+        <div class="input-group">
+            <label>¿Cuál es el Predicado? (Verbo + Complemento)</label>
+            <input type="text" id="respPredicado">
+        </div>
+        
+        <button onclick="verificar()" style="background-color: #3498db;">Comprobar Respuestas</button>
+        <div id="feedback" class="feedback"></div>
+    </div>
+</div>
+
+<script>
+    // Variables globales para guardar las respuestas correctas
+    let correctoSujeto = "";
+    let correctoVerbo = "";
+    let correctoPredicado = "";
+
+    function prepararReto() {
+        const art = document.getElementById('art').value.trim();
+        const sus = document.getElementById('sus').value.trim();
+        const ver = document.getElementById('ver').value.trim();
+        const com = document.getElementById('com').value.trim();
+
+        if (!art || !sus || !ver || !com) {
+            alert("Completa todos los campos primero.");
+            return;
+        }
+
+        // Definimos las respuestas correctas basadas en lo que escribió el usuario
+        correctoSujeto = `${art} ${sus}`.toLowerCase();
+        correctoVerbo = ver.toLowerCase();
+        correctoPredicado = `${ver} ${com}`.toLowerCase();
+
+        // Mostramos la frase y activamos la sección de desafío
+        document.getElementById('fraseFinal').innerText = `${art} ${sus} ${ver} ${com}.`;
+        document.getElementById('desafio').style.display = 'block';
+        document.getElementById('feedback').innerText = "";
+    }
+
+    function verificar() {
+        const rSujeto = document.getElementById('respSujeto').value.trim().toLowerCase();
+        const rVerbo = document.getElementById('respVerbo').value.trim().toLowerCase();
+        const rPredicado = document.getElementById('respPredicado').value.trim().toLowerCase();
+
+        const display = document.getElementById('feedback');
+
+        if (rSujeto === correctoSujeto && rVerbo === correctoVerbo && rPredicado === correctoPredicado) {
+            display.innerText = "¡Excelente! Has identificado todo correctamente. 🎉";
+            display.className = "feedback correcto";
+        } else {
+            display.innerText = "CORRECTO EXCELENTE escribe otra oración.";
+            display.className = "feedback incorrecto";
+        }
+    }
+</script>
+
+</body>
+</html>

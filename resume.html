@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Súper Creador de Historias: Edición Especial</title>
+    <style>
+        :root {
+            --bg: #fdfefe;
+            --panel: #ffffff;
+            --accent: #6c5ce7;
+            --text: #2d3436;
+            --verde: #00b894;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: #eef2f7;
+            margin: 0; display: flex; height: 100vh; overflow: hidden;
+        }
+
+        /* Lateral Izquierdo */
+        .sidebar {
+            width: 280px; background: #2d3436; color: white;
+            display: flex; flex-direction: column; height: 100%;
+        }
+
+        .sidebar h2 { font-size: 1rem; padding: 15px; margin: 0; background: #1e272e; text-align: center; border-bottom: 2px solid var(--accent); }
+
+        /* Sección de Escritura Propia */
+        .mi-historia-box {
+            padding: 15px; background: #3d4446; border-bottom: 1px solid #555;
+        }
+        textarea {
+            width: 100%; height: 80px; border-radius: 10px; border: none; padding: 8px;
+            font-family: inherit; font-size: 0.9rem; resize: none; margin-bottom: 8px; box-sizing: border-box;
+        }
+        .btn-crear {
+            width: 100%; background: var(--verde); color: white; border: none; padding: 10px;
+            border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s;
+        }
+        .btn-crear:hover { background: #55efc4; }
+
+        .lista-historias { flex: 1; overflow-y: auto; padding: 10px; }
+        .btn-h {
+            width: 100%; padding: 10px; margin-bottom: 6px; border: none;
+            border-radius: 8px; background: #4b4b4b; color: white;
+            text-align: left; cursor: pointer; font-size: 0.85rem;
+        }
+        .btn-h.active { background: var(--accent); }
+
+        /* Área Principal */
+        .main { flex: 1; display: flex; flex-direction: column; padding: 15px; overflow-y: auto; }
+
+        .visor-historia {
+            background: white; padding: 15px; border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 15px;
+            text-align: center; border-left: 8px solid var(--accent);
+        }
+        .visor-historia p { font-size: 1.1rem; line-height: 1.4; color: #444; }
+
+        .pizarra {
+            min-height: 110px; background: #fff; border: 3px dashed #b2bec3;
+            border-radius: 15px; display: flex; align-items: center;
+            padding: 15px; gap: 10px; overflow-x: auto; margin-bottom: 10px;
+        }
+
+        .cromo {
+            min-width: 70px; text-align: center; background: #fff9c4;
+            padding: 8px; border-radius: 12px; border: 2px solid #fbc02d;
+            animation: pop 0.3s ease; position: relative;
+        }
+        .cromo span { font-size: 1.8rem; }
+        .cromo small { display: block; font-weight: bold; font-size: 0.7rem; margin-top: 4px; }
+        .btn-x { position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 18px; cursor: pointer; }
+
+        /* Catálogo */
+        .selector { background: white; border-radius: 20px; padding: 15px; }
+        .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; }
+        .tab {
+            padding: 8px 15px; border-radius: 20px; border: 2px solid var(--accent);
+            background: white; color: var(--accent); font-weight: bold; cursor: pointer; white-space: nowrap;
+        }
+        .tab.active { background: var(--accent); color: white; }
+
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+            gap: 10px; height: 180px; overflow-y: auto;
+        }
+        .ficha {
+            background: #f1f2f6; border-radius: 12px; padding: 10px; text-align: center; cursor: pointer;
+        }
+        .ficha span { font-size: 1.8rem; display: block; }
+        .ficha p { font-size: 0.65rem; margin: 5px 0 0; font-weight: bold; color: #2d3436; }
+
+        .btn-limpiar { background: #fab1a0; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>✍️ CREAR MI HISTORIA</h2>
+        <div class="mi-historia-box">
+            <textarea id="input-propio" placeholder="Escribe aquí tu historia..."></textarea>
+            <button class="btn-crear" onclick="crearPropia()">✨ Leer y Usar</button>
+        </div>
+        <h2>📚 BIBLIOTECA (25)</h2>
+        <div class="lista-historias" id="menu-h"></div>
+    </div>
+
+    <div class="main">
+        <div class="visor-historia">
+            <h3 id="h-titulo">¡Bienvenido!</h3>
+            <p id="h-texto">Elige una historia o escribe la tuya en el panel de la izquierda.</p>
+            <button class="btn-crear" style="width: auto; padding: 10px 25px;" onclick="escuchar()">🔊 Volver a escuchar</button>
+        </div>
+
+        <div class="pizarra" id="pizarra"></div>
+
+        <div class="selector">
+            <div class="tabs" id="tabs-p"></div>
+            <div class="grid" id="grid-p"></div>
+            <button class="btn-limpiar" onclick="document.getElementById('pizarra').innerHTML=''">🗑️ Limpiar Pizarra</button>
+        </div>
+    </div>
+
+    <script>
+        const historias = [
+            { t: "El Gato y la Pelota", d: "El gato blanco juega con una pelota roja en el jardín." },
+            { t: "El Astronauta", d: "El astronauta viaja en un cohete muy rápido hacia la luna." },
+            { t: "Día de Playa", d: "La niña hace un castillo de arena y nada en el mar azul." },
+            { t: "El Perro Bombero", d: "El perro ayuda al bombero a apagar el fuego de la casa." },
+            { t: "La Merienda", d: "El niño come un helado de chocolate y bebe jugo de naranja." },
+            { t: "El Dragón Verde", d: "Un dragón verde vuela sobre el castillo y lanza burbujas." },
+            { t: "El Pirata", d: "El pirata busca un tesoro escondido en la isla con su mapa." },
+            { t: "Cumpleaños Feliz", d: "El abuelo recibe un regalo grande y sopla las velas del pastel." },
+            { t: "La Escuela", d: "La profesora lee un libro de animales a los niños en clase." },
+            { t: "El Mono Travieso", d: "El mono salta en los árboles y come un plátano amarillo." },
+            { t: "Día de Lluvia", d: "El niño usa botas rojas y salta en los charcos de agua." },
+            { t: "El Pez de Colores", d: "Un pez pequeño nada feliz en su pecera redonda." },
+            { t: "El Robot", d: "El robot camina por la casa y limpia los juguetes del suelo." },
+            { t: "La Granja", d: "La vaca da leche y el pollito dice pío pío en el corral." },
+            { t: "El Hada", d: "El hada usa su varita mágica para convertir flores en caramelos." },
+            { t: "El Coche Azul", d: "Papá conduce el coche azul para ir al parque de diversiones." },
+            { t: "Dinosaurios", d: "El dinosaurio Rex ruge fuerte y busca comida en el bosque." },
+            { t: "Invierno", d: "La niña hace un muñeco de nieve y se pone una bufanda lana." },
+            { t: "El Superhéroe", d: "El superhéroe vuela por el cielo para salvar al gatito del árbol." },
+            { t: "La Abeja", d: "La abeja busca miel en las flores amarillas del campo." },
+            { t: "El Tren", d: "El tren pita muy fuerte mientras viaja por las montañas altas." },
+            { t: "Noche de Estrellas", d: "La mamá lee un cuento al bebé antes de dormir en la cama." },
+            { t: "El Zoo", d: "Vemos un elefante gigante y una jirafa de cuello muy largo." },
+            { t: "El Panadero", d: "El panadero amasa el pan y lo mete al horno caliente." },
+            { t: "Paseo en Bici", d: "El niño corre en su bicicleta y usa un casco de seguridad." }
+        ];
+
+        const pictogramas = [
+            // GENTE
+            {n:"Yo", e:"🙋‍♂️", c:"Gente"}, {n:"Niño", e:"👦", c:"Gente"}, {n:"Niña", e:"👧", c:"Gente"},
+            {n:"Mamá", e:"👩", c:"Gente"}, {n:"Papá", e:"👨", c:"Gente"}, {n:"Abuelo", e:"👴", c:"Gente"},
+            {n:"Abuela", e:"👵", c:"Gente"}, {n:"Bebé", e:"👶", c:"Gente"}, {n:"Doctor", e:"👨‍⚕️", c:"Gente"},
+            {n:"Pirata", e:"🏴‍☠️", c:"Gente"}, {n:"Rey", e:"🤴", c:"Gente"}, {n:"Hada", e:"🧚‍♀️", c:"Gente"},
+            // ANIMALES
+            {n:"Perro", e:"🐶", c:"Animal"}, {n:"Gato", e:"🐱", c:"Animal"}, {n:"León", e:"🦁", c:"Animal"},
+            {n:"Elefante", e:"🐘", c:"Animal"}, {n:"Mono", e:"🐒", c:"Animal"}, {n:"Vaca", e:"🐄", c:"Animal"},
+            {n:"Dinosaurio", e:"🦖", c:"Animal"}, {n:"Pez", e:"🐟", c:"Animal"}, {n:"Dragón", e:"🐲", c:"Animal"},
+            // ACCIONES
+            {n:"Comer", e:"😋", c:"Acción"}, {n:"Dormir", e:"😴", c:"Acción"}, {n:"Correr", e:"🏃", c:"Acción"},
+            {n:"Nadar", e:"🏊", c:"Acción"}, {n:"Saltar", e:"🦘", c:"Acción"}, {n:"Volar", e:"✈️", c:"Acción"},
+            {n:"Jugar", e:"⚽", c:"Acción"}, {n:"Bailar", e:"💃", c:"Acción"}, {n:"Llorar", e:"😭", c:"Acción"},
+            // COSAS
+            {n:"Helado", e:"🍦", c:"Cosas"}, {n:"Pelota", e:"🏀", c:"Cosas"}, {n:"Libro", e:"📚", c:"Cosas"},
+            {n:"Regalo", e:"🎁", c:"Cosas"}, {n:"Coche", e:"🚗", c:"Cosas"}, {n:"Cohete", e:"🚀", c:"Cosas"},
+            {n:"Tesoro", e:"💰", c:"Cosas"}, {n:"Bici", e:"🚲", c:"Cosas"}, {n:"Pan", e:"🍞", c:"Cosas"},
+            // LUGARES
+            {n:"Casa", e:"🏠", c:"Lugar"}, {n:"Escuela", e:"🏫", c:"Lugar"}, {n:"Parque", e:"🌳", c:"Lugar"},
+            {n:"Playa", e:"🏖️", c:"Lugar"}, {n:"Bosque", e:"🌲", c:"Lugar"}, {n:"Castillo", e:"🏰", c:"Lugar"},
+            {n:"Luna", e:"🌙", c:"Lugar"}, {n:"Mar", e:"🌊", c:"Lugar"}, {n:"Isla", e:"🏝️", c:"Lugar"}
+        ];
+
+        let historiaActiva = "";
+
+        // Menu Sidebar
+        const menu = document.getElementById('menu-h');
+        historias.forEach((h, i) => {
+            let btn = document.createElement('button');
+            btn.className = 'btn-h';
+            btn.innerText = (i+1) + ". " + h.t;
+            btn.onclick = () => {
+                document.querySelectorAll('.btn-h').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                cargarH(h.t, h.d);
+            };
+            menu.appendChild(btn);
+        });
+
+        function cargarH(titulo, texto) {
+            document.getElementById('h-titulo').innerText = titulo;
+            document.getElementById('h-texto').innerText = texto;
+            historiaActiva = texto;
+            hablar(texto);
+            document.getElementById('pizarra').innerHTML = '';
+        }
+
+        function crearPropia() {
+            const texto = document.getElementById('input-propio').value;
+            if(!texto) return alert("¡Escribe algo primero!");
+            cargarH("Mi Historia Propia", texto);
+        }
+
+        function hablar(t) {
+            window.speechSynthesis.cancel();
+            const ut = new SpeechSynthesisUtterance(t);
+            ut.lang = 'es-ES';
+            ut.rate = 0.9;
+            window.speechSynthesis.speak(ut);
+        }
+
+        function escuchar() { if(historiaActiva) hablar(historiaActiva); }
+
+        // Tabs
+        const tabs = document.getElementById('tabs-p');
+        const cats = [...new Set(pictogramas.map(p => p.c))];
+        cats.forEach(cat => {
+            let b = document.createElement('button');
+            b.className = 'tab';
+            b.innerText = cat;
+            b.onclick = () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                b.classList.add('active');
+                cargarGrid(cat);
+            };
+            tabs.appendChild(b);
+        });
+
+        function cargarGrid(cat) {
+            const grid = document.getElementById('grid-p');
+            grid.innerHTML = '';
+            pictogramas.filter(p => p.c === cat).forEach(p => {
+                let d = document.createElement('div');
+                d.className = 'ficha';
+                d.onclick = () => {
+                    const piz = document.getElementById('pizarra');
+                    const c = document.createElement('div');
+                    c.className = 'cromo';
+                    c.innerHTML = `<button class="btn-x" onclick="this.parentElement.remove()">x</button><span>${p.e}</span><small>${p.n}</small>`;
+                    piz.appendChild(c);
+                    hablar(p.n);
+                };
+                d.innerHTML = `<span>${p.e}</span><p>${p.n}</p>`;
+                grid.appendChild(d);
+            });
+        }
+
+        cargarGrid('Gente');
+    </script>
+</body>
+</html>
