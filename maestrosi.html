@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tiki: Maestro de Sílabas</title>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle, #00b894, #006266);
+            font-family: 'Arial Rounded MT Bold', 'Helvetica', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        /* --- PANEL DE SÍLABAS --- */
+        #panel-silabas {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+
+        .btn-letra {
+            width: 35px;
+            height: 35px;
+            border: none;
+            background: #6c5ce7;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .btn-letra:active { transform: scale(0.9); background: #a29bfe; }
+
+        /* --- BURBUJA DE TEXTO (SÍLABA ACTUAL) --- */
+        #burbuja {
+            position: absolute;
+            top: -60px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 30px;
+            color: #d63031;
+            border: 4px solid #fab1a0;
+            display: none;
+            animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+
+        /* --- TIKI --- */
+        .cara-muñeco {
+            position: relative;
+            width: 240px;
+            height: 300px;
+            background-color: #ffeaa7;
+            border-radius: 100px 100px 120px 120px;
+            border: 8px solid #fdcb6e;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 40px;
+        }
+
+        .contenedor-ojos { display: flex; gap: 25px; margin-bottom: 30px; }
+        .ojo { width: 60px; height: 60px; background: white; border-radius: 50%; border: 4px solid #2d3436; position: relative; overflow: hidden; }
+        .pupila { width: 25px; height: 25px; background: #2d3436; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: 0.1s; }
+
+        .boca-ancla {
+            position: relative;
+            width: 90px;
+            height: 40px;
+            background-color: #2d3436;
+            border-radius: 0 0 100px 100px;
+        }
+
+        .lengua {
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            width: 40px;
+            height: 30px;
+            background: linear-gradient(to bottom, #ff7675, #d63031);
+            border-radius: 20px;
+            transform-origin: top center;
+            transform: translateX(-50%) rotate(0deg);
+            transition: 0.2s ease;
+            z-index: 10;
+        }
+
+        #instrucciones { position: fixed; top: 10px; color: white; background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 15px; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <div id="instrucciones">¡Toca una letra para que Tiki te enseñe sílabas!</div>
+
+    <div class="cara-muñeco">
+        <div id="burbuja">MA</div>
+        <div class="contenedor-ojos">
+            <div class="ojo"><div class="pupila"></div></div>
+            <div class="ojo"><div class="pupila"></div></div>
+        </div>
+        <div class="boca-ancla">
+            <div class="lengua" id="lengua"></div>
+        </div>
+    </div>
+
+    <div id="panel-silabas">
+        </div>
+
+    <script>
+        const lengua = document.getElementById('lengua');
+        const burbuja = document.getElementById('burbuja');
+        const pupilas = document.querySelectorAll('.pupila');
+        const panel = document.getElementById('panel-silabas');
+
+        const letras = "BCDFGHJKLMNPQRSTVWXYZ".split("");
+        const vocales = ["A", "E", "I", "O", "U"];
+        const direcciones = [0, 90, 180, -90, 0]; // Arriba, Der, Abajo, Izq, Centro
+
+        // Crear botones de letras
+        letras.forEach(l => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-letra';
+            btn.innerText = l;
+            btn.onclick = () => practicar(l);
+            panel.appendChild(btn);
+        });
+
+        async function practicar(letra) {
+            burbuja.style.display = "block";
+            
+            for (let i = 0; i < vocales.length; i++) {
+                const silaba = letra + vocales[i];
+                const rot = direcciones[i];
+                
+                // Actualizar texto
+                burbuja.innerText = silaba;
+                
+                // Mover lengua
+                lengua.style.transform = `translateX(-50%) rotate(${rot}deg)`;
+                lengua.style.height = i === 4 ? "30px" : "140px"; // En la última (U) vuelve al centro corta
+                
+                // Mover ojos
+                moverOjos(rot);
+
+                // Esperar un segundo entre sílabas
+                await new Promise(r => setTimeout(r, 800));
+            }
+
+            // Reset final
+            setTimeout(() => {
+                burbuja.style.display = "none";
+                lengua.style.height = "30px";
+                lengua.style.transform = `translateX(-50%) rotate(0deg)`;
+                pupilas.forEach(p => p.style.transform = `translate(-50%, -50%)`);
+            }, 500);
+        }
+
+        function moverOjos(deg) {
+            if (deg === 0 && lengua.style.height === "30px") {
+                pupilas.forEach(p => p.style.transform = `translate(-50%, -50%)`);
+                return;
+            }
+            const rad = (deg - 90) * (Math.PI / 180);
+            pupilas.forEach(p => p.style.transform = `translate(calc(-50% + ${Math.cos(rad)*10}px), calc(-50% + ${Math.sin(rad)*10}px))`);
+        }
+
+        // Mantener la interacción manual de antes
+        document.addEventListener('mousemove', (e) => {
+            if (burbuja.style.display === "block") return; // No interrumpir la clase
+            // ... (aquí iría el código de movimiento manual si quieres mantenerlo)
+        });
+    </script>
+</body>
+</html>

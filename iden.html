@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiki: El Gran Desafío de Adrián</title>
+    <style>
+        body {
+            margin: 0;
+            background: #2980b9;
+            font-family: 'Arial Rounded MT Bold', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #pizarra {
+            width: 90vw;
+            max-width: 600px;
+            background: white;
+            border-radius: 30px;
+            border: 8px solid #f1c40f;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 15px 0 #2c3e50;
+        }
+
+        /* --- PANTALLA DE LECTURA --- */
+        #caja-oracion {
+            width: 100%;
+            min-height: 150px;
+            background: #ecf0f1;
+            border-radius: 20px;
+            border: 4px dashed #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+
+        #texto-oracion {
+            font-size: 26px;
+            color: #2c3e50;
+            text-align: center;
+            line-height: 1.5;
+            transition: opacity 0.3s;
+        }
+
+        /* Resaltado de sílabas para Adrián */
+        .trabada {
+            color: #e74c3c;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        /* --- TIKI --- */
+        .tiki-box {
+            position: relative;
+            width: 100px;
+            height: 120px;
+            background: #ffeaa7;
+            border-radius: 40px 40px 50px 50px;
+            border: 4px solid #fdcb6e;
+            margin-bottom: 20px;
+        }
+
+        .ojo {
+            width: 12px; height: 12px; background: black; border-radius: 50%;
+            position: absolute; top: 35px;
+        }
+        .ojo.izq { left: 25px; } .ojo.der { right: 25px; }
+
+        #lengua-tiki {
+            position: absolute; bottom: 15px; left: 50%;
+            width: 25px; height: 0px; background: #ff7675;
+            border-radius: 10px; transform: translateX(-50%);
+            transition: height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* --- BOTÓN --- */
+        .btn-lanzar {
+            padding: 18px 40px;
+            font-size: 22px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #1e8449;
+            transition: 0.1s;
+            text-transform: uppercase;
+        }
+
+        .btn-lanzar:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #1e8449;
+        }
+
+        #contador {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div id="pizarra">
+    <div id="caja-oracion">
+        <div id="texto-oracion">¡Hola Adrián! ¿Estás listo para leer con Tiki? <br> Pulsa el botón verde.</div>
+    </div>
+
+    <div class="tiki-box">
+        <div class="ojo izq"></div>
+        <div class="ojo der"></div>
+        <div id="lengua-tiki"></div>
+    </div>
+
+    <button class="btn-lanzar" onclick="nuevaOracion()">¡Siguiente Oración!</button>
+    
+    <div id="contador">Retos completados: <span id="puntos">0</span> / 30</div>
+</div>
+
+<script>
+    const oraciones = [
+        // --- BR ---
+        "El <span class='trabada'>bra</span>zo de Adrián es muy fuerte.",
+        "La <span class='trabada'>bru</span>ja vuela sobre su esco<span class='trabada'>ba</span>.",
+        "Mi tío tiene una <span class='trabada'>bro</span>cha con pintura verde.",
+        "El <span class='trabada'>bri</span>llante <span class='trabada'>bri</span>lla en la oscuridad.",
+        "Puse un so<span class='trabada'>bre</span> blanco en la mesa.",
+        "El <span class='trabada'>bra</span>vo león ruge en la selva.",
+        "Comemos <span class='trabada'>bro</span>coli para estar sanos.",
+        "La <span class='trabada'>bri</span>sa del mar es muy fresca.",
+        "El li<span class='trabada'>bro</span> tiene dibujos de colores.",
+        "La ce<span class='trabada'>bra</span> corre muy rápido por el campo.",
+        
+        // --- CR ---
+        "La <span class='trabada'>cre</span>ma de fresa está muy rica.",
+        "El <span class='trabada'>cri</span>stal de la ventana se limpió.",
+        "El niño tiene un <span class='trabada'>cro</span>mo de fútbol.",
+        "Mi mamá compra pan <span class='trabada'>cru</span>jiente.",
+        "El <span class='trabada'>crá</span>neo protege nuestro cerebro.",
+        "Ese <span class='trabada'>cru</span>cero viaja por todo el mundo.",
+        "El <span class='trabada'>cri</span>quet es un deporte divertido.",
+        "Don <span class='trabada'>Cri</span>spín vende manzanas rojas.",
+        "La gallina hace <span class='trabada'>cro</span>a <span class='trabada'>cro</span>a.",
+        "El <span class='trabada'>cri</span>stiano lee su li<span class='trabada'>bro</span> en silencio.",
+        
+        // --- DR ---
+        "El <span class='trabada'>dra</span>gón lanza fuego por la boca.",
+        "Mi pa<span class='trabada'>dre</span> me ayuda con la tarea.",
+        "El co<span class='trabada'>co</span><span class='trabada'>dri</span>lo vive en el río grande.",
+        "Ese cua<span class='trabada'>dro</span> está colgado en la pared.",
+        "No hay que ma<span class='trabada'>dru</span>gar el domingo.",
+        "La pie<span class='trabada'>dra</span> es dura y de color gris.",
+        "El vi<span class='trabada'>dri</span>o se rompió en el suelo.",
+        "El la<span class='trabada'>dró</span>n huyó de la policía.",
+        "Mi ma<span class='trabada'>dre</span> prepara un pastel delicioso.",
+        "El Almen<span class='trabada'>dra</span>l tiene muchos árboles."
+    ];
+
+    let indiceActual = 0;
+    let leidas = 0;
+    const lengua = document.getElementById('lengua-tiki');
+    const display = document.getElementById('texto-oracion');
+    const puntos = document.getElementById('puntos');
+
+    function nuevaOracion() {
+        // Seleccionar la siguiente oración (en orden o aleatoria)
+        // Usaremos aleatoria para que sea más divertido:
+        const indiceAleatorio = Math.floor(Math.random() * oraciones.length);
+        
+        display.style.opacity = 0;
+
+        setTimeout(() => {
+            display.innerHTML = oraciones[indiceAleatorio];
+            display.style.opacity = 1;
+            
+            // Tiki celebra con la lengua
+            lengua.style.height = "50px";
+            setTimeout(() => {
+                lengua.style.height = "0px";
+            }, 500);
+
+            // Actualizar contador
+            leidas++;
+            puntos.innerText = leidas;
+        }, 200);
+    }
+</script>
+
+</body>
+</html>
