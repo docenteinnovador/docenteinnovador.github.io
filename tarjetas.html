@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Pictogramas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #FFF8F0;
+      padding: 16px;
+      min-height: 100vh;
+    }
+
+    .header {
+      text-align: center;
+      padding: 12px 0 8px;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #2c2c2a;
+      line-height: 1.1;
+    }
+
+    .header p {
+      font-size: 1rem;
+      color: #888780;
+      margin-top: 4px;
+      font-weight: 700;
+    }
+
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin: 16px 0;
+    }
+
+    .btn-cat {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 1rem;
+      color: white;
+      transition: transform 0.15s, opacity 0.15s;
+      border-bottom: 4px solid rgba(0,0,0,0.2);
+      letter-spacing: 0.2px;
+    }
+
+    .btn-cat:active { transform: scale(0.94) translateY(2px); border-bottom-width: 2px; }
+
+    .btn-cat.activo {
+      outline: 3px solid #333;
+      outline-offset: 2px;
+    }
+
+    .tablero {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 14px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .tarjeta {
+      background: white;
+      border-radius: 24px;
+      padding: 18px 12px 14px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-bottom: 6px solid transparent;
+      transition: transform 0.15s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .tarjeta:active { transform: scale(0.92); }
+
+    .tarjeta.hablando { background: #fffde7; }
+
+    .emoji-pic {
+      font-size: 4rem;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .tarjeta span {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #2c2c2a;
+      text-align: center;
+      line-height: 1.2;
+      letter-spacing: 0.3px;
+    }
+
+    @media (max-width: 400px) {
+      .tablero { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .emoji-pic { font-size: 3rem; }
+      .tarjeta span { font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>🌈 Mis Pictogramas</h1>
+    <p>¡Toca una tarjeta para escucharla!</p>
+  </div>
+
+  <div class="filtros" id="filtros"></div>
+  <div class="tablero" id="tablero"></div>
+
+  <script>
+    const cats = [
+      { id: 'escuela',   label: '✏️ Escuela',     color: '#e74c3c' },
+      { id: 'higiene',   label: '🧼 Higiene',      color: '#1abc9c' },
+      { id: 'comida',    label: '🍎 Comida',       color: '#e67e22' },
+      { id: 'acciones',  label: '🏃 Acciones',     color: '#8e44ad' },
+      { id: 'emociones', label: '😊 Sentimientos', color: '#27ae60' },
+      { id: 'animales',  label: '🐶 Animales',     color: '#f39c12' },
+      { id: 'ropa',      label: '👕 Ropa',         color: '#2980b9' },
+      { id: 'casa',      label: '🏠 Mi casa',      color: '#c0392b' },
+      { id: 'todos',     label: '⭐ Ver todo',     color: '#555'    },
+    ];
+
+    const colCat = {
+      escuela: '#e74c3c', higiene: '#1abc9c', comida: '#e67e22',
+      acciones: '#8e44ad', emociones: '#27ae60', animales: '#f39c12',
+      ropa: '#2980b9', casa: '#c0392b'
+    };
+
+    const datos = [
+      // ESCUELA
+      { n: 'Mochila',    c: 'escuela',   e: '🎒' },
+      { n: 'Lápiz',      c: 'escuela',   e: '✏️' },
+      { n: 'Cuaderno',   c: 'escuela',   e: '📓' },
+      { n: 'Tijeras',    c: 'escuela',   e: '✂️' },
+      { n: 'Borrador',   c: 'escuela',   e: '🧹' },
+      { n: 'Regla',      c: 'escuela',   e: '📏' },
+      { n: 'Colores',    c: 'escuela',   e: '🖍️' },
+      { n: 'Libro',      c: 'escuela',   e: '📚' },
+      { n: 'Pizarra',    c: 'escuela',   e: '🖊️' },
+      { n: 'Pegamento',  c: 'escuela',   e: '🧴' },
+      { n: 'Pintura',    c: 'escuela',   e: '🎨' },
+      { n: 'Maestra',    c: 'escuela',   e: '👩‍🏫' },
+
+      // HIGIENE
+      { n: 'Jabón',           c: 'higiene', e: '🧼' },
+      { n: 'Cepillo dientes', c: 'higiene', e: '🪥' },
+      { n: 'Toalla',          c: 'higiene', e: '🧻' },
+      { n: 'Peine',           c: 'higiene', e: '💆' },
+      { n: 'Ducha',           c: 'higiene', e: '🚿' },
+      { n: 'Papel',           c: 'higiene', e: '🧾' },
+      { n: 'Escoba',          c: 'higiene', e: '🧹' },
+      { n: 'Basura',          c: 'higiene', e: '🗑️' },
+      { n: 'Pañuelo',         c: 'higiene', e: '🤧' },
+      { n: 'Pasta dental',    c: 'higiene', e: '🦷' },
+      { n: 'Manos limpias',   c: 'higiene', e: '🙌' },
+      { n: 'Baño',            c: 'higiene', e: '🚽' },
+
+      // COMIDA
+      { n: 'Manzana',  c: 'comida', e: '🍎' },
+      { n: 'Pan',      c: 'comida', e: '🍞' },
+      { n: 'Leche',    c: 'comida', e: '🥛' },
+      { n: 'Plátano',  c: 'comida', e: '🍌' },
+      { n: 'Agua',     c: 'comida', e: '💧' },
+      { n: 'Huevo',    c: 'comida', e: '🥚' },
+      { n: 'Queso',    c: 'comida', e: '🧀' },
+      { n: 'Galleta',  c: 'comida', e: '🍪' },
+      { n: 'Sopa',     c: 'comida', e: '🍲' },
+      { n: 'Pollo',    c: 'comida', e: '🍗' },
+      { n: 'Fresa',    c: 'comida', e: '🍓' },
+      { n: 'Naranja',  c: 'comida', e: '🍊' },
+      { n: 'Arroz',    c: 'comida', e: '🍚' },
+      { n: 'Yogur',    c: 'comida', e: '🫙' },
+
+      // ACCIONES
+      { n: 'Comer',    c: 'acciones', e: '😋' },
+      { n: 'Beber',    c: 'acciones', e: '🥤' },
+      { n: 'Dormir',   c: 'acciones', e: '😴' },
+      { n: 'Correr',   c: 'acciones', e: '🏃' },
+      { n: 'Bailar',   c: 'acciones', e: '💃' },
+      { n: 'Lavar',    c: 'acciones', e: '🧽' },
+      { n: 'Jugar',    c: 'acciones', e: '⚽' },
+      { n: 'Saltar',   c: 'acciones', e: '🦘' },
+      { n: 'Pintar',   c: 'acciones', e: '🖌️' },
+      { n: 'Escuchar', c: 'acciones', e: '👂' },
+      { n: 'Leer',     c: 'acciones', e: '📖' },
+      { n: 'Caminar',  c: 'acciones', e: '🚶' },
+
+      // EMOCIONES
+      { n: 'Feliz',       c: 'emociones', e: '😄' },
+      { n: 'Triste',      c: 'emociones', e: '😢' },
+      { n: 'Enojado',     c: 'emociones', e: '😠' },
+      { n: 'Asustado',    c: 'emociones', e: '😨' },
+      { n: 'Sorprendido', c: 'emociones', e: '😲' },
+      { n: 'Cansado',     c: 'emociones', e: '😪' },
+      { n: 'Enfermo',     c: 'emociones', e: '🤒' },
+      { n: 'Calmado',     c: 'emociones', e: '😌' },
+      { n: 'Aburrido',    c: 'emociones', e: '😑' },
+      { n: 'Orgulloso',   c: 'emociones', e: '😎' },
+      { n: 'Hambre',      c: 'emociones', e: '🤤' },
+      { n: 'Amor',        c: 'emociones', e: '🥰' },
+
+      // ANIMALES
+      { n: 'Perro',     c: 'animales', e: '🐶' },
+      { n: 'Gato',      c: 'animales', e: '🐱' },
+      { n: 'Vaca',      c: 'animales', e: '🐮' },
+      { n: 'León',      c: 'animales', e: '🦁' },
+      { n: 'Pato',      c: 'animales', e: '🦆' },
+      { n: 'Pez',       c: 'animales', e: '🐟' },
+      { n: 'Mono',      c: 'animales', e: '🐵' },
+      { n: 'Conejo',    c: 'animales', e: '🐰' },
+      { n: 'Elefante',  c: 'animales', e: '🐘' },
+      { n: 'Oveja',     c: 'animales', e: '🐑' },
+      { n: 'Mariposa',  c: 'animales', e: '🦋' },
+      { n: 'Tortuga',   c: 'animales', e: '🐢' },
+      { n: 'Pájaro',    c: 'animales', e: '🐦' },
+      { n: 'Cerdo',     c: 'animales', e: '🐷' },
+
+      // ROPA
+      { n: 'Camiseta',   c: 'ropa', e: '👕' },
+      { n: 'Pantalón',   c: 'ropa', e: '👖' },
+      { n: 'Zapatos',    c: 'ropa', e: '👟' },
+      { n: 'Calcetines', c: 'ropa', e: '🧦' },
+      { n: 'Abrigo',     c: 'ropa', e: '🧥' },
+      { n: 'Gorro',      c: 'ropa', e: '🧢' },
+      { n: 'Guantes',    c: 'ropa', e: '🧤' },
+      { n: 'Pijama',     c: 'ropa', e: '😴' },
+      { n: 'Falda',      c: 'ropa', e: '👗' },
+      { n: 'Bufanda',    c: 'ropa', e: '🧣' },
+
+      // CASA
+      { n: 'Cama',       c: 'casa', e: '🛏️' },
+      { n: 'Mesa',       c: 'casa', e: '🪑' },
+      { n: 'Silla',      c: 'casa', e: '🪑' },
+      { n: 'Cocina',     c: 'casa', e: '🍳' },
+      { n: 'Baño',       c: 'casa', e: '🚿' },
+      { n: 'Puerta',     c: 'casa', e: '🚪' },
+      { n: 'Ventana',    c: 'casa', e: '🪟' },
+      { n: 'Televisión', c: 'casa', e: '📺' },
+      { n: 'Teléfono',   c: 'casa', e: '📱' },
+      { n: 'Luz',        c: 'casa', e: '💡' },
+      { n: 'Nevera',     c: 'casa', e: '🧊' },
+      { n: 'Sofá',       c: 'casa', e: '🛋️' },
+    ];
+
+    let categoriaActiva = 'todos';
+
+    function renderFiltros() {
+      const f = document.getElementById('filtros');
+      f.innerHTML = '';
+      cats.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-cat' + (categoriaActiva === cat.id ? ' activo' : '');
+        btn.textContent = cat.label;
+        btn.style.background = cat.color;
+        btn.onclick = () => { categoriaActiva = cat.id; renderFiltros(); renderTablero(); };
+        f.appendChild(btn);
+      });
+    }
+
+    function renderTablero() {
+      const t = document.getElementById('tablero');
+      t.innerHTML = '';
+      const lista = categoriaActiva === 'todos' ? datos : datos.filter(d => d.c === categoriaActiva);
+      lista.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'tarjeta';
+        div.style.borderBottomColor = colCat[item.c];
+        div.innerHTML = `<div class="emoji-pic">${item.e}</div><span>${item.n.toUpperCase()}</span>`;
+        div.onclick = () => {
+          div.classList.add('hablando');
+          hablar(item.n, () => div.classList.remove('hablando'));
+        };
+        t.appendChild(div);
+      });
+    }
+
+    function hablar(texto, cb) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(texto);
+      u.lang = 'es-ES'; u.rate = 0.8; u.pitch = 1.3; u.volume = 1;
+      u.onend = cb;
+      window.speechSynthesis.speak(u);
+    }
+
+    renderFiltros();
+    renderTablero();
+  </script>
+</body>
+</html>
