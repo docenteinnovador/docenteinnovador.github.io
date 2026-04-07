@@ -1,250 +1,537 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Abecedario Fonético - Carrera de Voz</title>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent: #38bdf8;
-            --text: #f8fafc;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abecedario Fonético - Carrera de Voz</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface2: #263244;
+      --border: #334155;
+      --accent: #38bdf8;
+      --accent-dim: #0369a1;
+      --green: #22c55e;
+      --green-dim: #166534;
+      --amber: #f59e0b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --mono: 'Courier New', monospace;
+    }
 
-        .container {
-            max-width: 1100px;
-            width: 95%;
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+    }
 
-        h1 { text-align: center; margin-bottom: 10px; color: var(--accent); }
-        p.sub { text-align: center; color: #94a3b8; margin-bottom: 25px; }
+    .container {
+      max-width: 900px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
 
-        /* Grid del Abecedario */
-        .alphabet-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 12px;
-            margin-bottom: 30px;
-            max-height: 400px;
-            overflow-y: auto;
-            padding: 15px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 15px;
-            border: 1px solid #334155;
-        }
+    .header { text-align: center; }
+    .header h1 { font-size: 1.8rem; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+    .header p { color: var(--muted); font-size: 0.95rem; }
 
-        .letter-card {
-            background: #334155;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: 2px solid transparent;
-        }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+    }
+    .stat-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--accent); }
 
-        .letter-card:hover { transform: translateY(-5px); background: #475569; }
-        .letter-card.active {
-            background: #0369a1;
-            border-color: var(--accent);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-        }
+    .mic-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 12px 18px;
+    }
+    .mic-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .mic-dot.active { background: var(--green); box-shadow: 0 0 8px rgba(34,197,94,0.5); }
+    .vol-track {
+      flex: 1; height: 10px;
+      background: var(--border);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .vol-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      border-radius: 5px;
+      transition: width 0.05s linear;
+    }
+    .mic-label { font-size: 0.8rem; color: var(--muted); flex-shrink: 0; }
 
-        .letter-main { font-size: 1.5rem; font-weight: bold; display: block; color: var(--accent); }
-        .letter-emoji { font-size: 1.2rem; margin: 5px 0; display: block; }
-        .letter-sound { font-size: 0.8rem; color: #cbd5e1; font-family: monospace; }
+    .selected-card {
+      background: var(--surface);
+      border: 1px solid var(--accent-dim);
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .sel-big { font-size: 52px; line-height: 1; }
+    .sel-info h2 { font-size: 1.3rem; font-weight: 700; color: var(--text); }
+    .sel-info p { font-size: 0.85rem; color: var(--muted); margin-top: 3px; }
+    .sel-hint { margin-left: auto; text-align: right; }
+    .sel-hint span { font-size: 0.75rem; color: var(--muted); display: block; }
+    .sel-hint b { font-size: 1rem; font-weight: 700; font-family: var(--mono); color: var(--accent); }
 
-        /* Juego y Feedback */
-        canvas {
-            width: 100%;
-            height: 150px;
-            background: #020617;
-            border-radius: 16px;
-            border: 2px solid #1e293b;
-            margin-bottom: 20px;
-        }
+    /* Race — canvas ocupa todo el espacio, el avatar encima */
+    .race-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .race-track {
+      position: relative;
+      height: 150px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    #raceCanvas {
+      display: block;
+      width: 100%;
+      height: 150px;
+      border-radius: 10px;
+    }
+    /* El avatar es un div con emoji encima del canvas */
+    #avatar {
+      position: absolute;
+      font-size: 34px;
+      line-height: 1;
+      z-index: 3;
+      pointer-events: none;
+      /* scaleX(-1) voltea el emoji a la derecha */
+      transform: translate(-50%, -50%) scaleX(-1);
+      left: 30px;
+      top: 75px;
+    }
 
-        .audio-meter {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: #0f172a;
-            padding: 15px;
-            border-radius: 50px;
-            margin-bottom: 25px;
-        }
+    .progress-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .progress-bar {
+      flex: 1; height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.15s ease;
+    }
+    .progress-pct { font-size: 0.8rem; color: var(--muted); min-width: 36px; text-align: right; }
+    .victory-banner {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--amber);
+      opacity: 0;
+      transition: opacity 0.4s;
+      min-height: 20px;
+    }
+    .victory-banner.show { opacity: 1; }
 
-        #vol-bar {
-            flex-grow: 1;
-            height: 12px;
-            background: #334155;
-            border-radius: 10px;
-            overflow: hidden;
-        }
+    .grid-section h3 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .alpha-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+      gap: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .alpha-grid::-webkit-scrollbar { width: 4px; }
+    .alpha-grid::-webkit-scrollbar-track { background: var(--bg); border-radius: 2px; }
+    .alpha-grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-        #vol-level {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #38bdf8, #4ade80);
-            transition: width 0.05s linear;
-        }
+    .lcard {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+    }
+    .lcard:hover { background: var(--surface2); border-color: #475569; transform: translateY(-2px); }
+    .lcard.active { background: rgba(3,105,161,0.3); border-color: var(--accent); }
+    .lcard.done   { background: rgba(22,101,52,0.3);  border-color: var(--green); }
+    .lm { font-size: 1.2rem; font-weight: 700; display: block; color: var(--text); }
+    .lcard.active .lm { color: var(--accent); }
+    .lcard.done   .lm { color: var(--green); }
+    .le { font-size: 1rem; display: block; margin: 3px 0; }
+    .ls { font-size: 0.7rem; color: var(--muted); font-family: var(--mono); }
+    .check-badge {
+      position: absolute;
+      top: 3px; right: 4px;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-        .btn-start {
-            display: block;
-            margin: 0 auto;
-            padding: 18px 45px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .btn-start:hover { background: #dc2626; transform: scale(1.05); }
-    </style>
+    .btn-mic {
+      display: block;
+      margin: 0 auto;
+      padding: 14px 40px;
+      font-size: 1rem;
+      font-weight: 600;
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-mic:hover { background: #7dd3fc; transform: scale(1.03); }
+    .btn-mic:active { transform: scale(0.98); }
+  </style>
 </head>
 <body>
-
 <div class="container">
+
+  <div class="header">
     <h1>🔤 Abecedario Fonético</h1>
-    <p class="sub">Selecciona una letra y haz su sonido para que avance el avatar</p>
+    <p>Selecciona una letra y haz su sonido para que avance el avatar</p>
+  </div>
 
-    <div class="audio-meter">
-        <span>Micrófono:</span>
-        <div id="vol-bar"><div id="vol-level"></div></div>
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Letras completadas</div>
+      <div class="stat-value" id="sDone">0</div>
     </div>
+    <div class="stat-card">
+      <div class="stat-label">Puntos</div>
+      <div class="stat-value" id="sPts">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total de letras</div>
+      <div class="stat-value">27</div>
+    </div>
+  </div>
 
-    <div class="alphabet-grid" id="alphabetGrid"></div>
+  <div class="mic-row">
+    <div class="mic-dot" id="micDot"></div>
+    <div class="vol-track"><div class="vol-fill" id="volFill"></div></div>
+    <span class="mic-label" id="micLabel">Micrófono inactivo</span>
+  </div>
 
-    <canvas id="raceCanvas"></canvas>
+  <div class="selected-card">
+    <div class="sel-big" id="selEmoji">🚗</div>
+    <div class="sel-info">
+      <h2 id="selLetter">R</h2>
+      <p id="selDesc">Vibrante alveolar</p>
+    </div>
+    <div class="sel-hint">
+      <span>Sonido sugerido</span>
+      <b id="selSound">RRRRR</b>
+    </div>
+  </div>
 
-    <button class="btn-start" id="startBtn" onclick="initMic()">🎤 INICIAR MICRÓFONO</button>
+  <div class="race-wrap">
+    <div class="race-track" id="raceTrack">
+      <canvas id="raceCanvas"></canvas>
+      <div id="avatar">🚗</div>
+    </div>
+    <div class="progress-bar-row">
+      <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+      <div class="progress-pct" id="progPct">0%</div>
+    </div>
+    <div class="victory-banner" id="victoryBanner">¡Fonema logrado! 🏆 Selecciona otra letra para continuar.</div>
+  </div>
+
+  <div class="grid-section">
+    <h3>Elige una letra</h3>
+    <div class="alpha-grid" id="alphaGrid"></div>
+  </div>
+
+  <button class="btn-mic" id="micBtn" onclick="initMic()">🎤 Activar micrófono</button>
+
 </div>
 
 <script>
-    const alphabet = [
-        {l: "A", e: "📢", s: "AAAAA"}, {l: "B", e: "🐑", s: "BBBBB"},
-        {l: "C", e: "🐎", s: "CLOC!"}, {l: "D", e: "🔔", s: "DINNN"},
-        {l: "E", e: "🐘", s: "EEEEE"}, {l: "F", e: "🌬️", s: "FFFFF"},
-        {l: "G", e: "🐱", s: "GRRRR"}, {l: "H", e: "🤫", s: "H..."},
-        {l: "I", e: "🐀", s: "IIIII"}, {l: "J", e: "🎅", s: "JOJO!"},
-        {l: "K", e: "🥋", s: "KAAA!"}, {l: "L", e: "🎶", s: "LLLLL"},
-        {l: "M", e: "😋", s: "MMMMM"}, {l: "N", e: "✈️", s: "NNNNN"},
-        {l: "Ñ", e: "🪵", s: "ÑAM!"},  {l: "O", e: "😮", s: "OOOOO"},
-        {l: "P", e: "🎈", s: "POPP!"}, {l: "Q", e: "🧀", s: "QUEEE"},
-        {l: "R", e: "🚗", s: "RRRRR"}, {l: "S", e: "🐍", s: "SSSSS"},
-        {l: "T", e: "⏰", s: "TIC-TAC"}, {l: "U", e: "🦉", s: "UUUUU"},
-        {l: "V", e: "🐝", s: "VVVVV"}, {l: "W", e: "🌊", s: "WWWWW"},
-        {l: "X", e: "🎻", s: "X-X-X"}, {l: "Y", e: "🪀", s: "YYYYY"},
-        {l: "Z", e: "⚡", s: "ZZZZZ"}
-    ];
+  const alphabet = [
+    {l:"A", e:"📢", s:"AAAAA", d:"Vocal abierta"},
+    {l:"B", e:"🐑", s:"BBBBB", d:"Labios juntos, suave"},
+    {l:"C", e:"🐎", s:"CLOC!", d:"Chasquido de lengua"},
+    {l:"D", e:"🔔", s:"DINNN", d:"Dental sonora"},
+    {l:"E", e:"🐘", s:"EEEEE", d:"Vocal media"},
+    {l:"F", e:"🌬️", s:"FFFFF", d:"Soplo labiodental"},
+    {l:"G", e:"🐱", s:"GRRRR", d:"Velar sonora"},
+    {l:"H", e:"🤫", s:"H...",  d:"Muda en español"},
+    {l:"I", e:"🐀", s:"IIIII", d:"Vocal cerrada"},
+    {l:"J", e:"🎅", s:"JOJO!", d:"Fricativa velar"},
+    {l:"K", e:"🥋", s:"KAAA!", d:"Oclusiva velar"},
+    {l:"L", e:"🎶", s:"LLLLL", d:"Lateral alveolar"},
+    {l:"M", e:"😋", s:"MMMMM", d:"Nasal bilabial"},
+    {l:"N", e:"✈️", s:"NNNNN", d:"Nasal alveolar"},
+    {l:"Ñ", e:"🪵", s:"ÑAM!",  d:"Nasal palatal"},
+    {l:"O", e:"😮", s:"OOOOO", d:"Vocal posterior"},
+    {l:"P", e:"🎈", s:"POPP!", d:"Oclusiva bilabial"},
+    {l:"Q", e:"🧀", s:"QUEEE", d:"Con U muda"},
+    {l:"R", e:"🚗", s:"RRRRR", d:"Vibrante alveolar"},
+    {l:"S", e:"🐍", s:"SSSSS", d:"Fricativa alveolar"},
+    {l:"T", e:"⏰", s:"TIC-T", d:"Dental sorda"},
+    {l:"U", e:"🦉", s:"UUUUU", d:"Vocal cerrada posterior"},
+    {l:"V", e:"🐝", s:"VVVVV", d:"Como la B en español"},
+    {l:"W", e:"🌊", s:"WWWWW", d:"Semivocal"},
+    {l:"X", e:"🎻", s:"X-X-X", d:"Fricativa doble"},
+    {l:"Y", e:"🪀", s:"YYYYY", d:"Palatal sonora"},
+    {l:"Z", e:"⚡", s:"ZZZZZ", d:"Como S en Latinoamérica"}
+  ];
 
-    let currentSelection = alphabet[17]; // Empezamos con la R por defecto
-    let posX = 40;
-    let micActive = false;
-    let analyser, dataArray;
+  let current  = alphabet[18]; // R por defecto
+  let posX     = 30;
+  let analyser, dataArray;
+  let done     = new Set();
+  let points   = 0;
 
-    const grid = document.getElementById('alphabetGrid');
-    const canvas = document.getElementById('raceCanvas');
-    const ctx = canvas.getContext('2d');
+  const avatarEl = document.getElementById('avatar');
+  const progFill = document.getElementById('progFill');
+  const progPct  = document.getElementById('progPct');
+  const volFill  = document.getElementById('volFill');
+  const victory  = document.getElementById('victoryBanner');
+  const sDone    = document.getElementById('sDone');
+  const sPts     = document.getElementById('sPts');
+  const canvas   = document.getElementById('raceCanvas');
+  const ctx      = canvas.getContext('2d');
 
-    // Generar las 27 letras
-    alphabet.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = `letter-card ${item.l === "R" ? 'active' : ''}`;
-        div.innerHTML = `
-            <span class="letter-main">${item.l}</span>
-            <span class="letter-emoji">${item.e}</span>
-            <span class="letter-sound">${item.s}</span>
-        `;
-        div.onclick = () => {
-            document.querySelectorAll('.letter-card').forEach(c => c.classList.remove('active'));
-            div.classList.add('active');
-            currentSelection = item;
-            posX = 40;
-            draw();
-        };
-        grid.appendChild(div);
+  /* ── Onda: parámetros ─────────────────────────────── */
+  const WAVE_AMP   = 38;   // amplitud en px
+  const WAVE_FREQ  = 2.2;  // ciclos visibles en la pista
+  const ROAD_W     = 28;   // semiancho del asfalto
+  const STRIPE_W   = 3;    // ancho línea central
+
+  /** Devuelve la Y central de la onda en la posición x normalizada [0..1] */
+  function waveY(xNorm, h) {
+    return h / 2 + Math.sin(xNorm * Math.PI * 2 * WAVE_FREQ) * WAVE_AMP;
+  }
+
+  function drawTrack() {
+    const W = canvas.offsetWidth || 800;
+    const H = 150;
+    canvas.width  = W;
+    canvas.height = H;
+
+    ctx.clearRect(0, 0, W, H);
+
+    /* Fondo oscuro */
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(0, 0, W, H);
+
+    const goalX = W - 70;
+
+    /* ── Asfalto (banda de la pista) ── */
+    ctx.beginPath();
+    // borde superior de la carretera
+    for (let x = 0; x <= W; x++) {
+      const y = waveY(x / W, H) - ROAD_W;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    // borde inferior (de derecha a izquierda)
+    for (let x = W; x >= 0; x--) {
+      ctx.lineTo(x, waveY(x / W, H) + ROAD_W);
+    }
+    ctx.closePath();
+    ctx.fillStyle = '#1c2a3a';
+    ctx.fill();
+
+    /* ── Bordes de la carretera ── */
+    ['top', 'bottom'].forEach(side => {
+      ctx.beginPath();
+      for (let x = 0; x <= W; x++) {
+        const offset = side === 'top' ? -ROAD_W : ROAD_W;
+        const y = waveY(x / W, H) + offset;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 2;
+      ctx.stroke();
     });
 
-    function draw() {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    /* ── Línea central discontinua ── */
+    ctx.save();
+    ctx.setLineDash([18, 14]);
+    ctx.beginPath();
+    for (let x = 0; x <= W; x++) {
+      const y = waveY(x / W, H);
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = '#38bdf840';
+    ctx.lineWidth   = STRIPE_W;
+    ctx.stroke();
+    ctx.restore();
 
-        // Meta
-        ctx.fillStyle = "#10b981";
-        ctx.fillRect(canvas.width - 50, 0, 10, canvas.height);
-
-        // Personaje
-        ctx.font = "60px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText(currentSelection.e, posX, 95);
-
-        if (posX > canvas.width - 80) {
-            ctx.fillStyle = "#fbbf24";
-            ctx.font = "bold 24px Segoe UI";
-            ctx.fillText("¡FONEMA LOGRADO! 🏆", canvas.width/2, 40);
-        }
+    /* ── Línea de meta ── */
+    const goalW = 4;
+    for (let seg = 0; seg < 7; seg++) {
+      const yBase = waveY(goalX / W, H) - ROAD_W + seg * (ROAD_W * 2 / 7);
+      ctx.fillStyle = seg % 2 === 0 ? '#ffffff' : '#000000';
+      ctx.fillRect(goalX - goalW / 2, yBase, goalW, ROAD_W * 2 / 7 + 1);
     }
 
-    async function initMic() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const source = audioCtx.createMediaStreamSource(stream);
-            analyser = audioCtx.createAnalyser();
-            analyser.fftSize = 256;
-            source.connect(analyser);
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
-            
-            micActive = true;
-            document.getElementById('startBtn').style.display = 'none';
-            loop();
-        } catch (err) {
-            alert("Acceso al micrófono denegado. Es necesario para jugar.");
-        }
+    /* ── Emoji bandera encima de la meta ── */
+    ctx.font = '22px serif';
+    ctx.textAlign = 'center';
+    const flagY = waveY(goalX / W, H) - ROAD_W - 10;
+    ctx.fillText('🏁', goalX, flagY);
+  }
+
+  function getGoal() {
+    return (canvas.offsetWidth || 800) - 70;
+  }
+
+  function updateAvatarPos() {
+    const W    = canvas.offsetWidth || 800;
+    const H    = 150;
+    const goal = getGoal();
+    const clampedX = Math.min(posX, goal);
+    const yCenter  = waveY(clampedX / W, H);
+    avatarEl.style.left = clampedX + 'px';
+    avatarEl.style.top  = yCenter + 'px';
+
+    const pct = Math.min(100, Math.round(((clampedX - 30) / (goal - 30)) * 100));
+    progFill.style.width = pct + '%';
+    progPct.textContent  = pct + '%';
+  }
+
+  function buildGrid() {
+    const grid = document.getElementById('alphaGrid');
+    grid.innerHTML = '';
+    alphabet.forEach(item => {
+      const div = document.createElement('div');
+      const isActive = item.l === current.l;
+      const isDone   = done.has(item.l);
+      div.className = 'lcard' + (isActive ? ' active' : '') + (isDone ? ' done' : '');
+      div.innerHTML = (isDone ? '<div class="check-badge">✓</div>' : '')
+        + `<span class="lm">${item.l}</span><span class="le">${item.e}</span><span class="ls">${item.s}</span>`;
+      div.onclick = () => select(item);
+      grid.appendChild(div);
+    });
+  }
+
+  function select(item) {
+    current = item;
+    posX = 30;
+    victory.classList.remove('show');
+    document.getElementById('selEmoji').textContent  = item.e;
+    document.getElementById('selLetter').textContent = item.l;
+    document.getElementById('selDesc').textContent   = item.d;
+    document.getElementById('selSound').textContent  = item.s;
+    avatarEl.textContent = item.e;
+    buildGrid();
+    drawTrack();
+    updateAvatarPos();
+  }
+
+  async function initMic() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const actx   = new (window.AudioContext || window.webkitAudioContext)();
+      const src    = actx.createMediaStreamSource(stream);
+      analyser     = actx.createAnalyser();
+      analyser.fftSize = 256;
+      src.connect(analyser);
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      document.getElementById('micDot').classList.add('active');
+      document.getElementById('micLabel').textContent = 'Micrófono activo';
+      document.getElementById('micBtn').style.display = 'none';
+      loop();
+    } catch (err) {
+      alert('Acceso al micrófono denegado. Es necesario para jugar.');
+    }
+  }
+
+  function loop() {
+    analyser.getByteFrequencyData(dataArray);
+    let sum = 0;
+    for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+    const vol  = sum / dataArray.length;
+    const goal = getGoal();
+
+    volFill.style.width = Math.min(vol * 2.5, 100) + '%';
+
+    if (vol > 20 && posX < goal) {
+      posX += vol / 8;
+      if (posX >= goal && !done.has(current.l)) {
+        posX = goal;
+        done.add(current.l);
+        points += 10;
+        sDone.textContent = done.size;
+        sPts.textContent  = points;
+        victory.classList.add('show');
+        buildGrid();
+      }
+      updateAvatarPos();
     }
 
-    function loop() {
-        analyser.getByteFrequencyData(dataArray);
-        let sum = 0;
-        for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
-        let volume = sum / dataArray.length;
+    drawTrack();
+    requestAnimationFrame(loop);
+  }
 
-        // Visualización de volumen
-        document.getElementById('vol-level').style.width = Math.min(volume * 2.5, 100) + "%";
+  /* Redibujar pista al cambiar tamaño */
+  window.addEventListener('resize', () => {
+    drawTrack();
+    updateAvatarPos();
+  });
 
-        // Movimiento (umbral de sonido)
-        if (volume > 22 && posX < canvas.width - 70) {
-            posX += (volume / 10);
-        }
-
-        draw();
-        requestAnimationFrame(loop);
-    }
-
-    window.onresize = draw;
-    draw();
+  /* Init */
+  buildGrid();
+  drawTrack();
+  updateAvatarPos();
 </script>
-
 </body>
 </html>
